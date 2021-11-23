@@ -105,13 +105,43 @@ describe("propTypes UI",()=>{
                 }} 
                 onChange={onChange}/>
         const testRenderer=TestRenderer.create(el)
-        const nameInstance=testRenderer.root.findByType(PropTypesUI.string)
+        const nameInstance=testRenderer.root.findByType(PropTypesUI.number)
         expect(nameInstance.props).toMatchObject({path:"name"})
         nameInstance.findByType("input").props.onChange({target:{value:"A"}})
         expect(onChange).toHaveBeenCalledWith({name:"A"},{name:"A",accounts:[1,2]})
     })
 
-    it("should render oneOfType",()=>{
+    describe("oneOfType",()=>{
+        it("uiContext[Ribbon] default use first type",()=>{
+
+        })
+
+        it("uiContext[Dialog] default use last type",()=>{
+
+        })
+
+        it("uiContext[Ribbon][spread=true] make it as buttons",()=>{
+
+        })
+    })
+
+    describe("oneOf",()=>{
+        it("defaultValue can be picked up",()=>{
+
+        })
+
+        it("uiContext[Ribbon][DropDown, labels, icons, and icon]",()=>{
+
+        })
+    })
+
+    describe("shape",()=>{
+        it("can be wrapped",()=>{
+
+        })
+    })
+
+    describe("arrayOf",()=>{
 
     })
 
@@ -170,4 +200,54 @@ describe("propTypes UI",()=>{
         expect(testRenderer.toJSON()).toMatchSnapshot()
     })
 
+    describe("theme",()=>{
+        it("should support direct theme on shape",()=>{
+
+        })
+
+        it("should support shape theme, theme.UnitShape",()=>{
+
+        })
+
+        it("uiContext theme",()=>{
+
+        })
+
+        it("no theme",()=>{
+
+        })
+
+        it("theme.style always be picked up",()=>{
+
+        })
+
+
+    })
+
+    describe("every dom can create PropTypesUI",()=>{
+        function test(content){
+            const testRenderer=TestRenderer.create(
+                <MuiThemeProvider>
+                    {content}
+                </MuiThemeProvider>
+            )
+            testRenderer.toJSON()
+        }
+
+        describe.each([
+            ["Ribbon"],
+            ["Dialog"],
+            ["Tree"],
+            ["Tab"],
+        ])("%s", (uiContext)=>{
+            it.each(
+                Object.values(dom)
+                .map(a=>([a.getType(),a]))
+                //.filter(a=>a[0]=="paragraph")
+            )("PropTypesUI for %s", (type, A)=>{
+                const Type=type.replace(/(^\w)/,(a,b)=>a.toUpperCase())
+                expect(()=>test(<PropTypesUI propTypes={A.propTypes||{}} uiContext={uiContext} theme={Type}/>)).not.toThrow()
+            })
+        })
+    })
 })

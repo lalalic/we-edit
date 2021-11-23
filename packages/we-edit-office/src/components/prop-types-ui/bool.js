@@ -5,7 +5,7 @@ import base from "./base"
 
 export default class bool extends base{
     renderRibbon(){
-        const {name, value, label=name, ...props}=this.props
+        const {name, value, label=name, path, uiContext, ...props}=this.props
         return <CheckIconButton {...props}
             label={label} 
             status={value ? "checked" : "unchecked"} 

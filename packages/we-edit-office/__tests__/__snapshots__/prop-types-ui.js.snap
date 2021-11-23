@@ -34,41 +34,69 @@ Array [
   <span
     style={
       Object {
-        "display": "inline-block",
-        "position": "relative",
+        "marginLeft": 2,
+        "marginRight": 2,
+        "zoom": 0.8,
       }
     }
   >
-    <input
-      onBlur={[Function]}
-      onChange={[Function]}
-      onKeyDown={[Function]}
-      placeholder="size"
-      title="size"
-      type="text"
-      value=""
-    />
-    <svg
+    <span
       style={
         Object {
-          "position": "absolute",
-          "right": 2,
-          "width": 8,
+          "fontSize": 10,
+          "paddingLeft": 4,
         }
       }
-      viewBox="0 0 8 24"
     >
-      <path
-        d="M1 8L4 4L7 8Z"
-        onClick={[Function]}
-        stroke="black"
+      size
+    </span>
+    <br />
+    <span
+      style={
+        Object {
+          "display": "inline-block",
+          "position": "relative",
+        }
+      }
+    >
+      <input
+        onBlur={[Function]}
+        onChange={[Function]}
+        onKeyDown={[Function]}
+        placeholder="size"
+        style={
+          Object {
+            "marginLeft": 2,
+            "marginRight": 2,
+            "width": 50,
+          }
+        }
+        title="size"
+        type="text"
+        value=""
       />
-      <path
-        d="M1 12L4 16L7 12Z"
-        onClick={[Function]}
-        stroke="black"
-      />
-    </svg>
+      <svg
+        style={
+          Object {
+            "position": "absolute",
+            "right": 2,
+            "width": 8,
+          }
+        }
+        viewBox="0 0 8 24"
+      >
+        <path
+          d="M1 8L4 4L7 8Z"
+          onClick={[Function]}
+          stroke="black"
+        />
+        <path
+          d="M1 12L4 16L7 12Z"
+          onClick={[Function]}
+          stroke="black"
+        />
+      </svg>
+    </span>
   </span>,
   <button
     disabled={false}
@@ -81,7 +109,6 @@ Array [
     onMouseLeave={[Function]}
     onMouseOut={[Function]}
     onTouchStart={[Function]}
-    path="italic"
     style={
       Object {
         "WebkitTapHighlightColor": "rgba(0, 0, 0, 0)",
@@ -107,6 +134,7 @@ Array [
       }
     }
     tabIndex={0}
+    theme={Object {}}
     type="button"
   >
     <div
@@ -124,6 +152,274 @@ Array [
 
 exports[`propTypes UI should render dom.Paragraph 1`] = `
 Array [
+  <span
+    style={
+      Object {
+        "marginLeft": 2,
+        "marginRight": 2,
+        "zoom": 0.8,
+      }
+    }
+  >
+    <span
+      style={
+        Object {
+          "fontSize": 10,
+          "paddingLeft": 4,
+        }
+      }
+    >
+      spacing top
+    </span>
+    <br />
+    <span
+      style={
+        Object {
+          "display": "inline-block",
+          "position": "relative",
+        }
+      }
+    >
+      <input
+        onBlur={[Function]}
+        onChange={[Function]}
+        onKeyDown={[Function]}
+        placeholder="top"
+        style={
+          Object {
+            "marginLeft": 2,
+            "marginRight": 2,
+            "width": 50,
+          }
+        }
+        title="spacing top"
+        type="text"
+        value=""
+      />
+      <svg
+        style={
+          Object {
+            "position": "absolute",
+            "right": 2,
+            "width": 8,
+          }
+        }
+        viewBox="0 0 8 24"
+      >
+        <path
+          d="M1 8L4 4L7 8Z"
+          onClick={[Function]}
+          stroke="black"
+        />
+        <path
+          d="M1 12L4 16L7 12Z"
+          onClick={[Function]}
+          stroke="black"
+        />
+      </svg>
+    </span>
+  </span>,
+  <span
+    style={
+      Object {
+        "marginLeft": 2,
+        "marginRight": 2,
+        "zoom": 0.8,
+      }
+    }
+  >
+    <span
+      style={
+        Object {
+          "fontSize": 10,
+          "paddingLeft": 4,
+        }
+      }
+    >
+      bottom
+    </span>
+    <br />
+    <span
+      style={
+        Object {
+          "display": "inline-block",
+          "position": "relative",
+        }
+      }
+    >
+      <input
+        onBlur={[Function]}
+        onChange={[Function]}
+        onKeyDown={[Function]}
+        placeholder="bottom"
+        style={
+          Object {
+            "marginLeft": 2,
+            "marginRight": 2,
+            "width": 50,
+          }
+        }
+        title="bottom"
+        type="text"
+        value=""
+      />
+      <svg
+        style={
+          Object {
+            "position": "absolute",
+            "right": 2,
+            "width": 8,
+          }
+        }
+        viewBox="0 0 8 24"
+      >
+        <path
+          d="M1 8L4 4L7 8Z"
+          onClick={[Function]}
+          stroke="black"
+        />
+        <path
+          d="M1 12L4 16L7 12Z"
+          onClick={[Function]}
+          stroke="black"
+        />
+      </svg>
+    </span>
+  </span>,
+  <span
+    style={
+      Object {
+        "marginLeft": 2,
+        "marginRight": 2,
+        "zoom": 0.8,
+      }
+    }
+  >
+    <span
+      style={
+        Object {
+          "fontSize": 10,
+          "paddingLeft": 4,
+        }
+      }
+    >
+      intent left
+    </span>
+    <br />
+    <span
+      style={
+        Object {
+          "display": "inline-block",
+          "position": "relative",
+        }
+      }
+    >
+      <input
+        onBlur={[Function]}
+        onChange={[Function]}
+        onKeyDown={[Function]}
+        placeholder="left"
+        style={
+          Object {
+            "marginLeft": 2,
+            "marginRight": 2,
+            "width": 50,
+          }
+        }
+        title="intent left"
+        type="text"
+        value=""
+      />
+      <svg
+        style={
+          Object {
+            "position": "absolute",
+            "right": 2,
+            "width": 8,
+          }
+        }
+        viewBox="0 0 8 24"
+      >
+        <path
+          d="M1 8L4 4L7 8Z"
+          onClick={[Function]}
+          stroke="black"
+        />
+        <path
+          d="M1 12L4 16L7 12Z"
+          onClick={[Function]}
+          stroke="black"
+        />
+      </svg>
+    </span>
+  </span>,
+  <span
+    style={
+      Object {
+        "marginLeft": 2,
+        "marginRight": 2,
+        "zoom": 0.8,
+      }
+    }
+  >
+    <span
+      style={
+        Object {
+          "fontSize": 10,
+          "paddingLeft": 4,
+        }
+      }
+    >
+      right
+    </span>
+    <br />
+    <span
+      style={
+        Object {
+          "display": "inline-block",
+          "position": "relative",
+        }
+      }
+    >
+      <input
+        onBlur={[Function]}
+        onChange={[Function]}
+        onKeyDown={[Function]}
+        placeholder="right"
+        style={
+          Object {
+            "marginLeft": 2,
+            "marginRight": 2,
+            "width": 50,
+          }
+        }
+        title="right"
+        type="text"
+        value=""
+      />
+      <svg
+        style={
+          Object {
+            "position": "absolute",
+            "right": 2,
+            "width": 8,
+          }
+        }
+        viewBox="0 0 8 24"
+      >
+        <path
+          d="M1 8L4 4L7 8Z"
+          onClick={[Function]}
+          stroke="black"
+        />
+        <path
+          d="M1 12L4 16L7 12Z"
+          onClick={[Function]}
+          stroke="black"
+        />
+      </svg>
+    </span>
+  </span>,
   <button
     disabled={false}
     onBlur={[Function]}
@@ -673,6 +969,278 @@ Array [
       d="M7 10l5 5 5-5z"
     />
   </svg>,
+  <button
+    disabled={false}
+    onBlur={[Function]}
+    onClick={[Function]}
+    onFocus={[Function]}
+    onKeyDown={[Function]}
+    onKeyUp={[Function]}
+    onMouseEnter={[Function]}
+    onMouseLeave={[Function]}
+    onMouseOut={[Function]}
+    onTouchStart={[Function]}
+    style={
+      Object {
+        "WebkitTapHighlightColor": "rgba(0, 0, 0, 0)",
+        "background": "none",
+        "border": 10,
+        "boxSizing": "border-box",
+        "cursor": "pointer",
+        "display": "inline-block",
+        "fontFamily": "Roboto, sans-serif",
+        "fontSize": 0,
+        "fontWeight": "inherit",
+        "height": 48,
+        "margin": 0,
+        "muiPrepared": true,
+        "outline": "none",
+        "overflow": "visible",
+        "padding": 12,
+        "position": "relative",
+        "textDecoration": "none",
+        "transition": "all 450ms cubic-bezier(0.23, 1, 0.32, 1) 0ms",
+        "verticalAlign": null,
+        "width": 48,
+      }
+    }
+    tabIndex={0}
+    theme={Object {}}
+    type="button"
+  >
+    <div
+      onMouseDown={[Function]}
+      onMouseLeave={[Function]}
+      onMouseUp={[Function]}
+      onTouchEnd={[Function]}
+      onTouchStart={[Function]}
+    >
+      <span />
+    </div>
+  </button>,
+  <button
+    disabled={false}
+    onBlur={[Function]}
+    onClick={[Function]}
+    onFocus={[Function]}
+    onKeyDown={[Function]}
+    onKeyUp={[Function]}
+    onMouseEnter={[Function]}
+    onMouseLeave={[Function]}
+    onMouseOut={[Function]}
+    onTouchStart={[Function]}
+    style={
+      Object {
+        "WebkitTapHighlightColor": "rgba(0, 0, 0, 0)",
+        "background": "none",
+        "border": 10,
+        "boxSizing": "border-box",
+        "cursor": "pointer",
+        "display": "inline-block",
+        "fontFamily": "Roboto, sans-serif",
+        "fontSize": 0,
+        "fontWeight": "inherit",
+        "height": 48,
+        "margin": 0,
+        "muiPrepared": true,
+        "outline": "none",
+        "overflow": "visible",
+        "padding": 12,
+        "position": "relative",
+        "textDecoration": "none",
+        "transition": "all 450ms cubic-bezier(0.23, 1, 0.32, 1) 0ms",
+        "verticalAlign": null,
+        "width": 48,
+      }
+    }
+    tabIndex={0}
+    theme={Object {}}
+    type="button"
+  >
+    <div
+      onMouseDown={[Function]}
+      onMouseLeave={[Function]}
+      onMouseUp={[Function]}
+      onTouchEnd={[Function]}
+      onTouchStart={[Function]}
+    >
+      <span />
+    </div>
+  </button>,
+  <button
+    disabled={false}
+    onBlur={[Function]}
+    onClick={[Function]}
+    onFocus={[Function]}
+    onKeyDown={[Function]}
+    onKeyUp={[Function]}
+    onMouseEnter={[Function]}
+    onMouseLeave={[Function]}
+    onMouseOut={[Function]}
+    onTouchStart={[Function]}
+    style={
+      Object {
+        "WebkitTapHighlightColor": "rgba(0, 0, 0, 0)",
+        "background": "none",
+        "border": 10,
+        "boxSizing": "border-box",
+        "cursor": "pointer",
+        "display": "inline-block",
+        "fontFamily": "Roboto, sans-serif",
+        "fontSize": 0,
+        "fontWeight": "inherit",
+        "height": 48,
+        "margin": 0,
+        "muiPrepared": true,
+        "outline": "none",
+        "overflow": "visible",
+        "padding": 12,
+        "position": "relative",
+        "textDecoration": "none",
+        "transition": "all 450ms cubic-bezier(0.23, 1, 0.32, 1) 0ms",
+        "verticalAlign": null,
+        "width": 48,
+      }
+    }
+    tabIndex={0}
+    theme={Object {}}
+    type="button"
+  >
+    <div
+      onMouseDown={[Function]}
+      onMouseLeave={[Function]}
+      onMouseUp={[Function]}
+      onTouchEnd={[Function]}
+      onTouchStart={[Function]}
+    >
+      <span />
+    </div>
+  </button>,
+  <button
+    disabled={false}
+    onBlur={[Function]}
+    onClick={[Function]}
+    onFocus={[Function]}
+    onKeyDown={[Function]}
+    onKeyUp={[Function]}
+    onMouseEnter={[Function]}
+    onMouseLeave={[Function]}
+    onMouseOut={[Function]}
+    onTouchStart={[Function]}
+    style={
+      Object {
+        "WebkitTapHighlightColor": "rgba(0, 0, 0, 0)",
+        "background": "none",
+        "border": 10,
+        "boxSizing": "border-box",
+        "cursor": "pointer",
+        "display": "inline-block",
+        "fontFamily": "Roboto, sans-serif",
+        "fontSize": 0,
+        "fontWeight": "inherit",
+        "height": 48,
+        "margin": 0,
+        "muiPrepared": true,
+        "outline": "none",
+        "overflow": "visible",
+        "padding": 12,
+        "position": "relative",
+        "textDecoration": "none",
+        "transition": "all 450ms cubic-bezier(0.23, 1, 0.32, 1) 0ms",
+        "verticalAlign": null,
+        "width": 48,
+      }
+    }
+    tabIndex={0}
+    theme={Object {}}
+    type="button"
+  >
+    <div
+      onMouseDown={[Function]}
+      onMouseLeave={[Function]}
+      onMouseUp={[Function]}
+      onTouchEnd={[Function]}
+      onTouchStart={[Function]}
+    >
+      <span />
+    </div>
+  </button>,
+  <button
+    disabled={false}
+    onBlur={[Function]}
+    onClick={[Function]}
+    onFocus={[Function]}
+    onKeyDown={[Function]}
+    onKeyUp={[Function]}
+    onMouseEnter={[Function]}
+    onMouseLeave={[Function]}
+    onMouseOut={[Function]}
+    onTouchStart={[Function]}
+    style={
+      Object {
+        "WebkitTapHighlightColor": "rgba(0, 0, 0, 0)",
+        "background": "none",
+        "border": 10,
+        "boxSizing": "border-box",
+        "cursor": "pointer",
+        "display": "inline-block",
+        "fontFamily": "Roboto, sans-serif",
+        "fontSize": 0,
+        "fontWeight": "inherit",
+        "height": 48,
+        "margin": 0,
+        "muiPrepared": true,
+        "outline": "none",
+        "overflow": "visible",
+        "padding": 12,
+        "position": "relative",
+        "textDecoration": "none",
+        "transition": "all 450ms cubic-bezier(0.23, 1, 0.32, 1) 0ms",
+        "verticalAlign": null,
+        "width": 48,
+      }
+    }
+    tabIndex={0}
+    theme={Object {}}
+    type="button"
+  >
+    <div
+      onMouseDown={[Function]}
+      onMouseLeave={[Function]}
+      onMouseUp={[Function]}
+      onTouchEnd={[Function]}
+      onTouchStart={[Function]}
+    >
+      <span />
+    </div>
+  </button>,
+  <span
+    style={
+      Object {
+        "marginLeft": 2,
+        "marginRight": 2,
+        "zoom": 0.8,
+      }
+    }
+  >
+    <span
+      style={
+        Object {
+          "fontSize": 10,
+          "paddingLeft": 4,
+        }
+      }
+    >
+      End
+    </span>
+    <br />
+    <input
+      hint="End"
+      onChange={[Function]}
+      placeholder="End"
+      type="text"
+    />
+  </span>,
 ]
 `;
 
@@ -723,6 +1291,8 @@ Array [
       placeholder="size"
       style={
         Object {
+          "marginLeft": 2,
+          "marginRight": 2,
           "width": 50,
         }
       }
@@ -763,7 +1333,6 @@ Array [
     onMouseLeave={[Function]}
     onMouseOut={[Function]}
     onTouchStart={[Function]}
-    path="bold"
     style={
       Object {
         "WebkitTapHighlightColor": "rgba(0, 0, 0, 0)",
@@ -789,6 +1358,11 @@ Array [
       }
     }
     tabIndex={0}
+    theme={
+      Object {
+        "icon": <EditorFormatBold />,
+      }
+    }
     type="button"
   >
     <div
@@ -833,7 +1407,6 @@ Array [
     onMouseLeave={[Function]}
     onMouseOut={[Function]}
     onTouchStart={[Function]}
-    path="italic"
     style={
       Object {
         "WebkitTapHighlightColor": "rgba(0, 0, 0, 0)",
@@ -859,6 +1432,11 @@ Array [
       }
     }
     tabIndex={0}
+    theme={
+      Object {
+        "icon": <EditorFormatItalic />,
+      }
+    }
     type="button"
   >
     <div
@@ -903,7 +1481,6 @@ Array [
     onMouseLeave={[Function]}
     onMouseOut={[Function]}
     onTouchStart={[Function]}
-    path="border"
     style={
       Object {
         "WebkitTapHighlightColor": "rgba(0, 0, 0, 0)",
@@ -929,6 +1506,11 @@ Array [
       }
     }
     tabIndex={0}
+    theme={
+      Object {
+        "icon": <IconTextBorder />,
+      }
+    }
     type="button"
   >
     <div
@@ -982,7 +1564,6 @@ Array [
     onMouseLeave={[Function]}
     onMouseOut={[Function]}
     onTouchStart={[Function]}
-    path="underline"
     style={
       Object {
         "WebkitTapHighlightColor": "rgba(0, 0, 0, 0)",
@@ -1008,6 +1589,11 @@ Array [
       }
     }
     tabIndex={0}
+    theme={
+      Object {
+        "icon": <EditorFormatUnderlined />,
+      }
+    }
     type="button"
   >
     <div
@@ -1052,7 +1638,6 @@ Array [
     onMouseLeave={[Function]}
     onMouseOut={[Function]}
     onTouchStart={[Function]}
-    path="strike"
     style={
       Object {
         "WebkitTapHighlightColor": "rgba(0, 0, 0, 0)",
@@ -1078,6 +1663,11 @@ Array [
       }
     }
     tabIndex={0}
+    theme={
+      Object {
+        "icon": <EditorStrikethroughS />,
+      }
+    }
     type="button"
   >
     <div
@@ -1322,6 +1912,11 @@ Array [
         }
       }
       tabIndex={0}
+      theme={
+        Object {
+          "icon": <EditorFormatColorFill />,
+        }
+      }
       type="button"
     >
       <div
@@ -1447,6 +2042,11 @@ Array [
         }
       }
       tabIndex={0}
+      theme={
+        Object {
+          "icon": <EditorFormatColorText />,
+        }
+      }
       type="button"
     >
       <div

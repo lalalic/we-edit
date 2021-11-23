@@ -66,7 +66,7 @@ export default compose(
 	}
 
 	render(){
-		const {style, children,dispatch,clear,setting, toggleSetting,apply,}=this.props
+		const {style, children,dispatch,clear,setting, toggleSetting,apply,filter=a=>a}=this.props
 		return (
 			<ContextMenu.Support menus={
 				<MenuItem primaryText="Font..." onClick={e=>dispatch(ACTION.UI({dialog:this.dialog(()=>dispatch(ACTION.UI({dialog:null})))}))}/>
@@ -75,7 +75,7 @@ export default compose(
 					<PropTypesUI 
 						uiContext="Ribbon" 
 						theme="Text" 
-						propTypes={dom.Text.propTypes} 
+						propTypes={filter(dom.Text.propTypes)} 
 						props={style} 
 						onChange={apply}
 						/>

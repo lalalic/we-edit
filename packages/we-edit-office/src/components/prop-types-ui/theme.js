@@ -1,5 +1,6 @@
-import React from "react"
+import React, { Fragment } from "react"
 import SvgIcon from "material-ui/SvgIcon"
+import { MenuItem } from "material-ui/Menu"
 import IconBold from "material-ui/svg-icons/editor/format-bold"
 import IconItalic from "material-ui/svg-icons/editor/format-italic"
 import IconUnderlined from "material-ui/svg-icons/editor/format-underlined"
@@ -34,7 +35,77 @@ const IconTextBorder = props => (
 	</SvgIcon>
 );
 
+const IconPage=props=><path {...props} d="M8 16h8v2H8zm0-4h8v2H8zm6-10H6c-1.1 0-2 .9-2 2v16c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm4 18H6V4h7v5h5v11z"/>
+const IconBlank=props=><path {...props} d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zM6 20V4h7v5h5v11H6z"/>
+
+const Column=props=><path d="M8.5 6.5v12" fill="none" stroke="blue" strokeWidth="5" strokeDasharray="1.5" {...props}/>
+const IconColumn=({size=20, d=(24-size)/2, children,...props})=>(
+	<SvgIcon {...props}>
+		<path d="M4 2h16v20H4z" fill="none" stroke="black"/>
+		{children}
+	</SvgIcon>
+)
+
+const IconSize=()=>(
+	<SvgIcon>
+		<g transform="translate(-3,-3)">
+			<IconBlank transform="scale(0.6) translate(10,10)"/>
+			<path d="M8 3 v3v-1.5 h10v-1.5v3" fill="none" stroke="blue"/>
+			<path d="M9 3 v3v-1.5 h10v-1.5v3" fill="none" stroke="blue" transform="translate(9.5 -1) rotate(90)"/>
+		</g>
+	</SvgIcon>
+)
+
+
+const IconOrientation=props=>(
+	<SvgIcon {...props}>
+		<g transform="scale(0.8) translate(4 4)">
+			<IconBlank transform="translate(-3 -1) scale(0.9)"/>
+			<IconBlank transform="translate(24 4.5) scale(0.9) rotate(90)"/>
+		</g>
+	</SvgIcon>
+)
+
+const IconMargin=({children, ...props})=>(
+	<SvgIcon {...props}>
+		<path d="M4 2h16v20H4z" fill="none" stroke="black"/>
+		
+		{children || 
+			<Fragment>
+				<H/>
+				<H transform="translate(10 0)"/>
+				<V/>
+				<V transform="translate(0 14)"/>
+			</Fragment>
+		}
+	</SvgIcon>
+)
+
+const H=props=><path d="M7 2.5 v19" fill="none" stroke="blue" {...props}/>
+const V=props=><path d="M4.5 5 h15" fill="none" stroke="blue" {...props}/>
+
+const IconLayout=({...props})=>(
+    <SvgIcon {...props}>
+        <IconPage transform="translate(0 -12)"/>
+        <line strokeDasharray="2" stroke="blue" x1="0" x2="24" y1="12" y2="12" strokeWidth="2"/>
+        <IconPage transform="translate(0 12)"/>
+    </SvgIcon>
+)
+
+//shape input only be on root level
 export default {
+    UnitShape:{
+        Ribbon:{
+            style:{
+                width:50,
+                marginLeft:2,
+                marginRight:2,
+            }
+        },
+        style:{
+            width:100,
+        }
+    },
     Text:{
         fonts: {
             style:{
@@ -42,9 +113,7 @@ export default {
             }
         },
 		size: {
-            style:{
-                width: 50
-            }
+            FieldWrapper:({children})=>children,
         },
 		color: {
             icon:<IconTextColor/>
@@ -75,8 +144,7 @@ export default {
 		vertAlign: {
             icons:[<IconSubscript/>, <IconSuperscript/>],
         },
-
-		scale:{
+        scale:{
             Ribbon:false,
         },
 		spacing: {
@@ -94,52 +162,77 @@ export default {
     },
     Paragraph:{
         spacing: {
-            Ribbon:false
+            Ribbon:{
+                lineHeight:false,
+                top:{
+                    label:"spacing top",
+                    placeholder:"top",
+                }
+            },
         },
 		indent: {
-            Ribbon:false
+            Ribbon:{
+                firstLine:false,
+                left:{
+                    label:"intent left",
+                    placeholder:"left",
+                }
+            }
         },
-
-		align:{
-
-        },
-		
-		numbering: {
-            Ribbon:true,
-            Dialog:false,
-        },
-		
-		defaultStyle:{
-            Ribbon:false
-        },
-
-		widow:{
-            Ribbon:false
-        },
-		orphan: {
-            Ribbon:false
-        },
-		keepLines: {
-            Ribbon:false
-        },
-		keepWithNext: {
-            Ribbon:false
-        },
-		wrap: {
-            Ribbon:false
-        },
-        End: {
-            Ribbon:false,
-        }
     },
     Section:{
-
+        Ribbon:{
+            layout:<oneOf values={["Page","Column","Next Page", "Continuous", "Even Page", "Odd Page"]}
+                DropDown={true}
+                icon={<IconLayout/>}
+                onClick={false}
+                />
+        }
     },
 	Page:{
-
+        Ribbon:{
+            width:false,
+            height:false,
+            size:<oneOf 
+                values={["A4","A5","A6","Letter"]} 
+                DropDown={true} 
+                onClick={false} 
+                icon={<IconSize/>}
+                />,
+            orientation:{
+                DropDown: true,
+                onClick:false,
+                icon: <IconOrientation/>,
+            },
+            margin:<oneOf 
+                values={["Normal","Narrow","Moderate","Wide","Mirrored"]} 
+                onClick={false} 
+                DropDown={true} 
+                icon={<IconMargin/>}
+                children={<MenuItem primaryText="Custom Margins..." leftIcon={<SvgIcon/>} />}
+                />
+        },
     },
 	Shape:{
+        Ribbon:{
+            geometry:false,
+            outline:false,
+            fill: false,
+            //rotate: this.UnitShape,
+            scale: {
+                style:{
+                    width:50
+                }
+            },
+            //clip: PropTypes.bool,
+            editableSpots: false,
 
+            autofit: false,
+            autofitHeight: false,
+        }
+    },
+    Document:{
+        screenBuffer:false,
     },
 	Image:{
 
@@ -157,6 +250,6 @@ export default {
 
     },
 	Anchor:{
-
+        //wrap:false
     },
 }

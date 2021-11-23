@@ -7,7 +7,8 @@ import MenuItem from 'material-ui/MenuItem'
 import DropDownButton from "../components/drop-down-button"
 import IconChecked from "material-ui/svg-icons/action/done"
 
-import {ACTION,whenSelectionChangeDiscardable} from "we-edit"
+import {ACTION,whenSelectionChangeDiscardable,dom} from "we-edit"
+import PropTypesUI from "../components/prop-types-ui"
 
 export default compose(
 	setDisplayName("Page Ribbon"),
@@ -46,11 +47,13 @@ export default compose(
 		}
 	}),
 )(({children, margin, size, landscape,protrait, sizeEqual,marginEqual,style})=>{
+	return <PropTypesUI propTypes={dom.Page.propTypes} props={style} uiContext="Ribbon" theme="Page"/>
 	if(!style)
 		return null
 	return (
 		<Fragment>			
-			
+			<PropTypesUI propTypes={dom.Page.propTypes} props={style} uiContext="Ribbon" theme="Page"/>
+			<ToolbarSeparator/>
 			<DropDownButton 
 				label="Margins"
 				title="page margin"
@@ -149,3 +152,4 @@ const IconMargin=({children, ...props})=>(
 
 const H=props=><path d="M7 2.5 v19" fill="none" stroke="blue" {...props}/>
 const V=props=><path d="M4.5 5 h15" fill="none" stroke="blue" {...props}/>
+

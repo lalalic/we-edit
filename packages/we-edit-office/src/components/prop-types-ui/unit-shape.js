@@ -1,6 +1,13 @@
 import React, {Component} from "react"
+import PropTypes from "prop-types"
 import base from "./base"
+import ToolbarField from "../toolbar-field"
+
 export default class UnitShape extends base{
+    static displayName="UnitShape"
+    static propTypes={
+        FieldWrapper: PropTypes.any,
+    }
     constructor({value}){
         super(...arguments)
         this.state={value}
@@ -13,16 +20,19 @@ export default class UnitShape extends base{
     }
 
     renderDialog(){
-        return this.lineField(this.renderRibbon(false))
+        return this.lineField(this.renderTree(false))
     }
 
-    renderTree(){
-        return this.renderRibbon()
-    }
-    
-    renderRibbon(hinting=true){
-        const {props:{min,max,step,onChange,name,label=name,types,path,required,style=this.theme.style,...props}, state:{value=""}}=this
-        const hint={placeholder:label,title:label}
+    renderTree(hinting=true){
+        const {
+            $props:{
+                min,max,step,onChange,name,label=name,types,path,required,style=this.theme.style,
+                uiContext,FieldWrapper,placeholder,theme,
+                ...props
+            }, 
+            state:{value=""}
+        }=this
+        const hint={placeholder:placeholder||label,title:label}
         return (
             <span style={{position:"relative", display:"inline-block"}}>
                 <input {...{...props,...(hinting ? hint : {}),style,value,type:"text"}} 
@@ -41,16 +51,21 @@ export default class UnitShape extends base{
             </span>
         )
     }
+    
+    renderRibbon(){
+        const {name, label=name, FieldWrapper=ToolbarField}=this.$props
+        return <FieldWrapper label={label}>{this.renderTree()}</FieldWrapper>
+    }
 
     stepUp(){
-        const {props:{step=1, min=Number.MIN_SAFE_INTEGER,max=Number.MAX_SAFE_INTEGER}, state:{value:display}}=this
+        const {$props:{step=1, min=Number.MIN_SAFE_INTEGER,max=Number.MAX_SAFE_INTEGER}, state:{value:display}}=this
         const unit=(display+"").replace(/[\d\.\+-]/g,"")
         const value=parseFloat(display)||0
         this.setState({value:Math.max(Math.min(value+step,max),min)+unit})
     }
 
     stepDown(){
-        const {props:{step=1, min=Number.MIN_SAFE_INTEGER,max=Number.MAX_SAFE_INTEGER}, state:{value:display=""}}=this
+        const {$props:{step=1, min=Number.MIN_SAFE_INTEGER,max=Number.MAX_SAFE_INTEGER}, state:{value:display=""}}=this
         const unit=(display+"").replace(/[\d\.\+-]/g,"")
         const value=parseFloat(display)||0
         this.setState({value:Math.max(Math.min(value-step,max),min)+unit})

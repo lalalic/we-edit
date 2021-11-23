@@ -1,4 +1,9 @@
+import React from "react"
+
 export {default as Page} from "./page"
 export {default as Section} from "./section"
 export {default as Shape} from "./shape"
-export {default as Paragraph} from "./paragraph"
+
+import ParagraphRibbon from "../paragraph"
+
+export const Paragraph=props=>(<ParagraphRibbon {...props} filter={({indent, spacing})=>({indent,spacing})}/>)

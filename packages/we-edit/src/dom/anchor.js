@@ -75,8 +75,8 @@ export default class Anchor extends Component{
                 geometry:  this.GeometryShape,//priority: anchor's > content > content rect
 
                 distance: PropTypes.oneOfType([
+                    this.MarginShape,
                     PropTypes.func,//fn(geometry shape, {anchored x,y}): which can enhance a geometry, such as adjust according to border/distance
-                    this.MarginShape
                 ])
             }),
             PropTypes.func,

@@ -7,15 +7,15 @@ export default class Paragraph extends Component{
 	static displayName="paragraph"
 	static propTypes={
 		spacing: this.normalizeChecker(PropTypes.shape({
+			top:this.UnitShape,
+			bottom:this.UnitShape,
 			lineHeight: PropTypes.oneOfType([
+				this.UnitShape,
 				PropTypes.shape({
 					height: this.UnitShape,//whole line height
 					offset: this.UnitShape,//text start layout from top offset 
 				}),
-				this.UnitShape,
 			]),
-			top:this.UnitShape,
-			bottom:this.UnitShape,
 		}),{
 			normalize: value=>{
 				const {top,bottom,lineHeight,...props}=value

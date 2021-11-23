@@ -4,7 +4,7 @@ import ColorButton from "../color-button"
 
 export default class ColorShape extends base{
     renderRibbon(){
-        const {types, value, path,name,label=name, ...props}=this.props
+        const {types, value, path,name,label=name, uiContext, ...props}=this.props
         return (
             <ColorButton {...props}
                 status={value?"checked":"unchecked"}
@@ -16,7 +16,7 @@ export default class ColorShape extends base{
     }
 
     renderDialog(){
-        const {types, value, path,name,...props}=this.props
+        const {types, value, path,name,uiContext, ...props}=this.props
         return this.lineField(<input type="color" name={name} value={value} onChange={e=>this.set(this.path, e.target.value)}/>)
     }
 

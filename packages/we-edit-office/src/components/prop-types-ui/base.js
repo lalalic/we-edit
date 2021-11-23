@@ -1,13 +1,24 @@
 import React, {PureComponent} from "react"
 import PropTypes from "prop-types"
+import memoize from "memoize-one"
+import {fromJS} from "immutable"
+import Theme from "./theme"
 
 export default class base extends PureComponent{
     static contextTypes={
         uiContext: PropTypes.string,
         PropTypes: PropTypes.object,
         set: PropTypes.func,
-        theme: PropTypes.object,
         onEvent: PropTypes.func,
+    }
+
+    static propTypes={
+        theme: PropTypes.object,//type self explained, {Dialog,Tree,Ribbon,Tab, ...}
+        path: PropTypes.string,//set(path,name)
+        value: PropTypes.any,
+        name: PropTypes.string,
+        label: PropTypes.string,
+        onEvent: PropTypes.func,//(name,data)=>{}
     }
 
     get Types(){
@@ -18,16 +29,30 @@ export default class base extends PureComponent{
         const {path=""}=this.props
         return path
     }
-
     get theme(){
-        const {theme}=this.context
-        if(!this.path)
-            return theme.toJS()
-        return this.context.theme.getIn(this.path.split("."))?.toJS()||{}
+        return this.getShapeTheme()
+    }
+
+    get $props(){
+        const {Dialog, Ribbon, Tree, Tab, ...theme}=this.theme
+        return {...theme,...this.props}
     }
 
     get uiContext(){
         return this.props.uiContext||this.context.uiContext||"Dialog"
+    }
+
+    getShapeTheme=memoize(()=>{
+        const shapeTheme=Theme[this.constructor.displayName]
+        return fromJS(shapeTheme||{})
+            .mergeDeep(fromJS(shapeTheme?.[this.uiContext]||{}))
+            .mergeDeep(this.props.theme||{})
+            .mergeDeep(this.props.theme?.[this.uiContext]||{})
+            .toJS()
+    })
+
+    getKeyTheme(key){
+        return fromJS(this.theme[key]||{}).mergeDeep(fromJS(this.theme[key]?.[this.uiContext]||{})).toJS()
     }
 
     getUIType(type){
@@ -40,7 +65,10 @@ export default class base extends PureComponent{
 
     render(){
         const {uiContext, theme:{[uiContext]:show=true}}=this
-        return !show ? null : (this[`render${uiContext}`]||this.render).call(this)
+        if(!show||!this[`render${uiContext}`]) 
+            return null 
+            
+        return (this[`render${uiContext}`]).call(this)
     }
 
     set(path, value){

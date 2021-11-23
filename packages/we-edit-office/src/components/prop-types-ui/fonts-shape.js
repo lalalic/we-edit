@@ -12,8 +12,8 @@ export default class FontsShape extends base{
         const {value, name, label=name, style=this.theme.style||{}}=this.props
         return (
             <Fragment>
-                {this.lineField(<FontList value={value.ascii||""} onChange={font=>this.set(this.path+".ascii",font)}/>,"Latin Text Font")}
-                {this.lineField(<FontList value={value.ea||""} onChange={font=>this.set(this.path+".ea",font)}/>, "Asian Text Font")}
+                {this.lineField(<FontList value={value?.ascii||""} onChange={font=>this.set(this.path+".ascii",font)}/>,"Latin Text Font")}
+                {this.lineField(<FontList value={value?.ea||""} onChange={font=>this.set(this.path+".ea",font)}/>, "Asian Text Font")}
             </Fragment>
         )
     }

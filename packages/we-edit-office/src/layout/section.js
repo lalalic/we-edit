@@ -8,7 +8,8 @@ import Subheader from 'material-ui/Subheader'
 import DropDownButton from "../components/drop-down-button"
 import IconChecked from "material-ui/svg-icons/action/done"
 
-import {ACTION,whenSelectionChangeDiscardable} from "we-edit"
+import {ACTION,whenSelectionChangeDiscardable,dom} from "we-edit"
+import PropTypesUI from "../components/prop-types-ui"
 
 export default compose(
 	setDisplayName("section"),
@@ -63,6 +64,7 @@ export default compose(
 	sizeEqual,marginEqual, cols,
 	style
 })=>{
+	return <PropTypesUI propTypes={dom.Section.propTypes} props={style} uiContext="Ribbon" theme="Section"/>
 	if(!style)
 		return null
 	return (

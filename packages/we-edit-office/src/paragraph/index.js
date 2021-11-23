@@ -9,7 +9,6 @@ import CheckIconButton from "../components/check-icon-button"
 import ContextMenu from "../components/context-menu"
 import Dialog from "../components/dialog"
 
-import ListSetting from "./list-setting"
 import IconMore from "material-ui/svg-icons/navigation/more-vert"
 import PropTypesUI from "../components/prop-types-ui"
 
@@ -21,38 +20,13 @@ export default compose(
 		return getUI(state)
 	}),
 	withContext({disabled:PropTypes.bool},({style})=>({disabled:!style})),
-	mapProps(({dispatch,children,style,pilcrow})=>{
+	mapProps(({dispatch,children,style,pilcrow,filter})=>{
 		const props={
 			children,
 			style,
 			pilcrow,
 			dispatch,
-			toggleAlign(align){
-				const {align:current="left"}=style||{}
-				if(current==align){
-					align=null
-				}
-				dispatch(ACTION.Selection.UPDATE({paragraph:{align}}))
-			},
-			numbering: numbering=>{
-				if(numbering && style?.numbering){
-					const {id,level=0}=style.numbering
-					numbering={...numbering,id,level}
-				}
-				dispatch(ACTION.Selection.UPDATE({paragraph:{numbering}}))
-			},
-			toggleBullet(numbering){
-				if(style?.numbering?.format=="bullet"){
-					numbering=null
-				}
-				props.numbering(numbering)
-			},
-			toggleNumbering(numbering){
-				if(style?.numbering?.format &&style.numbering.format!=="bullet"){
-					numbering=null
-				}
-				props.numbering(numbering)
-			},
+			filter,
 			togglePilcrow(){
 				dispatch(ACTION.UI({pilcrow:!pilcrow}))
 			},
@@ -66,7 +40,7 @@ export default compose(
 	withState("setting", "toggleSetting", {paragraph:false,bullet:false,numbering:false,outline:false,list:false}),
 )(class extends Component{
 	render(){
-		const {style,pilcrow, togglePilcrow,children, setting, toggleSetting, dispatch,apply,}=this.props
+		const {style,pilcrow, togglePilcrow,children, setting, toggleSetting, dispatch,apply,filter}=this.props
 				return (
 			<ContextMenu.Support menus={[
 				<MenuItem key="paragraph" primaryText="Paragraph..." 
@@ -76,36 +50,41 @@ export default compose(
 			]}>
 				<Fragment>
 					<PropTypesUI uiContext="Ribbon" theme="Paragraph" 
-						propTypes={dom.Paragraph.propTypes} 
+						propTypes={(filter||(({align,numbering})=>({align,numbering})))(dom.Paragraph.propTypes)} 
 						props={style}
 						onChange={apply}
 						onEvent={event=>toggleSetting({...setting,[event]:true})}
 						/>
 					<ToolbarSeparator/>
-					<CheckIconButton
-						status={pilcrow ? "checked" : "unchecked"}
-						onClick={togglePilcrow}
-						hint="Show/Hide❡"
-						children={
-							<SvgIcon>
-								<g transform="translate(0 4)">
-									<path d="M9 10v5h2V4h2v11h2V4h2V2H9C6.79 2 5 3.79 5 6s1.79 4 4 4z"/>
-								</g>
-							</SvgIcon>
-						}
-						/>
-					<CheckIconButton
-							label="paragraph settings..."
-							onClick={e=>toggleSetting({...setting,paragraph:true})}
-							children={<IconMore/>}
+
+					{!filter && 
+					<Fragment>
+						<CheckIconButton
+							status={pilcrow ? "checked" : "unchecked"}
+							onClick={togglePilcrow}
+							hint="Show/Hide❡"
+							children={
+								<SvgIcon>
+									<g transform="translate(0 4)">
+										<path d="M9 10v5h2V4h2v11h2V4h2V2H9C6.79 2 5 3.79 5 6s1.79 4 4 4z"/>
+									</g>
+								</SvgIcon>
+							}
 							/>
+						<CheckIconButton
+								label="paragraph settings..."
+								onClick={e=>toggleSetting({...setting,paragraph:true})}
+								children={<IconMore/>}
+								/>
 
-					{setting.paragraph && this.paragraphDialog()}
+						{setting.paragraph && this.paragraphDialog()}
 
-					{setting.bullet && this.bulletDialog()}
-					{setting.numbering && this.numberingDialog()}
-					{setting.outline && this.outlineDialog()}
-					{setting.list && this.listDialog()}
+						{setting.bullet && this.bulletDialog()}
+						{setting.numbering && this.numberingDialog()}
+						{setting.outline && this.outlineDialog()}
+						{setting.list && this.listDialog()}
+					</Fragment>
+					}
 					
 					{children}
 				</Fragment>
@@ -132,7 +111,9 @@ export default compose(
 				/>,
 				]}
 				>
-				<PropTypesUI uiContext="Dialog" theme="Paragraph" propTypes={dom.Paragraph.propTypes} props={style} ref={refSetting}/>
+				<PropTypesUI uiContext="Dialog" theme="Paragraph" 
+					propTypes={{...dom.Paragraph.propTypes,numbering:null}} 
+					props={style} ref={refSetting}/>
 			</Dialog>
 		)
 	}

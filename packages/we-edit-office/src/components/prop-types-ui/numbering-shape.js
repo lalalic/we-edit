@@ -29,12 +29,12 @@ export default class NumberingShape extends OneOfType{
             ]
         }
         renderRibbon(){
-            const {defaults,schema, ...props}=this.props
+            const {defaults,schema, ...props}=this.$props
             return <OneOf {...props}
                         label="bullet list"
                         icon={<IconListBullet/>}
                         check={({format="bullet"})=>format=="bullet"}
-                        DropDown={(({label,style:{fonts}, ...props})=><MenuItem primaryText={label} {...props} style={{fontFamily:fonts}} />)}
+                        DropDown={(({value:{label,style:{fonts}}, ...props})=><MenuItem primaryText={label} {...props} style={{fontFamily:fonts}} />)}
                         values={defaults}
                         children={<MenuItem primaryText="Define New Bullet" onClick={e=>this.fire('bullet')}/>}
                         />
@@ -58,12 +58,12 @@ export default class NumberingShape extends OneOfType{
         }
     
         renderRibbon(){
-            const {defaults,schema, ...props}=this.props
+            const {defaults,schema, ...props}=this.$props
             return <OneOf {...props}
                         label="nubering list"
                         icon={<IconListNumber/>}
                         check={({format="bullet"})=>format!=="bullet"}
-                        DropDown={(({format, label, ...props})=><MenuItem primaryText={label.replace("%1",numberings[format](0))} {...props}/>)}
+                        DropDown={(({value:{format, label}, ...props})=><MenuItem primaryText={label.replace("%1",numberings[format](0))} {...props}/>)}
                         values={defaults}
                         children={<MenuItem primaryText="Define New Number List" onClick={e=>this.fire("numbering")}/>}
                         />
@@ -86,12 +86,12 @@ export default class NumberingShape extends OneOfType{
             ]
         }
         renderRibbon(){
-            const {defaults, schema, ...props}=this.props
+            const {defaults, schema, ...props}=this.$props
             return <OneOf {...props}
                         label="Outline list"
                         icon={<IconListOutline/>}
                         check={a=>false}
-                        DropDown={(({format, label, ...props})=><MenuItem primaryText={label.replace("%1",numberings[format](0))} {...props}/>)}
+                        DropDown={(({value:{format, label}, ...props})=><MenuItem primaryText={label.replace("%1",numberings[format](0))} {...props}/>)}
                         values={defaults}
                         children={<MenuItem primaryText="Define New Outline List" onClick={e=>this.fire("outline")}/>}
                         />
@@ -104,7 +104,11 @@ export default class NumberingShape extends OneOfType{
 
     renderRibbon(){
         const {constructor:{BulletListShape, NumberListShape, OutlineListShape}}=this
-        return <OneOfType {...this.props} types={[BulletListShape, NumberListShape, OutlineListShape]} spread={true}/>
+        return <OneOfType {...this.$props} types={[BulletListShape, NumberListShape, OutlineListShape]} spread={true}/>
+    }
+
+    renderTree(){
+        return null
     }
 
     renderDialog(){

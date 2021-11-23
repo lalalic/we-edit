@@ -53,28 +53,35 @@ export default class PropTypesUI extends Component{
     });
 
     static childContextTypes={
-        uiContext: PropTypes.oneOf(["Ribbon","Dialog","Tree"]),
+        uiContext: PropTypes.oneOf(["Ribbon","Dialog","Tree","Tab"]),
         set: PropTypes.func,
         PropTypes: PropTypes.object,
-        theme: PropTypes.object,
         onEvent: PropTypes.func,
     }
     static contextTypes={
-        uiContext: PropTypes.oneOf(["Ribbon","Dialog","Tree"])
+        uiContext: this.childContextTypes.uiContext,
+    }
+
+    static propTypes={
+        theme: PropTypes.oneOfType([PropTypes.string, PropTypes.object]),
+        uiContext: PropTypes.string,
+        onEvent: PropTypes.func,
+        propTypes: PropTypes.object, //->shape.schema
+        props: PropTypes.object,//->shape.value
     }
 
     get theme(){
         const {theme}=this.props
-        if(!theme)
-            return fromJS({})
-        switch(typeof(theme)) {
-            case "string":
-                return fromJS(BaseTheme[theme])
-            case "object":
-                const domain=Object.keys(theme)[0]
-                return fromJS(BaseTheme[domain]).mergeDeep(fromJS(theme[domain]))
+        if(theme){
+            switch(typeof(theme)) {
+                case "string":
+                    return BaseTheme[theme]
+                case "object":
+                    const domain=Object.keys(theme)[0]
+                    return fromJS(BaseTheme[domain]).mergeDeep(fromJS(theme[domain])).toJS()
+            }
         }
-        return fromJS({})
+        return {}
         
     }
 
@@ -87,7 +94,6 @@ export default class PropTypesUI extends Component{
             uiContext: this.uiContext,
             set: this.set,
             PropTypes: this.constructor.Types,
-            theme: this.theme,
             onEvent:this.onEvent,
         }
     }
@@ -101,7 +107,7 @@ export default class PropTypesUI extends Component{
     
     render(){
         const {props:{propTypes}, state:{props}, constructor:{Types}}=this
-        return <Types.shape schema={propTypes.Type?.schema||propTypes} value={props.toJS()}/>
+        return <Types.shape schema={propTypes.Type?.props.schema||propTypes} theme={this.theme} value={props.toJS()}/>
     }
 
     set(path, value){

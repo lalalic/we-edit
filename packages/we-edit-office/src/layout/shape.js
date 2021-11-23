@@ -1,26 +1,31 @@
 import React,{Fragment} from "react"
 import {compose, mapProps, setDisplayName} from "recompose"
+import {ToolbarSeparator} from "material-ui"
 
-import {whenSelectionChangeDiscardable} from "we-edit"
-import UnitShapeInput from "../components/prop-types-ui/unit-shape"
-
-import {Layout} from "../shape/when-active"
+import {whenSelectionChangeDiscardable, dom} from "we-edit"
+import PropTypesUI from "../components/prop-types-ui"
 
 export default compose(
 	setDisplayName("page"),
 	whenSelectionChangeDiscardable(),
 	mapProps(({children,dispatch,selection})=>{
-		const style=selection&&selection.props("page",false)||{}
+		const anchor=selection&&selection.props("anchor",false)||{}
+		const shape=selection&&selection.props("shape",false)||{}
 		return {
 			children,
-			style,
+			anchor,
+			shape,
 		}
 	}),
-)(({children, style})=>{
+)(({children, shape, anchor})=>{
 	return (
-		<Fragment>			
-			<Layout style={style}/>
+		<Fragment>
+			<PropTypesUI propTypes={dom.Shape.propTypes} uiContext="Ribbon" theme="Shape" value={shape}/>
+			<ToolbarSeparator/>
+			<PropTypesUI propTypes={dom.Anchor.propTypes} uiContext="Ribbon" theme="Anchor" value={anchor}/>
+			<ToolbarSeparator/>
 			{children}
+			{!!children && <ToolbarSeparator/>}
 		</Fragment>
 	)
 })
