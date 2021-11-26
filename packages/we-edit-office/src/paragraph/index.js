@@ -20,27 +20,23 @@ export default compose(
 		return getUI(state)
 	}),
 	withContext({disabled:PropTypes.bool},({style})=>({disabled:!style})),
-	mapProps(({dispatch,children,style,pilcrow,filter})=>{
-		const props={
+	mapProps(({dispatch,children,style,pilcrow})=>{
+		return {
 			children,
 			style,
 			pilcrow,
 			dispatch,
-			filter,
-			togglePilcrow(){
-				dispatch(ACTION.UI({pilcrow:!pilcrow}))
-			},
 			apply(paragraph){
 				dispatch(ACTION.Selection.UPDATE({paragraph}))
 			}
 		}
-		return props
 	}),
 	shouldUpdate((a,b)=>!(shallowEqual(a.style,b.style) && a.pilcrow==b.pilcrow)),
 	withState("setting", "toggleSetting", {paragraph:false,bullet:false,numbering:false,outline:false,list:false}),
-)(class extends Component{
+)(
+class extends Component{
 	render(){
-		const {style,pilcrow, togglePilcrow,children, setting, toggleSetting, dispatch,apply,filter}=this.props
+		const {style,pilcrow,children, setting, toggleSetting, dispatch,apply}=this.props
 				return (
 			<ContextMenu.Support menus={[
 				<MenuItem key="paragraph" primaryText="Paragraph..." 
@@ -49,19 +45,18 @@ export default compose(
 					onClick={e=>dispatch(ACTION.UI({dialog:this.listDialog(e=>dispatch(ACTION.UI({dialog:null})))}))}/>,
 			]}>
 				<Fragment>
-					<PropTypesUI uiContext="Ribbon" theme="Paragraph" 
-						propTypes={(filter||(({align,numbering})=>({align,numbering})))(dom.Paragraph.propTypes)} 
+					<PropTypesUI theme="Paragraph" 
+						propTypes={(({align,numbering})=>({align,numbering}))(dom.Paragraph.propTypes)} 
 						props={style}
 						onChange={apply}
 						onEvent={event=>toggleSetting({...setting,[event]:true})}
 						/>
 					<ToolbarSeparator/>
 
-					{!filter && 
 					<Fragment>
 						<CheckIconButton
 							status={pilcrow ? "checked" : "unchecked"}
-							onClick={togglePilcrow}
+							onClick={()=>dispatch(ACTION.UI({pilcrow:!pilcrow}))}
 							hint="Show/Hide❡"
 							children={
 								<SvgIcon>
@@ -84,7 +79,6 @@ export default compose(
 						{setting.outline && this.outlineDialog()}
 						{setting.list && this.listDialog()}
 					</Fragment>
-					}
 					
 					{children}
 				</Fragment>
@@ -93,11 +87,16 @@ export default compose(
 	}
 
 	paragraphDialog(toggleSetting=this.props.toggleSetting){
-		const {apply, refSetting=React.createRef(), style,setting}=this.props
+		const {apply, refSetting=React.createRef(), style,setting,dispatch}=this.props
 		return (
 			<Dialog title="Paragraph Settings"
 				actions={[
-					<FlatButton
+				<FlatButton
+					label="Set As Default..."
+					onClick={e=>dispatch(ACTION.Entity.UPDATE({document:{defaultParagraphStyle:refSetting.current.value}}))}
+				/>,
+					
+				<FlatButton
 					label="Cancel"
 					onClick={e=>toggleSetting({...setting,paragraph:false})}
 				/>,
@@ -105,7 +104,7 @@ export default compose(
 					label="Submit"
 					primary={true}
 					onClick={e=>{
-						apply(refSetting.current.state)
+						apply(refSetting.current.value)
 						toggleSetting({...setting,paragraph:false})
 					}}
 				/>,
@@ -131,7 +130,7 @@ export default compose(
 					label="Submit"
 					primary={true}
 					onClick={e=>{
-						apply({numbering:refSetting.current.state})
+						apply({numbering:refSetting.current.value})
 						toggleSetting({...setting,bullet:false})
 					}}
 				/>,
@@ -159,7 +158,7 @@ export default compose(
 					label="Submit"
 					primary={true}
 					onClick={e=>{
-						apply({numbering:refSetting.current.state})
+						apply({numbering:refSetting.current.value})
 						toggleSetting({...setting,numbering:false})
 					}}
 				/>,
@@ -187,7 +186,7 @@ export default compose(
 					label="Submit"
 					primary={true}
 					onClick={e=>{
-						apply({numbering:refSetting.current.state})
+						apply({numbering:refSetting.current.value})
 						toggleSetting({...setting,outline:false})
 					}}
 				/>,
@@ -215,7 +214,7 @@ export default compose(
 					label="Submit"
 					primary={true}
 					onClick={e=>{
-						apply({numbering:refSetting.current.state})
+						apply({numbering:refSetting.current.value})
 						toggleSetting({...setting,list:false})
 					}}
 				/>,

@@ -15,13 +15,18 @@ export default class __$1 extends Component{
 	
 	static propTypes={
         createLayout: PropTypes.func,
-		layout:PropTypes.shape(Page.propTypes),
+		layout:PropTypes.shape({
+			...Page.propTypes,
+			header: this.UnitShape,
+			footer: this.UnitShape,
+		}),
+		header: PropTypes.node,
+		footer: PropTypes.node,
 	}
 
 	static defaultProps={
 		layout: Page.defaultProps
 	}
-
 	
 	get isFlow(){
 		return true

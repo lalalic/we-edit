@@ -89,17 +89,17 @@ export default class Paragraph extends Component{
 		
 		numbering: this.NumberingShape,
 		
-		/**[edit]default text style to be used when add text in empty paragraph*/
-		defaultStyle:this.TextStyleShape,
-
 		/**Pagination control */
 		widow:PropTypes.bool,
 		orphan: PropTypes.bool,
 		keepLines: PropTypes.bool,
 		keepWithNext: PropTypes.bool,
+		
 		wrap: PropTypes.bool,
 		/**Paragraph End Character */
 		End:PropTypes.string,
+		/**[edit]default text style to be used when add text in empty paragraph*/
+		defaultStyle:this.TextStyleShape,
 	}
 
 	static defaultProps={

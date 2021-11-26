@@ -19,14 +19,14 @@ export default class Shape extends Component{
 		scale: PropTypes.number,
 		clip: PropTypes.bool,
 		editableSpots: PropTypes.oneOfType([
-			PropTypes.func,//func(geometry)=>[{x,y,direction,style,control}]
 			PropTypes.arrayOf(PropTypes.shape({
 				x: PropTypes.number.isRequired,
 				y: PropTypes.number.isRequired,
 				direction: PropTypes.oneOf(["ns","-ns","ew","-ew","nwse","-nwse","nesw","-nesw"]).isRequired,
 				style: PropTypes.object,
 				control: PropTypes.string,
-			}))
+			})),
+			PropTypes.func,//func(geometry)=>[{x,y,direction,style,control}]
 		]),
 
 		autofit: PropTypes.oneOf([true,"larger"]),

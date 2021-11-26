@@ -47,12 +47,22 @@ export default compose(
 		}
 	}),
 )(({children, margin, size, landscape,protrait, sizeEqual,marginEqual,style})=>{
-	return <PropTypesUI propTypes={dom.Page.propTypes} props={style} uiContext="Ribbon" theme="Page"/>
+	return (
+		<Fragment>
+			<PropTypesUI 
+				propTypes={dom.Page.propTypes} 
+				props={style} 
+				theme="Page"
+				onChange={change=>dispatch(ACTION.Entity.UPDATE({type:"page",...change}))}
+				/>
+			<ToolbarSeparator/>
+		</Fragment>
+	)
 	if(!style)
 		return null
 	return (
 		<Fragment>			
-			<PropTypesUI propTypes={dom.Page.propTypes} props={style} uiContext="Ribbon" theme="Page"/>
+			<PropTypesUI propTypes={dom.Page.propTypes} props={style} theme="Page"/>
 			<ToolbarSeparator/>
 			<DropDownButton 
 				label="Margins"

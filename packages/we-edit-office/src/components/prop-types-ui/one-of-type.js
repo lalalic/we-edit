@@ -19,8 +19,8 @@ export default class oneOfType extends base{
     }
 
     renderDialog(){
-        const {types:_, spread, ...props}=this.$props
-        const {type, UIType=this.getUIType(type), props:{...props0}}=this.types[this.types.length-1].Type
+        const {types:_, i=this.types.length-1, spread, ...props}=this.$props
+        const {type, UIType=this.getUIType(type), props:{...props0}}=this.types[i].Type
         return <UIType {...props0} {...props}/>
     }
 
@@ -36,8 +36,8 @@ export default class oneOfType extends base{
     }
 
     renderTree(){
-        const {types:_, spread, ...props}=this.$props
-        const [{Type:{type, UIType=this.getUIType(type), props:{...props0}}}]=this.types
+        const {types:_, i=0, spread, ...props}=this.$props
+        const {Type:{type, UIType=this.getUIType(type), props:{...props0}}}=this.types[i]
         return <UIType {...props0} {...props}/>
     }
 }

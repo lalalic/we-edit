@@ -7,7 +7,7 @@ import PropTypesUI from "../components/prop-types-ui"
 export default ({selection, style})=>(
 	<WhenActive label="Table Design">
 		<Design/>
-		<PropTypesUI uiContext="Ribbon" theme="table" 
+		<PropTypesUI theme="table" 
 			propTypes={dom.Table.propTypes}
 			props={style}
 			/>

@@ -1,4 +1,5 @@
 import React, { Fragment } from "react"
+import {dom} from "we-edit"
 import SvgIcon from "material-ui/SvgIcon"
 import { MenuItem } from "material-ui/Menu"
 import IconBold from "material-ui/svg-icons/editor/format-bold"
@@ -9,6 +10,26 @@ import IconVanish from "material-ui/svg-icons/editor/format-clear"
 import IconStrike from "material-ui/svg-icons/editor/strikethrough-s"
 import IconBackground from "material-ui/svg-icons/editor/format-color-fill"
 import IconTextColor from "material-ui/svg-icons/editor/format-color-text"
+import IconRotate from "material-ui/svg-icons/image/crop-rotate"
+import IconWrapMode from "material-ui/svg-icons/editor/wrap-text"
+import IconWrapSide from "material-ui/svg-icons/communication/business"
+
+import IconAlignCenter from "material-ui/svg-icons/editor/format-align-center"
+import IconAlignLeft from "material-ui/svg-icons/editor/format-align-left"
+import IconAlignRight from "material-ui/svg-icons/editor/format-align-right"
+import IconAlignJustify from "material-ui/svg-icons/editor/format-align-justify"
+
+
+import IconVertAlign from "material-ui/svg-icons/action/swap-vert"
+import IconVertAlignBottom from "material-ui/svg-icons/editor/vertical-align-bottom"
+import IconVertAlignMiddle from "material-ui/svg-icons/editor/vertical-align-center"
+import IconVertAlignTop from "material-ui/svg-icons/editor/vertical-align-top"
+
+import IconFillShape from "material-ui/svg-icons/editor/format-color-fill"
+import IconOutlineShape from "material-ui/svg-icons/editor/border-color"
+
+
+import ShapeAsMenu from "./shape-as-menu"
 
 const IconSuperscript = props => (
 	<SvgIcon {...props}>
@@ -35,16 +56,7 @@ const IconTextBorder = props => (
 	</SvgIcon>
 );
 
-const IconPage=props=><path {...props} d="M8 16h8v2H8zm0-4h8v2H8zm6-10H6c-1.1 0-2 .9-2 2v16c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm4 18H6V4h7v5h5v11z"/>
 const IconBlank=props=><path {...props} d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zM6 20V4h7v5h5v11H6z"/>
-
-const Column=props=><path d="M8.5 6.5v12" fill="none" stroke="blue" strokeWidth="5" strokeDasharray="1.5" {...props}/>
-const IconColumn=({size=20, d=(24-size)/2, children,...props})=>(
-	<SvgIcon {...props}>
-		<path d="M4 2h16v20H4z" fill="none" stroke="black"/>
-		{children}
-	</SvgIcon>
-)
 
 const IconSize=()=>(
 	<SvgIcon>
@@ -84,16 +96,38 @@ const IconMargin=({children, ...props})=>(
 const H=props=><path d="M7 2.5 v19" fill="none" stroke="blue" {...props}/>
 const V=props=><path d="M4.5 5 h15" fill="none" stroke="blue" {...props}/>
 
-const IconLayout=({...props})=>(
-    <SvgIcon {...props}>
-        <IconPage transform="translate(0 -12)"/>
-        <line strokeDasharray="2" stroke="blue" x1="0" x2="24" y1="12" y2="12" strokeWidth="2"/>
-        <IconPage transform="translate(0 12)"/>
-    </SvgIcon>
+const Column=props=><path d="M8.5 6.5v12" fill="none" stroke="blue" strokeWidth="5" strokeDasharray="1.5" {...props}/>
+const IconColumn=({size=20, d=(24-size)/2, children,...props})=>(
+	<SvgIcon {...props}>
+		<path d="M4 2h16v20H4z" fill="none" stroke="black"/>
+		{children}
+	</SvgIcon>
 )
+const ColumnIcons=[
+    <IconColumn>
+        <Column d="M12 6.5v12" strokeWidth="12"/>
+    </IconColumn>,
+    <IconColumn>
+        <Column/>
+        <Column transform="translate(7 0)"/>
+    </IconColumn>,
+    <IconColumn>
+        <Column strokeWidth="3"/>
+        <Column strokeWidth="3" transform="translate(3.5 0)"/>
+        <Column strokeWidth="3" transform="translate(7 0)"/>
+    </IconColumn>,
+    <IconColumn>
+        <Column strokeWidth="3"/>
+        <Column strokeWidth="7" transform="translate(6 0)"/>
+    </IconColumn>,
+    <IconColumn>
+        <Column strokeWidth="7" transform="translate(1 0)"/>
+        <Column strokeWidth="3" transform="translate(7 0)"/>
+    </IconColumn>,
+]
 
 //shape input only be on root level
-export default {
+const Theme={
     UnitShape:{
         Ribbon:{
             style:{
@@ -106,6 +140,17 @@ export default {
             width:100,
         }
     },
+    shape:{
+        Dialog:{
+            Wrapper:({shape:{$props:{name,label=name}}, children})=>(
+                <div style={{borderBottom:"1px solid lightgray", marginTop:5}}>
+                    <h3 style={{fontSize:"bigger"}}>{label}</h3>
+                    {children}
+                </div>
+            )
+        }
+    },
+
     Text:{
         fonts: {
             style:{
@@ -126,7 +171,6 @@ export default {
             icon: <IconItalic/>
         },
 		vanish: {
-            Ribbon:false,
             icon: <IconVanish/>
         },
 		highlight: {
@@ -144,50 +188,58 @@ export default {
 		vertAlign: {
             icons:[<IconSubscript/>, <IconSuperscript/>],
         },
-        scale:{
-            Ribbon:false,
+        Ribbon:{
+            scale:false,
+            spacing:false,
+            position:false,
+            kerning:false,
+            emphasizeMark:false,
+            vanish: false,
         },
-		spacing: {
-            Ribbon: false,
-        },
-		position: {
-            Ribbon: false,
-        },
-		kerning: {
-            Ribbon:false, 
-        },
-		emphasizeMark: {
-            Ribbon:false,
-        },
+        Dialog:{
+            emphasizeMark:<oneOf values={["."]} style={{width:100}}/>,
+            underline:<oneOf values={[]}/>,
+            strike:<oneOf values={[]}/>,
+            border:<oneOf values={[]}/>,
+        }
     },
     Paragraph:{
-        spacing: {
-            Ribbon:{
+        End:false,
+        defaultStyle:false,
+        wrap:false,
+        Ribbon:{
+            spacing:{
                 lineHeight:false,
                 top:{
                     label:"spacing top",
                     placeholder:"top",
+                    defaultValue:"0cm"
+                },
+                bottom:{
+                    defaultValue:"0cm"
                 }
             },
-        },
-		indent: {
-            Ribbon:{
+            indent:{
                 firstLine:false,
                 left:{
                     label:"intent left",
                     placeholder:"left",
                 }
+            },
+            align:{
+                icons:[<IconAlignLeft/>,<IconAlignRight/>,<IconAlignCenter/>,<IconAlignJustify/>]
             }
         },
     },
     Section:{
         Ribbon:{
-            layout:<oneOf values={["Page","Column","Next Page", "Continuous", "Even Page", "Odd Page"]}
-                DropDown={true}
-                icon={<IconLayout/>}
-                onClick={false}
-                />
-        }
+            get layout(){
+                return {
+                    ...Theme.Page.Ribbon,
+                }
+                
+            }
+        },
     },
 	Page:{
         Ribbon:{
@@ -205,31 +257,28 @@ export default {
                 icon: <IconOrientation/>,
             },
             margin:<oneOf 
-                values={["Normal","Narrow","Moderate","Wide","Mirrored"]} 
+                values={["2.54cm","1.27cm",{top:"2.54cm",bottom:"2.54",left:"1.91cm",right:"1.91cm"},{top:"2.54cm",bottom:"2.54",left:"5.08cm",right:"5.08cm"},{top:"2.54cm",bottom:"2.54",left:"3.18cm",right:"2.54cm"},"-"]}
+                labels={["Normal","Narrow","Moderate","Wide","Mirrored"]} 
                 onClick={false} 
                 DropDown={true} 
                 icon={<IconMargin/>}
-                children={<MenuItem primaryText="Custom Margins..." leftIcon={<SvgIcon/>} />}
+                children={<MenuItem primaryText="Custom Margins..." />}
+                />,
+            cols:<oneOf
+                onClick={false}
+                DropDown={true}
+                values={[[1],[2],[3],[1,2],[2,1]]}
+                labels={["One", "Two", "Three", "Left", "Right"]}
+                icons={ColumnIcons}
+                icon={
+                    <IconColumn>
+                        <Column/>
+                        <Column transform="translate(7 0)"/>
+                    </IconColumn>
+                }
+                children={<MenuItem primaryText="More Columns..." />}
                 />
         },
-    },
-	Shape:{
-        Ribbon:{
-            geometry:false,
-            outline:false,
-            fill: false,
-            //rotate: this.UnitShape,
-            scale: {
-                style:{
-                    width:50
-                }
-            },
-            //clip: PropTypes.bool,
-            editableSpots: false,
-
-            autofit: false,
-            autofitHeight: false,
-        }
     },
     Document:{
         screenBuffer:false,
@@ -250,6 +299,67 @@ export default {
 
     },
 	Anchor:{
-        //wrap:false
+        Ribbon:{
+            x:false,
+            y:<oneOf {...{
+                    icon:<IconVertAlign/>,
+                    label:"Align Text",
+                    DropDown:true,
+                    onClick:false,
+                    values:dom.Anchor.VertAlignShape.Type.props.values,
+                    icons:[<IconVertAlignTop/>,<IconVertAlignMiddle/>,<IconVertAlignBottom/>]
+                }}/>,
+            z:false,
+            wrap:{
+                mode:{
+                    icon:<IconWrapMode/>,
+                    DropDown:true,
+                    onClick:false,
+                    label:"Wrap Mode"
+                },
+                side:{
+                    icon:<IconWrapSide/>,
+                    DropDown:true,
+                    onClick:false,
+                    label:"Wrap Side"
+                },
+            }
+        }
     },
+    Shape:{
+        Ribbon:{
+            geometry:<shape schema={{width:dom.Shape.UnitShape,height:dom.Shape.UnitShape}}/>,
+            outline:{
+                i:2,
+                icon:<IconOutlineShape/>,
+                Wrapper:ShapeAsMenu,
+                width:<oneOf label="Weight" values={[1,3]}/>,
+                dashArray:<oneOf label="Dashes"/>,
+                sketched:<oneOf label="Sketch"/>
+            },
+            fill: {
+                
+            },
+            clip: false,
+            rotate: <oneOf 
+                values={[90,-90,"-"]} 
+                DropDown={true} 
+                onClick={false} 
+                icon={<IconRotate/>} 
+                children={<MenuItem primaryText="More Rotation Options..."/>}
+                />,
+            scale: {
+                style:{
+                    width:50
+                }
+            },
+            editableSpots: false,
+
+            autofit: false,
+            autofitHeight: false,
+        }
+    },
+
 }
+
+export default Theme

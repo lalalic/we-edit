@@ -35,4 +35,12 @@ export default class extends Base{
         this.reducer.file.doc.getObjectPart("docProps/app.xml")("Pages").text(pages)
         //other statistics data could be updated, such as words, characters 
     }
+
+    defaultParagraphStyle({spacing, indent}){
+        debugger
+    }
+
+    defaultTextStyle({fonts, size}){
+        debugger
+    }
 }

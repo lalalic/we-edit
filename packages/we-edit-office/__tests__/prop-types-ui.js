@@ -127,11 +127,8 @@ describe("propTypes UI",()=>{
 
     describe("oneOf",()=>{
         it("defaultValue can be picked up",()=>{
-
-        })
-
-        it("uiContext[Ribbon][DropDown, labels, icons, and icon]",()=>{
-
+            const {root}=TestRenderer.create(<PropTypesUI.oneOf values={[1,2]} defaultValue={2}/>)
+            expect(root.findByProps({value:2})).toBeDefined()
         })
     })
 
@@ -178,35 +175,19 @@ describe("propTypes UI",()=>{
         expect(testRenderer.toJSON()).toMatchSnapshot()
     })
 
-    it("should render dom.Text",()=>{
-        const testRenderer=TestRenderer.create(
-            <MuiThemeProvider>
-                <PropTypesUI uiContext="Ribbon" theme="Text"
-                    propTypes={dom.Text.propTypes}
-                />
-            </MuiThemeProvider>
-        )
-        expect(testRenderer.toJSON()).toMatchSnapshot()
-    })
-
-    it("should render dom.Paragraph",()=>{
-        const testRenderer=TestRenderer.create(
-            <MuiThemeProvider>
-                <PropTypesUI uiContext="Ribbon" theme="Paragraph"
-                    propTypes={dom.Paragraph.propTypes}
-                />
-            </MuiThemeProvider>
-        )
-        expect(testRenderer.toJSON()).toMatchSnapshot()
-    })
-
     describe("theme",()=>{
+        function test(content){
+            const renderer=TestRenderer.create(content)
+            return renderer.root.instance
+        }
         it("should support direct theme on shape",()=>{
-
+            const theme={first:true,x:true}
+            expect(test(<PropTypesUI.shape theme={theme}/>).theme)
+                .toMatchObject(theme)
         })
 
-        it("should support shape theme, theme.UnitShape",()=>{
-
+        it("should support shape theme, but not theme.UnitShape",()=>{
+            
         })
 
         it("uiContext theme",()=>{
@@ -220,8 +201,6 @@ describe("propTypes UI",()=>{
         it("theme.style always be picked up",()=>{
 
         })
-
-
     })
 
     describe("every dom can create PropTypesUI",()=>{
@@ -250,4 +229,6 @@ describe("propTypes UI",()=>{
             })
         })
     })
+
+
 })

@@ -23,19 +23,19 @@ export default class UnitShape extends base{
         return this.lineField(this.renderTree(false))
     }
 
-    renderTree(hinting=true){
+    renderTree(){
         const {
             $props:{
                 min,max,step,onChange,name,label=name,types,path,required,style=this.theme.style,
-                uiContext,FieldWrapper,placeholder,theme,
+                uiContext,FieldWrapper,theme,
+                defaultValue,
                 ...props
             }, 
             state:{value=""}
         }=this
-        const hint={placeholder:placeholder||label,title:label}
         return (
             <span style={{position:"relative", display:"inline-block"}}>
-                <input {...{...props,...(hinting ? hint : {}),style,value,type:"text"}} 
+                <input {...{...props,title:label,style,value, type:"text"}} 
                     onChange={e=>this.setState({value:e.target.value})}
                     onBlur={a=>this.set(this.path, value)}
                     onKeyDown={e=>{
@@ -61,13 +61,17 @@ export default class UnitShape extends base{
         const {$props:{step=1, min=Number.MIN_SAFE_INTEGER,max=Number.MAX_SAFE_INTEGER}, state:{value:display}}=this
         const unit=(display+"").replace(/[\d\.\+-]/g,"")
         const value=parseFloat(display)||0
-        this.setState({value:Math.max(Math.min(value+step,max),min)+unit})
+        this.setState({value:Math.max(Math.min(value+step,max),min)+unit},()=>{
+            this.set(this.path, this.state.value)
+        })
     }
 
     stepDown(){
         const {$props:{step=1, min=Number.MIN_SAFE_INTEGER,max=Number.MAX_SAFE_INTEGER}, state:{value:display=""}}=this
         const unit=(display+"").replace(/[\d\.\+-]/g,"")
         const value=parseFloat(display)||0
-        this.setState({value:Math.max(Math.min(value-step,max),min)+unit})
+        this.setState({value:Math.max(Math.min(value-step,max),min)+unit},()=>{
+            this.set(this.path,this.state.value)
+        })
     }
 }

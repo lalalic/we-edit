@@ -26,6 +26,9 @@ import { IconWrap, } from "./icons";
 import CheckIconButton from "../components/check-icon-button"
 import Create from "./create"
 import ColorButton from "../components/color-button"
+import SelectStyle from "../components/select-style"
+import PropTypesUI from "../components/prop-types-ui"
+import {Shape} from "../layout"
 
 export default compose(
 	setDisplayName("Shape Ribbon"),
@@ -36,6 +39,32 @@ export default compose(
 		return {shape,anchor,frame}
 	}),
 )(({children, shape, anchor, frame, dispatch})=>{
+	return (
+		<Fragment>
+			<Create/>
+			<ToolbarSeparator/>
+			<PropTypesUI.oneOf label="edit shape" icon={<IconGeometry/>}
+				values={[["Change Shape"],["Edit Points"]]}
+				DropDown={({value:a})=><MenuItem primaryText={a[0]} onClick={a[1]}/>}
+				onClick={false}
+				/>	
+			<ToolbarSeparator/>
+			<Shape theme={{Shape:{Ribbon:{geometry:{},fill:{},outline:{}}}}}>
+
+			</Shape>
+			
+			<SelectStyle type="frame">
+				{({style,dispatch})=>(
+					<Fragment>
+						<PropTypesUI propTypes={dom.Frame.propTypes} props={style} theme="Frame"  onChange={frame=>dispatch(ACTION.Entity.UPDATE({frame}))}/>
+						<ToolbarSeparator/>
+					</Fragment>
+				)}
+			</SelectStyle>
+			
+			{children}
+		</Fragment>
+	)
 	return (
 		<Fragment>	
 			<Create/>

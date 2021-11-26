@@ -61,10 +61,15 @@ export default compose(
 		}
 	}),
 )(({children, createSection,createPageBreak, margin, size, column, landscape,protrait, 
-	sizeEqual,marginEqual, cols,
+	sizeEqual,marginEqual, cols, dispatch,
 	style
 })=>{
-	return <PropTypesUI propTypes={dom.Section.propTypes} props={style} uiContext="Ribbon" theme="Section"/>
+	return <PropTypesUI 
+		propTypes={dom.Section.propTypes} 
+		props={style} 
+		theme="Section"
+		onChange={change=>dispatch(ACTION.Entity.UPDATE({type:"section",...change}))}
+		/>
 	if(!style)
 		return null
 	return (

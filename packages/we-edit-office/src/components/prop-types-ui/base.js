@@ -3,6 +3,7 @@ import PropTypes from "prop-types"
 import memoize from "memoize-one"
 import {fromJS} from "immutable"
 import Theme from "./theme"
+import PropTypesUI from "."
 
 export default class base extends PureComponent{
     static contextTypes={
@@ -22,7 +23,7 @@ export default class base extends PureComponent{
     }
 
     get Types(){
-        return this.context.PropTypes
+        return this.context.PropTypes||PropTypesUI
     }
 
     get path(){
@@ -56,7 +57,7 @@ export default class base extends PureComponent{
     }
 
     getUIType(type){
-        return typeof(type)=="string" ? this.Types[type] : type
+        return this.Types[type]||type
     }
 
     makePath(key){

@@ -1,7 +1,7 @@
 import React, {PureComponent} from "react"
 import PropTypes from "prop-types"
 import {whenSelectionChangeDiscardable, dom} from "we-edit"
-import {compose,setDisplayName,getContext}  from "recompose"
+import {compose,setDisplayName,getContext,withContext}  from "recompose"
 
 import {Toolbar,ToolbarSeparator, ToolbarGroup, Tabs, Tab,} from "material-ui"
 import tabTemplate from "material-ui/Tabs/TabTemplate"
@@ -26,7 +26,8 @@ import {CheckIconButton,DropDownButton,ContextMenuSupport, PropTypesUI} from "./
 const Ribbon=compose(
 	setDisplayName("Ribbon"),
 	getContext({muiTheme:PropTypes.object,selection:PropTypes.object}),
-	whenSelectionChangeDiscardable()
+	whenSelectionChangeDiscardable(),
+	withContext({uiContext:PropTypes.string},()=>({uiContext:"Ribbon"}))
 )(class extends PureComponent{
 	render(){
 		const {
@@ -106,7 +107,7 @@ const Ribbon=compose(
 								{design.font}
 								{design.effect}
 								{design.more}
-								{<PropTypesUI uiContext="Ribbon" propTypes={dom.Text.propTypes} theme="Text"/>}
+								{<PropTypesUI propTypes={dom.Text.propTypes} theme="Text"/>}
 							</ToolbarGroup>
 						</Toolbar>
 					</Tab>}
@@ -118,9 +119,7 @@ const Ribbon=compose(
 								{layout.section}
 								{layout.page}
 								{layout.paragraph}
-								{layout.list}
 								{layout.shape}
-								{layout.table}
 								{layout.more}
 							</ToolbarGroup>
 						</Toolbar>
@@ -206,7 +205,7 @@ const Ribbon=compose(
 				effect: null,
 			},
 			layout: {
-				section: <Layout.Section/>,
+				//section: <Layout.Section/>,
 				page: <Layout.Page/>,
 				shape: <Layout.Shape/>,
 				paragraph: <Layout.Paragraph/>,

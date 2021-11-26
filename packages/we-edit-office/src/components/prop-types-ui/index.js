@@ -10,7 +10,6 @@ import oneOfType from "./one-of-type"
 import arrayOf from "./array-of"
 import shape from "./shape"
 import UnitShape from "./unit-shape"
-import AlignShape from "./align-shape"
 import AutoFitShape from "./auto-fit-shape"
 import BorderShape from "./border-shape"
 import ColorShape from "./color-shape"
@@ -28,7 +27,6 @@ import PaddingShape from "./padding-shape"
 import PatternShape from "./pattern-shape"
 import TextStyleShape from "./text-style-shape"
 import UrlShape from "./url-shape"
-import VertialAlignShape from "./vertical-align-shape"
 import WrapModeShape from "./wrap-mode-shape"
 import WrapSideShape from "./wrap-side-shape"
 import ColumnShape from "./column-shape"
@@ -42,14 +40,14 @@ import BaseTheme from "./theme"
 export default class PropTypesUI extends Component{
     static Types=(types=>(Object.assign(this,types),types))({
         string,number,bool,shape,oneOf,oneOfType,arrayOf,
-        UnitShape,AlignShape,AutoFitShape,BorderShape,ColorShape,
+        UnitShape,AutoFitShape,BorderShape,ColorShape,
         EffectShape,FillPictureShape,FillShape, FontsShape,
         GeometryShape,GradientShape,GradientStopShape,
         LineShape,MarginShape,PaddingShape,
         NumberingShape, 
 
-        PatternShape,TextStyleShape,UrlShape,VertialAlignShape,
-        WrapModeShape,WrapSideShape,ColumnShape,AnchorBaseShape
+        PatternShape,TextStyleShape,UrlShape,
+        ColumnShape,
     });
 
     static childContextTypes={
@@ -100,14 +98,18 @@ export default class PropTypesUI extends Component{
 
     constructor({props={}}){
         super(...arguments)
-        this.state={props:new Map(props)}
+        this.state={props:fromJS(props)}
         this.set=this.set.bind(this)
         this.onEvent=this.onEvent.bind(this)
+    }
+
+    get value(){
+        return this.state.props.toJS()
     }
     
     render(){
         const {props:{propTypes}, state:{props}, constructor:{Types}}=this
-        return <Types.shape schema={propTypes.Type?.props.schema||propTypes} theme={this.theme} value={props.toJS()}/>
+        return <Types.shape schema={propTypes.Type?.props.schema||propTypes} theme={this.theme} value={props.toJS()} Wrapper={null}/>
     }
 
     set(path, value){
@@ -116,16 +118,7 @@ export default class PropTypesUI extends Component{
         if(!onChange){
              this.setState({props:changed})
         }else{
-            let patch=new Map()
-            for(let i=0, len=keyPath.length;i<len;i++){
-                const currentKeyPath=keyPath.slice(0,i+1)
-                const currentKeyValue=changed.getIn(currentKeyPath)
-                patch=patch.setIn(currentKeyPath,currentKeyValue)
-                if(!Map.isMap(currentKeyValue)){
-                    break   
-                }
-            }
-            onChange(patch.toJS(), changed.toJS())
+            onChange(new Map().setIn(keyPath,value).toJS(), changed.toJS())
         }
     }
 
@@ -133,3 +126,5 @@ export default class PropTypesUI extends Component{
         this.props.onEvent?.(...arguments)
     }
 }
+
+const Wrapper=({children})=>children

@@ -5,16 +5,15 @@ import ToolbarField from "../toolbar-field"
 
 export default class extends base{
     type="text"
-    renderRibbon(hinting=true){
-        const {name, value, label=name, style, FieldWrapper=ToolbarField}=this.$props
+    renderRibbon(){
+        const {name, value, label=name, style, FieldWrapper=ToolbarField, defaultValue}=this.$props
         return (
             <FieldWrapper label={label}>
                 <input {...{
                     type:this.type,
-                    hint:label,
+                    title:label,
                     value, 
                     style,
-                    placeholder: hinting ? label : "", 
                     onChange:e=>this.set(this.path, e.target.value)
                 }}/>
             </FieldWrapper>

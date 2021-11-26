@@ -14,7 +14,7 @@
     "fetchable": "^1.0.4",
     "lodash.get": "^4.4.2",
     "lodash.invoke": "^4.5.2",
-    "material-ui": "^0.19.4",
+    "material-ui": "^0.20.0",
     "memoize-one": "^4.0.0",
     "readable-stream": "^3.4.0"
   },

@@ -13,7 +13,7 @@
     "file-type": "^14.1.4",
     "lodash.defaultsdeep": "^4.6.1",
     "lodash.invoke": "^4.5.2",
-    "material-ui": "^0.19.4",
+    "material-ui": "^0.20.0",
     "memoize-one": "^4.0.2",
     "minimatch": "^3.0.4",
     "prop-types": "^15.6.0",

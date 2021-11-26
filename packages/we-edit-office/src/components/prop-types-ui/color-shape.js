@@ -23,4 +23,8 @@ export default class ColorShape extends base{
     renderTree(){
         return this.renderRibbon()
     }
+
+    renderMenu(){
+        return <div>color</div>
+    }
 }

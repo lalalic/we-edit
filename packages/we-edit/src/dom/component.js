@@ -248,9 +248,11 @@ export default class Base extends Component{
 	})
 
 	static LineShape=this.normalizeChecker(PropTypes.oneOfType([
+		PropTypes.oneOf(["single","double"]),
+		this.UnitShape,//width
 		PropTypes.shape({
-			width: this.UnitShape.isRequired,
 			color: this.ColorShape,
+			width: this.UnitShape.isRequired,
 			
 			dashArray: PropTypes.string,
 			dashOffset: PropTypes.string,
@@ -265,9 +267,7 @@ export default class Base extends Component{
 			compound: PropTypes.string,
 			gradient: this.GradientShape
 		}),
-		this.UnitShape,//width
-		PropTypes.oneOf(["signle","double"])
-	],{$type:"LineShape"}),{
+	]),{
 		default:{width:1,color:"black"},
 		normalize:(value)=>{
 			switch(typeof(value)){
@@ -556,10 +556,10 @@ export default class Base extends Component{
 
 	static PaddingShape=this.MarginShape
 
-	static AutofitShape=PropTypes.oneOf(["block","font"],{$type:"AutofitShape",label:"auto fit %s"})
+	static AutofitShape=PropTypes.oneOf(["block","font"])
 
-	static AlignShape=PropTypes.oneOf(["left","right","center","justify"],{$type:"AlignShape",label:"Align %s", defaultValue:"left"})
-	static VertAlignShape=PropTypes.oneOf(["top","middle","bottom"],{$type:"VertAlignShape",label:"Vertical Align %s"})
+	static AlignShape=PropTypes.oneOf(["left","right","center","justify"],{defaultValue:"left"})
+	static VertAlignShape=PropTypes.oneOf(["top","middle","bottom"],{defaultValue:"top"})
 
 	static TextStyleShape=this.normalizeChecker(PropTypes.shape({
 		fonts:this.FontsShape.isRequired,
@@ -630,9 +630,9 @@ export default class Base extends Component{
 		}
 	})
 
-	static WrapModeShape=PropTypes.oneOf(["square", "tight", "clear","no"],{$type:"WrapModeShape",label:"%s wrap"})
-    static WrapSideShape=PropTypes.oneOf(["both","left","right","largest"], {$type:"WrapSideShape",label:"% side wrap"})
-    static AnchorBaseShape=PropTypes.oneOf(["character","line","paragraph","page","frame","margin", "closest"],{$type:"PositionBaseShape",label:"position base %s"})
+	static WrapModeShape=PropTypes.oneOf(["square", "tight", "clear","no"])
+    static WrapSideShape=PropTypes.oneOf(["both","left","right","largest"])
+    static AnchorBaseShape=PropTypes.oneOf(["character","line","paragraph","page","frame","margin", "closest"])
 	static ColumnShape=this.normalizeChecker(PropTypes.shape({
 		x:this.UnitShape,
 		y:this.UnitShape,

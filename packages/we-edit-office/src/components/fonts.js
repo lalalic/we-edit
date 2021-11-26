@@ -105,9 +105,6 @@ export default class FontList extends React.Component{
 								onMouseOver(e){
 									e.currentTarget.click()
 								},
-								onMouseLeave:(e)=>{
-									//this.menu.current.refs.focusedMenuItem.setState({open:false,anchorEl:null})
-								},
 								menuItems:[React.cloneElement(last.value,{primaryText:"Regular"}),item],
 							})
 						})
