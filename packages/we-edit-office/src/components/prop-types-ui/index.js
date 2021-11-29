@@ -10,27 +10,10 @@ import oneOfType from "./one-of-type"
 import arrayOf from "./array-of"
 import shape from "./shape"
 import UnitShape from "./unit-shape"
-import AutoFitShape from "./auto-fit-shape"
-import BorderShape from "./border-shape"
 import ColorShape from "./color-shape"
-import EffectShape from "./effect-shape"
-import FillPictureShape from "./fill-picture-shape"
-import FillShape from "./fill-shape"
 import FontsShape from "./fonts-shape"
-import GeometryShape from "./geometry-shape"
-import GradientShape from "./gradient-shape"
-import GradientStopShape from "./gradient-stop-shape"
-import LineShape from "./line-shape"
-import MarginShape from "./margin-shape"
 import NumberingShape from "./numbering-shape"
-import PaddingShape from "./padding-shape"
-import PatternShape from "./pattern-shape"
-import TextStyleShape from "./text-style-shape"
-import UrlShape from "./url-shape"
-import WrapModeShape from "./wrap-mode-shape"
-import WrapSideShape from "./wrap-side-shape"
-import ColumnShape from "./column-shape"
-import AnchorBaseShape from "./anchor-base-shape"
+
 
 import BaseTheme from "./theme"
 
@@ -40,14 +23,7 @@ import BaseTheme from "./theme"
 export default class PropTypesUI extends Component{
     static Types=(types=>(Object.assign(this,types),types))({
         string,number,bool,shape,oneOf,oneOfType,arrayOf,
-        UnitShape,AutoFitShape,BorderShape,ColorShape,
-        EffectShape,FillPictureShape,FillShape, FontsShape,
-        GeometryShape,GradientShape,GradientStopShape,
-        LineShape,MarginShape,PaddingShape,
-        NumberingShape, 
-
-        PatternShape,TextStyleShape,UrlShape,
-        ColumnShape,
+        UnitShape,ColorShape, FontsShape,NumberingShape,
     });
 
     static childContextTypes={

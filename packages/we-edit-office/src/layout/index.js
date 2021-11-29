@@ -55,15 +55,19 @@ export const Page=({children})=>{
                             {section && <Fragment>
                                 <PropTypesUI.oneOf key="create section"
                                     values={[["Page","Page Break"],["column","Column Break"],"-",["nextPage","Next Page"], ["continuous","Continuous Break"], ["evenPage","Event Page"], ["oddPage","Odd Page"]]}
-                                    DropDown={({value:a})=><MenuItem primaryText={a[1]} 
-                                        onClick={e=>{
-                                            switch(a[0]){
-                                                case 'Page':
-                                                    return dispatch(ACTION.Entity.CREATE({type:"pagebreak"}))
-                                                default:
-                                                    return dispatch(ACTION.Entity.CREATE({type:"section", kind:a[0]}))
-                                            }  
-                                        }}/>}
+                                    DropDown={({value:a, ...props})=>
+                                                <MenuItem primaryText={a[1]} 
+                                                    onClick={e=>{
+                                                        switch(a[0]){
+                                                            case 'Page':
+                                                                return dispatch(ACTION.Entity.CREATE({type:"pagebreak"}))
+                                                            default:
+                                                                return dispatch(ACTION.Entity.CREATE({type:"section", kind:a[0]}))
+                                                        }  
+                                                    }}
+                                                    {...props}
+                                                    />
+                                            }
                                     icon={<IconLayout/>}
                                     onClick={false}
                                 />
@@ -121,10 +125,7 @@ export const Shape=({children, theme:{Shape,Anchor}={}})=>{
                         <PropTypesUI.oneOf label="Align"
                             values={["Left","Center","Right","-","Top","Middle","Bottom","-","horizontal","veritical","-","Page","Margin"]} 
                             labels={["Align Left","Align Center", "Align Right","","Align Top","Aligh Middle","Align Bottom","","Distribute Horizontal","Distribute Vertical","","Aligh to Page", "Align to Margin"]}
-                            DropDown={({value,label,onClick})=><MenuItem primaryText={label} 
-                                onClick={e=>{
-                                    dispatch(ACTION.Entity.UPDATE({anchor:value}))
-                                }}/>} 
+                            DropDown={props=><MenuItem onClick={e=>dispatch(ACTION.Entity.UPDATE({anchor:value}))} {...props}/>} 
                             onClick={false} 
                             icon={<IconAnchorBase/>}
                             />

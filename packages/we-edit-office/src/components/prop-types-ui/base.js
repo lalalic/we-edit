@@ -57,6 +57,15 @@ export default class base extends PureComponent{
     }
 
     getUIType(type){
+        if(!type || typeof(type)!="string")
+            return type
+
+        let i=type.indexOf("(")
+        if(i!=-1){//oneOf(ColorShape)
+            const TypedShape=type.substring(i+1).replace(")","").trim()
+            const BaseShape=type.substring(0,i).trim()
+            return this.Types[TypedShape]||this.Types[BaseShape]||type
+        }
         return this.Types[type]||type
     }
 

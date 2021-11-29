@@ -132,8 +132,8 @@ const LineDashes=["","1", "4 2", "4 2 2 2", "6 2", "6 2 2 2","6 2 2 2 2 2"]
 const LineSketches=["M0 5h30","M0 5h30"]
 
 const FillGradients=[{type:"no",gradients:[]},{type:"light",gradients:[[1,"red",0.2],[]]},{type:"dark",gradients:[]}]
-const FillTextures=[{type:"",textures:[]}]
-const FillPatterns=[{type:"",patterns:[]}]
+const FillTextures=["","",""]
+const FillPatterns=[]
 
 //shape input only be on root level
 const Theme={
@@ -375,41 +375,28 @@ const Theme={
                 Wrapper:ShapeAsMenu,
 
                 transparency:false,
-                gradient:<oneOf label="Gradient" 
+                gradient:false,
+                /*
+                    <oneOf label="Gradient" 
                     values={[...FillGradients,"-"]}
-                    Item={({value, set, ...props})=>{
-                        return (
-                            <div style={{}}>
-                                {value.gradients.map(a=><Gradient value={a} onClick={e=>set(a)}/>)}
-                            </div>
-                        )
-                    }}
+                    Layout="grid"
+                    Item={({value, onClick})=><Gradient value={value} onClick={onClick}/>}
                     children={<MenuItem primaryText="More Gradients..."/>}
-                    />,
+                    />,*/
                 picture:{
                     spread:true,
                     $type0:<string label="Picture..." accept="image/*"/>,
                     $type1:<oneOf label="Texture" 
                         values={[...FillTextures,"-"]}
-                        Item={({value,set,...props})=>{
-                            return (
-                                <div style={{}}>
-                                    {value.textures.map(a=><Texture value={a} onClick={e=>set(a)}/>)}
-                                </div>
-                            )
-                        }}
+                        Layout="grid"
+                        Item={({value,onClick})=><Texture src={value} onClick={onClick}/>}
                         children={<MenuItem primaryText="More Textures..."/>}
                         />
                 },
                 pattern: <oneOf label="Pattern" 
                     values={[...FillPatterns,"-"]}
-                    Item={({value,set,...props})=>{
-                        return (
-                            <div style={{}}>
-                                {value.patterns.map(a=><Pattern value={a} onClick={e=>set(a)}/>)}
-                            </div>
-                        )
-                    }}
+                    Layout="grid"
+                    Item={({value,onClick})=><Pattern value={value} onClick={onClick}/>}
                     children={<MenuItem primaryText="More Patterns..."/>}
                     />
             },
@@ -435,7 +422,7 @@ const Theme={
 }
 
 const Gradient=props=>null
-const Texture=props=>null
+const Texture=props=><div style={{display:"inline-block",width:50,height:50,border:"1px solid red"}}/>
 const Pattern=props=>null
 
 export default Theme

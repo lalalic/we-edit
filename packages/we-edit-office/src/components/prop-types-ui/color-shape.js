@@ -1,10 +1,14 @@
-import React from "react"
+import React,{Fragment} from "react"
 import base from "./base"
 import ColorButton from "../color-button"
 import SelectColor from "../select-color"
 import { Dialog } from "material-ui"
 
 export default class ColorShape extends base{
+    constructor(){
+        super(...arguments)
+        this.state={show:false}
+    }
     renderRibbon(){
         const {types, value, path,name,label=name, uiContext, ...props}=this.props
         return (

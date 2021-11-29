@@ -4,7 +4,17 @@ import units from "../tools/units"
 import Geometry from "../tools/geometry"
 import numberings from "../tools/numbering"
 
+const isPrimitiveChecker=checker=>{
+	return "array,bool,string,func,number,object,symbol".split(",").map(a=>PropTypes[a]).includes(checker)
+}
 
+const asType=($type,base)=>{
+	if(typeof($type)=="string")
+		return `${base}(${$type})`
+	if(!!$type)
+		return $type
+	return base
+}
 export default class Base extends Component{
 	static displayName="unknown"
 	static units=units
@@ -21,36 +31,36 @@ export default class Base extends Component{
 		number.isRequired.Type=<number required={true}/>
 
 		types.oneOf=(fn=>{
-			return function(values,{$type="oneOf",...props}={}){
+			return function(values,{$type,...props}={}){
 				let validator=fn(values)
-				validator.Type=React.createElement($type, {...props,values, })
+				validator.Type=React.createElement(asType($type,'oneOf'), {...props,values, })
 				validator.isRequired.Type=React.cloneElement(validator.Type, {required:true})
 				return validator
 			}
 		})(types.oneOf);
 
 		types.shape=(fn=>{
-			return function(model,{$type="shape",...props}={}){
+			return function(model,{$type,...props}={}){
 				let validator=fn(model)
-				validator.Type=React.createElement($type,{...props,schema:model,})
+				validator.Type=React.createElement(asType($type,'shape'),{...props,schema:model,})
 				validator.isRequired.Type=React.cloneElement(validator.Type, {required:true})
 				return validator
 			}
 		})(types.shape);
 
 		types.oneOfType=(fn=>{
-			return function(types,{$type="oneOfType",...props}={}){
+			return function(types,{$type,...props}={}){
 				let validator=fn(types)
-				validator.Type=React.createElement($type,{...props,types,})
+				validator.Type=React.createElement(asType($type,'oneOfType'),{...props,types,})
 				validator.isRequired.Type=React.cloneElement(validator.Type, {required:true})
 				return validator
 			}
 		})(types.oneOfType);
 
 		types.arrayOf=(fn=>{
-			return function(type,{$type="arrayOf",...props}={}){
+			return function(type,{$type,...props}={}){
 				let validator=fn(type)
-				validator.Type=React.createElement($type, {...props,type})
+				validator.Type=React.createElement(asType($type,'arrayOf'), {...props,type})
 				validator.isRequired.Type=React.cloneElement(validator.Type, {required:true})
 				return validator
 			}
@@ -58,9 +68,37 @@ export default class Base extends Component{
 		
 	}
 
-	static normalizeChecker=(checker,extend)=>{
+	static normalizeChecker=(checker,extend,props)=>{
+		if(isPrimitiveChecker(checker)){
+			const isRequired=checker.isRequired
+			checker=(...args)=>checker(...args)
+			checker.isRequired=(...args)=>isRequired(...args)
+			if(props && React.isValidElement(isRequired.Type)){
+				const {$type, ...props0}=props
+				if($type){
+					const type=`${isRequired.Type.type}(${$type})`
+					checker.Type=React.cloneElement(type,{...isRequired.Type.props,...props0,isRequired:undefined})
+					checker.isRequired.Type=React.cloneElement(type,{...isRequired.Type.props,...props0})
+				}else{
+					checker.Type=React.cloneElement(isRequired.Type,{...props,isRequired:undefined})
+					checker.isRequired.Type=React.cloneElement(isRequired.Type,{...props})
+				}
+			}
+		}
 		const isRequired=checker.isRequired
-		Object.assign(checker,extend)
+		const toType=newType=>{
+			const cloned=(...args)=>checker(...args)
+			cloned.isRequired=(...args)=>isRequired(...args)
+			const type=checker.Type.type,i=type.indexOf("(")
+			const changedType= i!=-1 ? `${type.substring(0,i)}(${newType})` : `${type}(${newType})`
+			cloned.Type=React.cloneElement(changedType,{...checker.Type.props})
+			cloned.isRequired.Type=React.cloneElement(changedType,{...isRequired.Type.props})
+			Object.assign(cloned,{...extend,toType})
+			Object.assign(cloned.isRequired,extend)
+			return cloned
+		}
+
+		Object.assign(checker,{...extend,toType})
 		Object.assign(isRequired,extend)
 		return checker
 	}
@@ -126,7 +164,7 @@ export default class Base extends Component{
 		is:value=>true,
 	})
 
-	static URLShape=this.normalizeChecker(PropTypes.oneOfType([PropTypes.string]),{
+	static URLShape=this.normalizeChecker(PropTypes.string,{
 		normalize:value=>value,
 		denormalize:(value,normalized)=>normalized,
 		is:value=>{
@@ -136,8 +174,19 @@ export default class Base extends Component{
 				return false
 			}
 		},
-	})
+	},{$type:"URLShape"})
 
+	static BlobShape=this.normalizeChecker(PropTypes.string,{
+		normalize:value=>value,
+		denormalize:(value,normalized)=>normalized,
+		is:value=>{
+			try{
+				return new URL(value).protocol=="blob:"
+			}catch(e){
+				return false
+			}
+		},
+	},{$type:"BlobShape",type:"file"})
 
 	static GradientStopShape=this.normalizeChecker(PropTypes.shape({
 		offset: this.UnitShape,
@@ -273,7 +322,7 @@ export default class Base extends Component{
 			compound: PropTypes.string,
 			gradient: this.GradientShape
 		}),
-	]),{
+	],{$type:"LineShape"}),{
 		default:{width:1,color:"black"},
 		normalize:(value)=>{
 			switch(typeof(value)){
@@ -314,7 +363,7 @@ export default class Base extends Component{
 	static FillPictureShape=this.normalizeChecker(PropTypes.oneOfType([
 		PropTypes.string,
 		PropTypes.shape({
-			url: PropTypes.string,
+			url: this.BlobShape,
 			texture: PropTypes.bool,
 			transparency: PropTypes.number,
 			tile: PropTypes.shape({
@@ -327,7 +376,7 @@ export default class Base extends Component{
 			}),
 			margin:this.MarginShape,
 		})
-	]),{
+	],{$type:"FillPictureShape"}),{
 		normalize:(value)=>{
 			if(typeof(value)=="string"){
 				return {url:value}
@@ -382,7 +431,7 @@ export default class Base extends Component{
 		}),
 
 		this.ColorShape,
-	]),{
+	],{$type:"FillShape"}),{
 		normalize:(value)=>{
 			if(typeof(value)=="object"){
 				const {color, pattern, picture,gradient, ...normalized}=value
@@ -561,12 +610,12 @@ export default class Base extends Component{
 		}
 	})
 
-	static PaddingShape=this.MarginShape
+	static PaddingShape=this.MarginShape.toType("PaddingShape")
 
-	static AutofitShape=PropTypes.oneOf(["block","font"])
+	static AutofitShape=PropTypes.oneOf(["block","font"],{$type:"AutofitShape"})
 
-	static AlignShape=PropTypes.oneOf(["left","right","center","justify"],{defaultValue:"left"})
-	static VertAlignShape=PropTypes.oneOf(["top","middle","bottom"],{defaultValue:"top"})
+	static AlignShape=PropTypes.oneOf(["left","right","center","justify"],{$type:"AlignShape",defaultValue:"left"})
+	static VertAlignShape=PropTypes.oneOf(["top","middle","bottom"],{$type:"VertAlignShape",defaultValue:"top"})
 
 	static TextStyleShape=this.normalizeChecker(PropTypes.shape({
 		fonts:this.FontsShape.isRequired,
@@ -601,7 +650,7 @@ export default class Base extends Component{
 		label: PropTypes.oneOfType([
 			PropTypes.string,
 			PropTypes.shape({
-				url: PropTypes.string.isRequired
+				url: this.BlobShape,
 			})
 		])
 	},{$type:"NumberingShape"}),{
@@ -637,9 +686,9 @@ export default class Base extends Component{
 		}
 	})
 
-	static WrapModeShape=PropTypes.oneOf(["square", "tight", "clear","no"])
-    static WrapSideShape=PropTypes.oneOf(["both","left","right","largest"])
-    static AnchorBaseShape=PropTypes.oneOf(["character","line","paragraph","page","frame","margin", "closest"])
+	static WrapModeShape=PropTypes.oneOf(["square", "tight", "clear","no"],{$type:"WrapModeShape"})
+    static WrapSideShape=PropTypes.oneOf(["both","left","right","largest"],{$type:"WrapSideShape"})
+    static AnchorBaseShape=PropTypes.oneOf(["character","line","paragraph","page","frame","margin", "closest"],{$type:"AnchorBaseShape"})
 	static ColumnShape=this.normalizeChecker(PropTypes.shape({
 		x:this.UnitShape,
 		y:this.UnitShape,

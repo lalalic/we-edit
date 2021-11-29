@@ -1,4 +1,4 @@
-import React, { Fragment } from "react"
+import React, { Fragment, Component } from "react"
 import PropTypes from "prop-types"
 import {MenuItem} from "material-ui/Menu"
 import Divider from 'material-ui/Divider'
@@ -57,7 +57,12 @@ export default class oneOf extends base{
     }
 
     renderRibbonDropDown(){
-        const {values, style,onClick=()=>this.set(this.path, values[0]), defaultValue,value=defaultValue, DropDown, check=a=>false, name, label=name, icon,  labels=[], icons=[],children}=this.$props
+        const {values, style,
+            onClick=()=>this.set(this.path, values[0]), 
+            defaultValue,value=defaultValue, DropDown:_1, DropDown=_1===true ? MenuItem : _1,
+            check=a=>false, name, label=name, icon,  
+            labels=[], icons=[],children}=this.$props
+
         return (
             <DropDownButton
                 status={(value && check(value, values)) ? "checked":"unchecked"}
@@ -69,9 +74,7 @@ export default class oneOf extends base{
                 {values.map((a,i)=>{
                     if(a==="-")
                         return <Divider key={i}/>
-                    return DropDown===true ? 
-                        <MenuItem key={i} primaryText={labels[i]||a} onClick={()=>this.set(this.path, a)} leftIcon={icons[i]} checked={this.equal(a,value)}/> : 
-                        <DropDown key={i} value={a} label={labels[i]||a} checked={this.equal(a,value)} onClick={()=>this.set(this.path, a)}/>
+                    return <DropDown key={i} value={a} primaryText={labels[i]||a} onClick={()=>this.set(this.path, a)} leftIcon={icons[i]} checked={this.equal(a,value)}/>
                 })}
                 {children}
             </DropDownButton>
@@ -79,36 +82,34 @@ export default class oneOf extends base{
     }
 
     renderMenu(){
-        const {name,label=name, icon, icons=[],values=[],labels=[], children,value,Item}=this.$props
+        const {name,label=name, icon, icons=[],values=[],labels=[],
+            Layout:_1, Layout=typeof(_1)=="string" ? this.constructor.Layouts[_1.toLowerCase()] : _1||Fragment, 
+            children,value,Item=MenuItem,}=this.$props
+        
         const items=[
-            ...values.map((a,i)=>{
-                if(a==="-")
-                    return <Divider key={i}/>
-                
-                if(!Item){
-                    return <MenuItem key={i} 
-                        primaryText={labels[i]||a} 
-                        leftIcon={icons[i]}
-                        checked={this.equal(a,value)} 
-                        onClick={e=>{
-                            this.context.onItemClick(e)
-                            this.set(this.path,a)
-                        }}/>
-                }else{
-                    return <Item key={i} 
-                        value={a}
-                        primaryText={labels[i]||a} 
-                        leftIcon={icons[i]}
-                        set={v=>{
-                            this.context.onItemClick()
-                            this.set(this.path,v)
-                        }}/>
+            <Layout>
+                {
+                    values.map((a,i)=>{
+                        if(a==="-")
+                            return <Divider key={i}/>
+                        return <Item key={i} value={a}
+                            primaryText={labels[i]||a} 
+                            leftIcon={icons[i]}
+                            checked={this.equal(a,value)} 
+                            set={v=>this.set(this.path,v)}
+                            onClick={e=>{
+                                this.context.onItemClick(e)
+                                this.set(this.path,a)
+                            }}/>
+                    })
                 }
-            }),
+            </Layout>,
             ...React.Children.toArray(children),
         ]
         const me=React.createRef()
-        return (<MenuItem primaryText={label} ref={me}
+        
+        return (<MenuItem ref={me} value={value}
+                primaryText={label} 
                 leftIcon={icon} 
                 rightIcon={<IconArrowRight/>} 
                 menuItems={items} 
@@ -122,4 +123,20 @@ export default class oneOf extends base{
     equal(a,b){
         return a===b || (!!a && !!b && typeof(a)=="object" && typeof(b)=="object" && fromJS(a).equals(fromJS(b)))
     }
+
+    static Layouts={
+        grid: class Grid extends Component{
+            render(){
+                const {children}=this.props
+                const i=children.findIndex(a=>a.type===Divider)
+                return [
+                    <div key="grid" style={{display:"flex"}}>
+                        {children.slice(0,i)}
+                    </div>,
+                    children.slice(i)
+                ]
+            }
+        }
+    }
 }
+
