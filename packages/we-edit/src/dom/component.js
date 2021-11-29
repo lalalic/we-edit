@@ -134,24 +134,24 @@ export default class Base extends Component{
 
 
 	static GradientStopShape=this.normalizeChecker(PropTypes.shape({
+		offset: this.UnitShape,
 		color: this.ColorShape,
-		position: this.UnitShape,
 		transparency: PropTypes.number,
 		brightness: PropTypes.number,
 	},{$type:"GradientStopShape"}),{
-		normalize:({color,position, ...stop	})=>{
+		normalize:({color,offset, ...stop	})=>{
 			if(color!=undefined)
 				stop.color=this.ColorShape.normalize(color)
-			if(position!=undefined)
-				stop.position=this.UnitShape.normalize(position)
+			if(offset!=undefined)
+				stop.offset=this.UnitShape.normalize(offset)
 			return stop
 		},
 		denormalize:(value, normalized)=>{
-			const {color,position}=value
+			const {color,offset}=value
 			if(color!=undefined)
 				normalized.color=this.ColorShape.denormalize(normalized.color)
-			if(position!=undefined)
-				normalized.position=this.UnitShape.denormalize(normalized.position)
+			if(offset!=undefined)
+				normalized.offset=this.UnitShape.denormalize(normalized.offset)
 			return normalized
 		}
 	})
@@ -309,6 +309,7 @@ export default class Base extends Component{
 		PropTypes.string,
 		PropTypes.shape({
 			url: PropTypes.string,
+			texture: PropTypes.bool,
 			transparency: PropTypes.number,
 			tile: PropTypes.shape({
 				x: this.UnitShape,
@@ -320,7 +321,7 @@ export default class Base extends Component{
 			}),
 			margin:this.MarginShape,
 		})
-	],{$type:"FillPictureShape"}),{
+	]),{
 		normalize:(value)=>{
 			if(typeof(value)=="string"){
 				return {url:value}
@@ -375,7 +376,7 @@ export default class Base extends Component{
 		}),
 
 		this.ColorShape,
-	],{$type:"FillShape"}),{
+	]),{
 		normalize:(value)=>{
 			if(typeof(value)=="object"){
 				const {color, pattern, picture,gradient, ...normalized}=value
