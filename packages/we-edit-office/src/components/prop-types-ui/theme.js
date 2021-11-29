@@ -30,6 +30,7 @@ import IconOutlineShape from "material-ui/svg-icons/editor/border-color"
 
 
 import ShapeAsMenu from "./shape-as-menu"
+import PropTypesUI from "."
 
 const IconSuperscript = props => (
 	<SvgIcon {...props}>
@@ -126,8 +127,17 @@ const ColumnIcons=[
     </IconColumn>,
 ]
 
+const LineWeights=[0.25,0.5,0.75,1,1.5,2.25,3,4.5,6]
+const LineDashes=["","1", "4 2", "4 2 2 2", "6 2", "6 2 2 2","6 2 2 2 2 2"]
+const LineSketches=["M0 5h30","M0 5h30"]
+
+const FillGradients=[{type:"no",gradients:[]},{type:"light",gradients:[[1,"red",0.2],[]]},{type:"dark",gradients:[]}]
+const FillTextures=[{type:"",textures:[]}]
+const FillPatterns=[{type:"",patterns:[]}]
+
 //shape input only be on root level
 const Theme={
+    
     UnitShape:{
         Ribbon:{
             style:{
@@ -333,14 +343,76 @@ const Theme={
                 i:2,
                 icon:<IconOutlineShape/>,
                 Wrapper:ShapeAsMenu,
-                width:<oneOf label="Weight" values={[1,3]}/>,
-                dashArray:<oneOf label="Dashes"/>,
-                sketched:<oneOf label="Sketch"/>
+
+                width:<oneOf label="Weight" 
+                    values={[...LineWeights,"-"]}
+                    labels={LineWeights.map(a=><span><i style={{fontSize:9}}>{a}pt</i><hr style={{width:"100%",border:0, borderTop:`${a}pt solid lightgray`}}/></span>)}
+                    children={<MenuItem primaryText="More Lines..."/>}
+                    />,
+                dashArray:<oneOf label="Dashes"
+                    values={[...LineDashes,"-"]}
+                    labels={LineDashes.map(a=><svg viewBox="0 0 30 10"><line {...{x1:0,x2:30,y1:5,y2:5,strokeDasharray:a,stroke:"black"}}/></svg>)}
+                    children={<MenuItem primaryText="More Lines..."/>}
+                    />,
+                sketched:<oneOf label="Sketch"
+                    values={[...LineSketches,"-"]}
+                    labels={LineSketches.map(d=><svg viewBox="0 0 30 10"><path {...{stroke:"black",d}}/></svg>)}
+                    children={<MenuItem primaryText="More Lines..."/>}
+                    />,
+                join:false,
+                dashOffset:false,
+                cap: false,
+                miterLimit: false,
+                
+                opacity: false,
+                
+                style: false,
+                compound: false,
             },
             fill: {
-                
+                i:0,
+                icon:<IconFillShape/>,
+                Wrapper:ShapeAsMenu,
+
+                transparency:false,
+                gradient:<oneOf label="Gradient" 
+                    values={[...FillGradients,"-"]}
+                    Item={({value, set, ...props})=>{
+                        return (
+                            <div style={{}}>
+                                {value.gradients.map(a=><Gradient value={a} onClick={e=>set(a)}/>)}
+                            </div>
+                        )
+                    }}
+                    children={<MenuItem primaryText="More Gradients..."/>}
+                    />,
+                picture:{
+                    spread:true,
+                    $type0:<string label="Picture..." accept="image/*"/>,
+                    $type1:<oneOf label="Texture" 
+                        values={[...FillTextures,"-"]}
+                        Item={({value,set,...props})=>{
+                            return (
+                                <div style={{}}>
+                                    {value.textures.map(a=><Texture value={a} onClick={e=>set(a)}/>)}
+                                </div>
+                            )
+                        }}
+                        children={<MenuItem primaryText="More Textures..."/>}
+                        />
+                },
+                pattern: <oneOf label="Pattern" 
+                    values={[...FillPatterns,"-"]}
+                    Item={({value,set,...props})=>{
+                        return (
+                            <div style={{}}>
+                                {value.patterns.map(a=><Pattern value={a} onClick={e=>set(a)}/>)}
+                            </div>
+                        )
+                    }}
+                    children={<MenuItem primaryText="More Patterns..."/>}
+                    />
             },
-            clip: false,
             rotate: <oneOf 
                 values={[90,-90,"-"]} 
                 DropDown={true} 
@@ -353,13 +425,17 @@ const Theme={
                     width:50
                 }
             },
-            editableSpots: false,
 
+            editableSpots: false,
+            clip: false,
             autofit: false,
             autofitHeight: false,
         }
     },
-
 }
+
+const Gradient=props=>null
+const Texture=props=>null
+const Pattern=props=>null
 
 export default Theme

@@ -148,6 +148,7 @@ class Compare extends Component{
         const isXml=a=>a && a.substring(0,10).trim().startsWith("<?xml")
         const formattedA=isXml(a) ? format(a) : a
         const formattedB=isXml(b) ? format(b) : b
+        const isImage=()=>Images.includes(this.props.options.originalFileName?.split(".").pop())
         if(formattedA && formattedB && formattedA!==formattedB){
             return (<ReactGhLikeDiff past={formattedA} 
                 current={formattedB} 
@@ -158,7 +159,7 @@ class Compare extends Component{
         }else{
             return (
                 <Fragment>
-                    <pre>{formattedA||formattedB}</pre>
+                    {isImage() ? <img src={this.toImage(a)}/>  : <pre>{formattedA}</pre>}
                     {a&&<center><button onClick={()=>this.download(partA)}>download</button></center>}
                 </Fragment>
             )
@@ -176,5 +177,19 @@ class Compare extends Component{
         a.click()
         window.URL.revokeObjectURL(url)
     }
+
+    toImage(data){
+        return this.imageURL=URL.createObjectURL(new Blob([new TextEncoder("utf-8").encode(data)],{type:"image/gif"}))
+    }
+
+    shouldComponentUpdate(){
+        if(this.imageURL){
+            URL.revokeObjectURL(this.imageURL)
+            delete this.imageURL
+        }
+        return true
+    }
 }
+const Images="jpg,gif,png".split(",")
+
 

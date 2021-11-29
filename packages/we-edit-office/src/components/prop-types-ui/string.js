@@ -1,6 +1,8 @@
 import React from "react"
+import MenuItem from "material-ui/MenuItem"
 import base from "./base"
 import ToolbarField from "../toolbar-field"
+import selectFile from "../file-select"
 
 
 export default class extends base{
@@ -22,5 +24,10 @@ export default class extends base{
 
     renderTree(){
         return this.renderRibbon(false)
-    }       
+    }   
+    
+    renderMenu(){
+        const {name, label=name, accept}=this.$props
+        return <MenuItem primaryText={label} onClick={e=>selectFile(accept).then(url=>this.set(this.path,url))}/>
+    }
 }

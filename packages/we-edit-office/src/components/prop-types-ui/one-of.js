@@ -79,17 +79,31 @@ export default class oneOf extends base{
     }
 
     renderMenu(){
-        const {name,label=name, icon, icons=[],values=[],labels=[], children,value,}=this.$props
+        const {name,label=name, icon, icons=[],values=[],labels=[], children,value,Item}=this.$props
         const items=[
             ...values.map((a,i)=>{
                 if(a==="-")
                     return <Divider key={i}/>
-                return <MenuItem key={i} primaryText={labels[i]||a} leftIcon={icons[i]}
-                    checked={this.equal(a,value)} 
-                    onClick={e=>{
-                        this.context.onItemClick(e)
-                        this.set(this.path,a)
-                    }}/>
+                
+                if(!Item){
+                    return <MenuItem key={i} 
+                        primaryText={labels[i]||a} 
+                        leftIcon={icons[i]}
+                        checked={this.equal(a,value)} 
+                        onClick={e=>{
+                            this.context.onItemClick(e)
+                            this.set(this.path,a)
+                        }}/>
+                }else{
+                    return <Item key={i} 
+                        value={a}
+                        primaryText={labels[i]||a} 
+                        leftIcon={icons[i]}
+                        set={v=>{
+                            this.context.onItemClick()
+                            this.set(this.path,v)
+                        }}/>
+                }
             }),
             ...React.Children.toArray(children),
         ]

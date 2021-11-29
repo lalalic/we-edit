@@ -59,4 +59,8 @@ export default class shape extends base{
     renderTree(){
         return this.renderDialog()
     }
+
+    renderMenu(){
+        return this.renderDialog()
+    }
 }

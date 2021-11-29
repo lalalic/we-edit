@@ -25,19 +25,32 @@ export default class oneOfType extends base{
     }
 
     renderRibbon(){
-        if(this.props.spread){
-            const {types:_, spread, ...props}=this.$props
-            return this.types.filter(a=>!!a.Type)
-                .map(({Type:{type, UIType=this.getUIType(type),props:{...props0}}},i)=>{
-                    return <UIType key={i} {...props0} {...props}/>
-                })
-        }
-        return this.renderTree()
+        const {types:_, spread, ...props}=this.$props
+        if(!spread)
+            return this.renderTree()
+        
+        return this.types.map((a,i)=>{
+            const {type, UIType=this.getUIType(type),props:{...props0}}=(()=>{
+                if(props[`$type${i}`]){
+                    a=props[`$type${i}`]
+                    delete props[`$type${i}`]
+                }
+
+                if(React.isValidElement(a))
+                    return a
+                return a.Type||{}
+            })();
+            return UIType ? <UIType key={i} {...props0} {...props}/> : null
+        })
     }
 
     renderTree(){
         const {types:_, i=0, spread, ...props}=this.$props
         const {Type:{type, UIType=this.getUIType(type), props:{...props0}}}=this.types[i]
         return <UIType {...props0} {...props}/>
+    }
+
+    renderMenu(){
+        return this.renderRibbon()
     }
 }
