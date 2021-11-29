@@ -129,7 +129,13 @@ export default class Base extends Component{
 	static URLShape=this.normalizeChecker(PropTypes.oneOfType([PropTypes.string]),{
 		normalize:value=>value,
 		denormalize:(value,normalized)=>normalized,
-		is:value=>true,
+		is:value=>{
+			try{
+				return !!(new URL(value).protocol)
+			}catch(e){
+				return false
+			}
+		},
 	})
 
 
