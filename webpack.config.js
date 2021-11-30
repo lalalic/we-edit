@@ -76,6 +76,13 @@ module.exports=(env,args)=>{
 					replace:`this.extendStructure(Directory,CmapSubtable);//`
 				}
 			},
+			{
+				test: /\.(png|jpe?g|gif)$/i,
+				loader:"file-loader",
+				options:{
+					name:'[path][name].[ext]'
+				}
+			},
 			]
 		},
 		resolve:{

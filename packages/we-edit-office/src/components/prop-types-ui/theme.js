@@ -30,7 +30,13 @@ import IconOutlineShape from "material-ui/svg-icons/editor/border-color"
 
 
 import ShapeAsMenu from "./shape-as-menu"
-import PropTypesUI from "."
+
+const importAll = require =>{
+    return require.keys().reduce((acc, next) => {
+        acc[next.replace("./", "")] = require(next);
+        return acc;
+    }, {});
+}
 
 const IconSuperscript = props => (
 	<SvgIcon {...props}>
@@ -132,8 +138,12 @@ const LineDashes=["","1", "4 2", "4 2 2 2", "6 2", "6 2 2 2","6 2 2 2 2 2"]
 const LineSketches=["M0 5h30","M0 5h30"]
 
 const FillGradients=[{type:"no",gradients:[]},{type:"light",gradients:[[1,"red",0.2],[]]},{type:"dark",gradients:[]}]
-const FillTextures=["","",""]
-const FillPatterns=[]
+const FillTextures=Object.values(importAll(require.context("./textures", false, /\.(png)$/))).map(a=>a.default)
+const FillPatterns=[
+    <polygon points={"0,0 2,5 0,10 5,8 10,10 8,5 10,0 5,2"}/>,
+    <circle r={1} cx={5} cy={5}/>,
+    <line {...{x1:0,y1:10,x2:10,y2:0,strokeLinecap:"round",strokeWidth:1, strokeDasharray:"3,5",stroke:"black"}}/>,
+]
 
 //shape input only be on root level
 const Theme={
@@ -375,21 +385,19 @@ const Theme={
                 Wrapper:ShapeAsMenu,
 
                 transparency:false,
-                gradient:false,
-                /*
-                    <oneOf label="Gradient" 
+                gradient:<oneOf label="Gradient" 
                     values={[...FillGradients,"-"]}
                     Layout="grid"
                     Item={({value, onClick})=><Gradient value={value} onClick={onClick}/>}
                     children={<MenuItem primaryText="More Gradients..."/>}
-                    />,*/
+                    />,
                 picture:{
                     spread:true,
                     $type0:<string label="Picture..." accept="image/*"/>,
                     $type1:<oneOf label="Texture" 
                         values={[...FillTextures,"-"]}
                         Layout="grid"
-                        Item={({value,onClick})=><Texture src={value} onClick={onClick}/>}
+                        Item={({value,onClick})=><img src={value} onClick={onClick} style={{width:45,height:45}}/>}
                         children={<MenuItem primaryText="More Textures..."/>}
                         />
                 },
@@ -422,7 +430,16 @@ const Theme={
 }
 
 const Gradient=props=>null
-const Texture=props=><div style={{display:"inline-block",width:50,height:50,border:"1px solid red"}}/>
-const Pattern=props=>null
+const Pattern=({value, onClick, id=`ptn_${uuid++}`})=>(
+    <svg style={{width:45,height:45}} onClick={onClick}>
+        <defs>
+            <pattern id={id} viewBox="0,0,10,10" width="20%" height="20%">
+                {value}
+            </pattern>
+        </defs>
+        <rect width="100%" height="100%" fill={`url(#${id})`}/>
+    </svg>
+)
+let uuid=new Date().getTime()
 
 export default Theme

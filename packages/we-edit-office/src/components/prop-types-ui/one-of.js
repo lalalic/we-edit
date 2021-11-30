@@ -59,10 +59,10 @@ export default class oneOf extends base{
     renderRibbonDropDown(){
         const {values, style,
             onClick=()=>this.set(this.path, values[0]), 
-            defaultValue,value=defaultValue, DropDown:_1, DropDown=_1===true ? MenuItem : _1,
+            defaultValue,value=defaultValue, DropDown:_1,
             check=a=>false, name, label=name, icon,  
             labels=[], icons=[],children}=this.$props
-
+        const DropDown=_1===true ? MenuItem : _1
         return (
             <DropDownButton
                 status={(value && check(value, values)) ? "checked":"unchecked"}
@@ -83,9 +83,8 @@ export default class oneOf extends base{
 
     renderMenu(){
         const {name,label=name, icon, icons=[],values=[],labels=[],
-            Layout:_1, Layout=typeof(_1)=="string" ? this.constructor.Layouts[_1.toLowerCase()] : _1||Fragment, 
-            children,value,Item=MenuItem,}=this.$props
-        
+            Layout:_1, children,value,Item=MenuItem,style,}=this.$props
+        const Layout=typeof(_1)=="string" ? this.constructor.Layouts[_1.toLowerCase()] : (_1||Fragment)
         const items=[
             <Layout>
                 {
@@ -108,7 +107,7 @@ export default class oneOf extends base{
         ]
         const me=React.createRef()
         
-        return (<MenuItem ref={me} value={value}
+        return (<MenuItem ref={me} value={value} style={style}
                 primaryText={label} 
                 leftIcon={icon} 
                 rightIcon={<IconArrowRight/>} 
@@ -130,7 +129,8 @@ export default class oneOf extends base{
                 const {children}=this.props
                 const i=children.findIndex(a=>a.type===Divider)
                 return [
-                    <div key="grid" style={{display:"flex"}}>
+                    <div key="grid" className="grid"
+                        style={{width:"100%",display:"grid", gridTemplateColumns:`repeat(4, 1fr)`}}>
                         {children.slice(0,i)}
                     </div>,
                     children.slice(i)

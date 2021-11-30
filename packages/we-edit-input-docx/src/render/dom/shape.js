@@ -105,7 +105,7 @@ export default ({Shape, Frame, Template})=>class __$1 extends Component{
         const props={}
         const {lin,path,type=lin?"linear":"radial", gsLst=[]}=gradient
         props.type=type
-        props.angle=lin?.ang
+        props.angle=parseInt(lin?.ang||0)/60000
         props.stops=gsLst.map(({color,pos})=>({color,position:`${pos/1000}%`}))
         return props
     }
