@@ -2,9 +2,7 @@ import React, { Fragment, Component } from "react"
 import PropTypes from "prop-types"
 import {MenuItem} from "material-ui/Menu"
 import Divider from 'material-ui/Divider'
-import SvgIcon from "material-ui/SvgIcon"
 import {fromJS} from "immutable"
-import IconChecked from "material-ui/svg-icons/action/done"
 import IconArrowRight from 'material-ui/svg-icons/navigation-arrow-drop-right'
 
 import base from "./base"
@@ -23,11 +21,6 @@ export default class oneOf extends base{
         icon: PropTypes.element,
         labels: PropTypes.arrayOf(PropTypes.string),
         icons: PropTypes.arrayOf(PropTypes.element),
-    }
-
-    static contextTypes={
-        ...base.contextTypes,
-        onItemClick: PropTypes.func,
     }
     
     renderRibbon(){
@@ -50,7 +43,7 @@ export default class oneOf extends base{
     }
 
     renderTree(){
-        const {values,defaultValue,value=defaultValue, name, label=name, required, labels=[], style}=this.$props
+        const {values,defaultValue,value=defaultValue, name, label=name, required, labels=[], style,children}=this.$props
         return (
             <select name={name} value={value} onChange={e=>this.set(this.path, e.target.value)} style={style}>
                 {!required && <option value={""}></option>}

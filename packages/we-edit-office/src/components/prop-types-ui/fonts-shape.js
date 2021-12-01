@@ -6,7 +6,7 @@ export default class FontsShape extends base{
     static displayName="FontsShape"
     renderRibbon(){
         const {value, name, label=name, style=this.theme.style||{}}=this.props
-        return <FontList value={value} onChange={font=>this.set(this.path,font)} placeholder={label} title={label} style={style}/>
+        return <FontList value={value?.current} onChange={font=>this.set(this.path,font)} placeholder={label} title={label} style={style}/>
     }
 
     renderDialog(){

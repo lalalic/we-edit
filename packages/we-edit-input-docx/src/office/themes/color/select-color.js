@@ -1,8 +1,6 @@
 import React, {Component} from "react"
-import {Divider, FlatButton,FontIcon, MenuItem} from "material-ui"
-
+import {Divider, FlatButton,FontIcon, Menu, MenuItem} from "material-ui"
 import IconColor from "material-ui/svg-icons/image/color-lens"
-import Menu from "./menu"
 
 export default class ColorSelector extends Component{
 	render(){

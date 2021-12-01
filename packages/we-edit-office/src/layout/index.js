@@ -105,8 +105,8 @@ export const Shape=({children, theme:{Shape,Anchor}={}})=>{
                     <Fragment>
                         <PropTypesUI 
                             propTypes={dom.Shape.propTypes} 
+                            props={style}
                             theme={Shape ? {Shape} : "Shape"}
-                            value={style}
                             onChange={change=>dispatch(ACTION.Entity.UPDATE({shape:change}))}
                             />
                         <ToolbarSeparator/>
@@ -118,8 +118,8 @@ export const Shape=({children, theme:{Shape,Anchor}={}})=>{
                     <Fragment>
                         <PropTypesUI 
                             propTypes={dom.Anchor.propTypes} 
+                            props={style}
                             theme={Anchor ? {Anchor} : "Anchor"}
-                            value={style}
                             onChange={change=>dispatch(ACTION.Entity.UPDATE({anchor:change}))}
                             />
                         <PropTypesUI.oneOf label="Align"

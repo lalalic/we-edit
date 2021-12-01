@@ -1,10 +1,9 @@
 import React,{Fragment} from "react"
-import base from "./base"
-import {ColorButton} from "we-edit/office"
-import SelectColor from "../select-color"
 import { Dialog } from "material-ui"
+import {ColorButton, PropTypesUI} from "we-edit-office"
+import SelectColor from "./select-color"
 
-export default class ColorShape extends base{
+export default class ColorShape extends PropTypesUI.any{
     static displayName="ColorShape"
     constructor(){
         super(...arguments)

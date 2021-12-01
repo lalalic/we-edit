@@ -18,7 +18,7 @@ export default props=>(
 			if(style?.size){
 				style.size=dom.Unknown.UnitShape.normalize(style.size,"pt","px")+"pt"
 			}
-			return {style}
+			return style
 		}}>
 		{props=><TextStyle {...props}/>}
 	</SelectStyle>

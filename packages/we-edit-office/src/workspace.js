@@ -25,6 +25,7 @@ export default class Workspace extends PureComponent{
 			toggle: PropTypes.func,
 		}),
 		debug: PropTypes.bool,
+		propTypesUITheme:PropTypes.object,
 	}
 
 	static propTypes={
@@ -38,6 +39,7 @@ export default class Workspace extends PureComponent{
 		tests: PropTypes.node,
 		theme: PropTypes.object,
 		contextMenu: PropTypes.element,
+		propTypesUITheme: PropTypes.object,
 	}
 
 	static defaultProps={
@@ -85,7 +87,8 @@ export default class Workspace extends PureComponent{
 		return {
 			events:this.events,
 			panelManager:this.panelManager,
-			debug
+			debug,
+			propTypesUITheme:this.props.propTypesUITheme
 		}
 	}
 

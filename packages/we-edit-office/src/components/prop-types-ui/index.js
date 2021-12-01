@@ -11,9 +11,9 @@ import oneOfType from "./one-of-type"
 import arrayOf from "./array-of"
 import shape from "./shape"
 import UnitShape from "./unit-shape"
-import ColorShape from "./color-shape"
 import FontsShape from "./fonts-shape"
 import NumberingShape from "./numbering-shape"
+import ColorShape from "./color-shape"
 
 import BaseTheme from "./theme"
 
@@ -23,19 +23,23 @@ import BaseTheme from "./theme"
 export default class PropTypesUI extends Component{
     static Theme=BaseTheme
 
+    static getTheme=a=>{
+        return fromJS(BaseTheme).mergeDeep(a).toJS()
+    }
+    
     static Types=(types=>(Object.assign(this,types),types))({
         any,string,number,bool,shape,oneOf,oneOfType,arrayOf,
-        UnitShape,ColorShape, FontsShape,NumberingShape,
+        UnitShape, ColorShape, FontsShape,NumberingShape,
     });
     
     static childContextTypes={
         uiContext: PropTypes.oneOf(["Ribbon","Dialog","Tree","Tab"]),
         set: PropTypes.func,
-        PropTypes: PropTypes.object,
         onEvent: PropTypes.func,
     }
     static contextTypes={
         uiContext: this.childContextTypes.uiContext,
+        propTypesUITheme:PropTypes.object,
     }
 
     static propTypes={
@@ -46,10 +50,17 @@ export default class PropTypesUI extends Component{
         props: PropTypes.object,//->shape.value
 
     }
+    get Types(){
+        return {...PropTypesUI.Types,...this.Theme.$Types}
+    }
+
+    get Theme(){
+        return this.context.propTypesUITheme||this.constructor.Theme
+    }
 
     get theme(){
         const {theme}=this.props
-        const BaseTheme=this.constructor.Theme
+        const BaseTheme=this.Theme
         if(theme){
             switch(typeof(theme)) {
                 case "string":
@@ -71,7 +82,6 @@ export default class PropTypesUI extends Component{
         return {
             uiContext: this.uiContext,
             set: this.set,
-            PropTypes: this.constructor.Types,
             onEvent:this.onEvent,
         }
     }
@@ -88,8 +98,8 @@ export default class PropTypesUI extends Component{
     }
     
     render(){
-        const {props:{propTypes}, state:{props}, constructor:{Types}}=this
-        return <Types.shape schema={propTypes.Type?.props.schema||propTypes} theme={this.theme} value={props.toJS()} Wrapper={null}/>
+        const {props:{propTypes}, state:{props}}=this
+        return <this.Types.shape schema={propTypes.Type?.props.schema||propTypes} theme={this.theme} value={props.toJS()} Wrapper={null}/>
     }
 
     set(path, value){

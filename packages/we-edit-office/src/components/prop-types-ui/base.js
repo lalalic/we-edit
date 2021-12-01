@@ -2,8 +2,8 @@ import React, {PureComponent} from "react"
 import PropTypes from "prop-types"
 import memoize from "memoize-one"
 import {fromJS} from "immutable"
-import Theme from "./theme"
 import PropTypesUI from "."
+
 
 export default class base extends PureComponent{
     static displayName="any"
@@ -12,6 +12,8 @@ export default class base extends PureComponent{
         PropTypes: PropTypes.object,
         set: PropTypes.func,
         onEvent: PropTypes.func,
+        propTypesUITheme: PropTypes.object,
+        onItemClick: PropTypes.func,
     }
 
     static propTypes={
@@ -24,13 +26,18 @@ export default class base extends PureComponent{
     }
 
     get Types(){
-        return this.context.PropTypes||PropTypesUI.Types
+        return {...PropTypesUI.Types,...this.Theme.$Types}
+    }
+
+    get Theme(){
+        return this.context.propTypesUITheme||PropTypesUI.Theme
     }
 
     get path(){
         const {path=""}=this.props
         return path
     }
+    
     get theme(){
         return this.getShapeTheme()
     }
@@ -48,6 +55,7 @@ export default class base extends PureComponent{
      * uiContext resolved, so don't return any uiContext 
      */
     getShapeTheme=memoize(()=>{
+        const Theme=this.Theme
         let merged=fromJS({})
         if(Theme[this.constructor.displayName]){
             const shapeTheme=Theme[this.constructor.displayName]
@@ -83,7 +91,7 @@ export default class base extends PureComponent{
             if(this.Types[typedShape])
                 return this.Types[typedShape]
             if(this.Types[baseShape]){
-                if(Theme[typedShape]){
+                if(this.Theme[typedShape]){
                     return props=>React.createElement(this.Types[baseShape],{typedShape,...props})
                 }
                 return this.Types[baseShape]

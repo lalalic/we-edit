@@ -1,55 +1,26 @@
-import React,{Fragment} from "react"
-import base from "./base"
+import React, {Component, Fragment} from "react"
+import MenuItem from "material-ui/MenuItem"
 import ColorButton from "../color-button"
-import SelectColor from "../select-color"
-import { Dialog } from "material-ui"
+import Base from "./base"
 
-export default class ColorShape extends base{
+export default class ColorShape extends Base{
     static displayName="ColorShape"
     constructor(){
         super(...arguments)
-        this.state={show:false}
+        this.state={open:false}
     }
     renderRibbon(){
-        const {types, value, path,name,label=name, uiContext, ...props}=this.$props
+        const {name,label=name, value}=this.props
         return (
-            <ColorButton {...props}
-                status={value?"checked":"unchecked"}
-                onChange={color=>this.set(this.path,color)}
-                value={value||""}
-                label={label}
-                />
+            <ColorButton label={label} value={value} 
+                onChange={v=>this.set(this.path, v)}>
+                <ColorSelector/>
+            </ColorButton>
         )
     }
 
     renderDialog(){
-        const {types, value, path,name,uiContext,label=name, ...props}=this.$props
-        const {show}=this.state
-        const ref=React.createRef()
-        return (
-            <Fragment>
-                {this.lineField(<button onClick={e=>this.setState({show:true})} style={{backgroundColor:value, border:0}}/>)}
-                {show && <Dialog 
-                    title={`Set ${label}`}
-                    actions={[
-                        <FlatButton
-                            label="Cancel"
-                            onClick={e=>this.setState({show:false})}
-                        />,
-                        <FlatButton
-                            label="Submit"
-                            primary={true}
-                            onClick={e=>{
-                                this.set(this.path, ref.current.value)
-                                this.setState({show:false})
-                            }}
-                        />,
-                    ]}
-                    >
-                        <SelectColor ref={ref}/>
-                    </Dialog>}
-            </Fragment>
-        )
+        return this.lineField(this.renderRibbon())
     }
 
     renderTree(){
@@ -57,6 +28,35 @@ export default class ColorShape extends base{
     }
 
     renderMenu(){
-        return <SelectColor onChange={color=>this.set(this.path,color)}/>
+        const {name,label=name,value}=this.props
+        return (
+            <Fragment>
+                <MenuItem primaryText={`${label}...`} onClick={e=>this.setState({open:true})}/>
+                {this.state.open && <ColorSelector value={value} onChange={v=>{this.set(this.path,v);this.context.onItemClick()}}/>}
+            </Fragment>
+        )
+    }
+}
+
+class ColorSelector extends Component{
+    constructor(){
+        super(...arguments)
+        this.input=React.createRef()
+    }
+    render(){
+        const {value, onChange}=this.props
+        return <input ref={this.input} type="color" 
+            onClick={e=>{
+                debugger
+                e.stopPropagation()
+            }} 
+            value={value} 
+            style={{width:0,height:1,padding:0,border:0,margin:0}} 
+            onChange={e=>onChange(e.target.value)}
+            />
+    }
+
+    componentDidMount(){
+        this.input.current.click()
     }
 }
