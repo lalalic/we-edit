@@ -53,4 +53,21 @@ describe("record react component prop types",()=>{
         expect(makeComponent({name:PropTypes.arrayOf(PropTypes.string).isRequired}).name.Type)
             .toMatchObject({type:"arrayOf", props:{required:true,type:PropTypes.string}})
     })
+
+    it("type=>checker(shape)",()=>{
+        expect(dom.Unknown.LineShape.Type.type).toMatch("oneOfType(LineShape)")
+    })
+
+    it("primitive checker type not changed",()=>{
+        expect(dom.Unknown.normalizeChecker(PropTypes.string,{},{$type:"Hello"}).Type.type).toMatch("string(Hello)")
+        expect(PropTypes.string.Type).toMatchObject(<string/>)
+        expect(PropTypes.bool.Type).toMatchObject(<bool/>)
+        expect(PropTypes.number.Type).toMatchObject(<number/>)
+    })
+
+    it("MarginShape.toType('') would not change MarginShape",()=>{
+        expect(dom.Unknown.MarginShape.Type.type).toMatch("oneOfType(MarginShape)")
+        expect(dom.Unknown.MarginShape.toType("BorderShape").Type.type).toMatch("oneOfType(BorderShape)")
+        expect(dom.Unknown.MarginShape.Type.type).toMatch("oneOfType(MarginShape)")
+    })
 })

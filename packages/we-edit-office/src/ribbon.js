@@ -21,7 +21,7 @@ import * as Picture from "./picture"
 import * as Layout from "./layout"
 import * as Developer from "./developer"
 
-import {CheckIconButton,DropDownButton,ContextMenuSupport, PropTypesUI} from "./components"
+import {PropTypesUI} from "./components"
 
 const Ribbon=compose(
 	setDisplayName("Ribbon"),
@@ -225,7 +225,5 @@ const Ribbon=compose(
 })
 
 export default Ribbon
-
 export {Create as Shape} from "./shape"
-
-export {Ribbon, Clipboard, ContextMenuSupport, Text, Paragraph,File,History,Table,Picture,Layout,Developer,Recorder, Toolbar, ToolbarSeparator, Tabs, Tab, CheckIconButton,DropDownButton}
+export {Ribbon, Clipboard, Text, Paragraph,File,History,Table,Picture,Layout,Developer,Recorder}

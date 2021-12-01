@@ -6,6 +6,7 @@ import Theme from "./theme"
 import PropTypesUI from "."
 
 export default class base extends PureComponent{
+    static displayName="any"
     static contextTypes={
         uiContext: PropTypes.string,
         PropTypes: PropTypes.object,
@@ -23,7 +24,7 @@ export default class base extends PureComponent{
     }
 
     get Types(){
-        return this.context.PropTypes||PropTypesUI
+        return this.context.PropTypes||PropTypesUI.Types
     }
 
     get path(){
@@ -43,28 +44,50 @@ export default class base extends PureComponent{
         return this.props.uiContext||this.context.uiContext||"Dialog"
     }
 
+    /**
+     * uiContext resolved, so don't return any uiContext 
+     */
     getShapeTheme=memoize(()=>{
-        const shapeTheme=Theme[this.constructor.displayName]
-        return fromJS(shapeTheme||{})
-            .mergeDeep(fromJS(shapeTheme?.[this.uiContext]||{}))
-            .mergeDeep(this.props.theme||{})
-            .mergeDeep(this.props.theme?.[this.uiContext]||{})
-            .toJS()
-    })
+        let merged=fromJS({})
+        if(Theme[this.constructor.displayName]){
+            const shapeTheme=Theme[this.constructor.displayName]
+            merged=merged
+                .mergeDeep(fromJS(shapeTheme))
+                .mergeDeep(fromJS(shapeTheme?.[this.uiContext]||{}))
+        }
 
-    getKeyTheme(key){
-        return fromJS(this.theme[key]||{}).mergeDeep(fromJS(this.theme[key]?.[this.uiContext]||{})).toJS()
-    }
+        if(Theme[this.props.typedShape]){
+            const typedShapeTheme=Theme[this.props.typedShape]
+            merged=merged
+                .mergeDeep(fromJS(typedShapeTheme||{}))
+                .mergeDeep(fromJS(typedShapeTheme?.[this.uiContext]||{}))
+        }
+
+        if(this.props.theme){
+            merged=merged
+                .mergeDeep(this.props.theme||{})
+                .mergeDeep(this.props.theme?.[this.uiContext]||{})
+        }
+        const {Dialog,Tree,Menu,Tab,Ribbon, ...theme}=merged.toJS()
+        return theme
+    })
 
     getUIType(type){
         if(!type || typeof(type)!="string")
             return type
 
         let i=type.indexOf("(")
-        if(i!=-1){//oneOf(ColorShape)
-            const TypedShape=type.substring(i+1).replace(")","").trim()
-            const BaseShape=type.substring(0,i).trim()
-            return this.Types[TypedShape]||this.Types[BaseShape]||type
+        if(i!=-1){//oneOf(ColorShape)->ColorShape, shape(LineShape)->shape
+            const typedShape=type.substring(i+1).replace(")","").trim()
+            const baseShape=type.substring(0,i).trim()
+            if(this.Types[typedShape])
+                return this.Types[typedShape]
+            if(this.Types[baseShape]){
+                if(Theme[typedShape]){
+                    return props=>React.createElement(this.Types[baseShape],{typedShape,...props})
+                }
+                return this.Types[baseShape]
+            }
         }
         return this.Types[type]||type
     }

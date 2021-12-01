@@ -11,10 +11,8 @@ export {default as TitleBar} from "./title-bar"
 export {default as Dashboard} from "./dashboard"
 export {default as reducer} from "./state/reducer"
 export {default as ACTION, getOffice} from "./state/action"
-export {default as ContextMenu} from "./components/context-menu"
-export {default as Dialog} from "./components/dialog"
 
-export {default as Tree} from "./components/tree"
+export * from "./components"
 
 export {Ribbon,Office}
 

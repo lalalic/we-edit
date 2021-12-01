@@ -83,6 +83,7 @@ class TextStyle extends Component{
 						label="Cancel"
 						onClick={close}
 					/>,
+					
 					<FlatButton
 						label="Submit"
 						primary={true}

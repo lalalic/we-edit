@@ -1,7 +1,7 @@
 import React,{Component,Fragment} from "react"
 
 import {ACTION, whenSelectionChangeDiscardable} from "we-edit"
-import {Ribbon, Dialog, ContextMenu} from "we-edit-office"
+import {Ribbon, Dialog, ContextMenu, CheckIconButton} from "we-edit-office"
 
 import {compose,setDisplayName,withState, withProps, } from "recompose"
 
@@ -47,12 +47,12 @@ export default compose(
         }
         >
         <ToolbarGroup>
-            <Ribbon.CheckIconButton label="Field"
+            <CheckIconButton label="Field"
                 status={style?.field ? "checked" : "unchecked"}
                 onClick={e=>setOpen(true)}
                 >
                 <FieldIcon/>
-            </Ribbon.CheckIconButton>
+            </CheckIconButton>
             {open && <BuildField close={()=>setOpen(false)} apply={build} value={style?.instr}/>}
         </ToolbarGroup>
     </ContextMenu.Support>

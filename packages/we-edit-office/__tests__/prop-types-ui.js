@@ -3,9 +3,12 @@ import PropTypes from "prop-types"
 import {dom} from "we-edit"
 import PropTypesUI from "../src/components/prop-types-ui"
 import TestRenderer from "react-test-renderer"
+import GlobalTheme from "../src/components/prop-types-ui/theme"
 
 import MuiThemeProvider from 'material-ui/styles/MuiThemeProvider'
 jest.mock("material-ui/internal/Tooltip",()=>props=><span/>)
+jest.mock("../src/components/prop-types-ui/textures",()=>()=>[])
+            
 
 describe("propTypes UI",()=>{
     beforeAll(()=>dom.Unknown.memorize(PropTypes))
@@ -120,7 +123,15 @@ describe("propTypes UI",()=>{
 
         })
 
-        it("uiContext[Ribbon][spread=true] make it as buttons",()=>{
+        it("uiContext[Ribbon][spread=true] render all types",()=>{
+
+        })
+
+        it("can render for i=x",()=>{
+
+        })
+
+        it("can render all types to tabs",()=>{
 
         })
     })
@@ -175,26 +186,26 @@ describe("propTypes UI",()=>{
         expect(testRenderer.toJSON()).toMatchSnapshot()
     })
 
-    describe("theme",()=>{
+    fdescribe("theme",()=>{
         function test(content){
             const renderer=TestRenderer.create(content)
             return renderer.root.instance
         }
-        it("should support direct theme on shape",()=>{
-            const theme={first:true,x:true}
-            expect(test(<PropTypesUI.shape theme={theme}/>).theme)
-                .toMatchObject(theme)
+
+        it("no theme without exception",()=>{
+            expect(()=>test(<PropTypesUI.any/>)).not.toThrow()
         })
 
-        it("should support shape theme, but not theme.UnitShape",()=>{
-            
+        it("should support direct theme on shape",()=>{
+            const theme={first:true,x:true}
+            expect(test(<PropTypesUI.any theme={theme}/>).theme).toMatchObject(theme)
+        })
+
+        it("UnitShape should get theme from globalTheme",()=>{
+            expect(test(<PropTypesUI.UnitShape/>).theme).toMatchObject(GlobalTheme.UnitShape)
         })
 
         it("uiContext theme",()=>{
-
-        })
-
-        it("no theme",()=>{
 
         })
 
@@ -222,7 +233,7 @@ describe("propTypes UI",()=>{
             it.each(
                 Object.values(dom)
                 .map(a=>([a.getType(),a]))
-                //.filter(a=>a[0]=="paragraph")
+                //.filter(a=>a[0]=="page")
             )("PropTypesUI for %s", (type, A)=>{
                 const Type=type.replace(/(^\w)/,(a,b)=>a.toUpperCase())
                 expect(()=>test(<PropTypesUI propTypes={A.propTypes||{}} uiContext={uiContext} theme={Type}/>)).not.toThrow()

@@ -1,7 +1,7 @@
 import React,{Component,Fragment} from "react"
 
 import {ACTION, whenSelectionChangeDiscardable, stateSafe} from "we-edit"
-import {Ribbon, Dialog, ContextMenu} from "we-edit-office"
+import {CheckIconButton, Dialog, ContextMenu} from "we-edit-office"
 
 import {compose,setDisplayName,withState, withProps, } from "recompose"
 
@@ -61,13 +61,13 @@ export default compose(
         }
         >
         <ToolbarGroup>
-            <Ribbon.CheckIconButton hint="Table of Contents"
+            <CheckIconButton hint="Table of Contents"
                 status={toc ? "checked" : "unchecked"}
                 disabled={hasToC}
                 onClick={build}
                 >
                 <TOCIcon/>
-            </Ribbon.CheckIconButton>
+            </CheckIconButton>
             {open && <BuildTOC close={()=>setOpen(false)} apply={build}/>}
         </ToolbarGroup>
     </ContextMenu.Support>

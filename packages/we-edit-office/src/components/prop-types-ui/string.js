@@ -6,6 +6,8 @@ import selectFile from "../file-select"
 
 
 export default class extends base{
+    static displayName="string"
+    
     type="text"
     renderRibbon(){
         const {name, value, label=name, style, FieldWrapper=ToolbarField, defaultValue}=this.$props

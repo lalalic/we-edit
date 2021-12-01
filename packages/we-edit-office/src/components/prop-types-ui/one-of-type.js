@@ -8,6 +8,7 @@ import base from "./base"
  * or on-demand
  */
 export default class oneOfType extends base{
+    static displayName="oneOfType"
     static propTypes={
         ...super.propTypes,
         spread: PropTypes.bool,//Ribbon only, render all types for choice
@@ -20,8 +21,9 @@ export default class oneOfType extends base{
 
     renderDialog(){
         const {types:_, i=this.types.length-1, spread, ...props}=this.$props
-        const {type, UIType=this.getUIType(type), props:{...props0}}=this.types[i].Type
-        return <UIType {...props0} {...props}/>
+        const {type, props:{...props0}}=this.types[i].Type
+        const UIType=this.getUIType(type)
+        return UIType&&<UIType {...props0} {...props}/>
     }
 
     renderRibbon(){
@@ -30,7 +32,7 @@ export default class oneOfType extends base{
             return this.renderTree()
         
         return this.types.map((a,i)=>{
-            const {type, UIType=this.getUIType(type),props:{...props0}}=(()=>{
+            const {type, props:{...props0}}=(()=>{
                 if(props[`$type${i}`]){
                     a=props[`$type${i}`]
                     delete props[`$type${i}`]
@@ -40,14 +42,16 @@ export default class oneOfType extends base{
                     return a
                 return a.Type||{}
             })();
-            return UIType ? <UIType key={i} {...props0} {...props}/> : null
+            const UIType=this.getUIType(type)
+            return UIType && <UIType key={i} {...props0} {...props}/>
         })
     }
 
     renderTree(){
         const {types:_, i=0, spread, ...props}=this.$props
-        const {Type:{type, UIType=this.getUIType(type), props:{...props0}}}=this.types[i]
-        return <UIType {...props0} {...props}/>
+        const {Type:{type, props:{...props0}}}=this.types[i]
+        const UIType=this.getUIType(type)
+        return UIType && <UIType {...props0} {...props}/>
     }
 
     renderMenu(){

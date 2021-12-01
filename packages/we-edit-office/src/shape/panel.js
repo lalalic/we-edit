@@ -439,6 +439,6 @@ class GradientStops extends PureComponent{
 const Stops=({stops=[]})=>(
     <svg style={{}}>
         <rect/>
-        {stops.map(({position,color,transparency,brightness})=><g/>)}
+        {stops.map(({offset,color,transparency,brightness})=><g/>)}
     </svg>
 )

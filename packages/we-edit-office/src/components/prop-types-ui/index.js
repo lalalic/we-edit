@@ -2,6 +2,7 @@ import React, {Component} from "react"
 import PropTypes from "prop-types"
 import {Map, fromJS} from "immutable"
 
+import any from "./base"
 import string from "./string"
 import number from "./number"
 import bool from "./bool"
@@ -14,18 +15,19 @@ import ColorShape from "./color-shape"
 import FontsShape from "./fonts-shape"
 import NumberingShape from "./numbering-shape"
 
-
 import BaseTheme from "./theme"
 
 /**
  * <PropTypesUI component={this}/>
  */
 export default class PropTypesUI extends Component{
+    static Theme=BaseTheme
+
     static Types=(types=>(Object.assign(this,types),types))({
-        string,number,bool,shape,oneOf,oneOfType,arrayOf,
+        any,string,number,bool,shape,oneOf,oneOfType,arrayOf,
         UnitShape,ColorShape, FontsShape,NumberingShape,
     });
-
+    
     static childContextTypes={
         uiContext: PropTypes.oneOf(["Ribbon","Dialog","Tree","Tab"]),
         set: PropTypes.func,
@@ -42,10 +44,12 @@ export default class PropTypesUI extends Component{
         onEvent: PropTypes.func,
         propTypes: PropTypes.object, //->shape.schema
         props: PropTypes.object,//->shape.value
+
     }
 
     get theme(){
         const {theme}=this.props
+        const BaseTheme=this.constructor.Theme
         if(theme){
             switch(typeof(theme)) {
                 case "string":

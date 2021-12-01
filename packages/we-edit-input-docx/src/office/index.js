@@ -2,7 +2,7 @@ import React,{Fragment} from "react"
 import {Editor,ACTION} from "we-edit"
 
 import {Workspace, Ribbon, ContextMenu} from "we-edit-office"
-import {Divider, ToolbarGroup} from "material-ui"
+import {Divider, ToolbarSeparator, Tab} from "material-ui"
 
 import Field from "./field"
 import TOC from "./toc"
@@ -15,7 +15,6 @@ import Canvas from "../representation/canvas"
 import Inspector from "./inspector"
 
 const KEY="docx"
-const {Tab}=Ribbon
 export default (
     <Workspace
         debug={true}
@@ -36,7 +35,7 @@ export default (
                     <Fragment>
                         <Field/>
                         <TOC/>
-                        <Ribbon.ToolbarSeparator/>
+                        <ToolbarSeparator/>
                         <TOA/>
                         <Ribbon.Shape 
                             anchor={anchor}

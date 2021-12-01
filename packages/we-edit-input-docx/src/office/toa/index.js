@@ -1,7 +1,7 @@
 import React,{Component,Fragment} from "react"
 
 import {ACTION, whenSelectionChangeDiscardable, ContentQuery} from "we-edit"
-import {Ribbon, Dialog, ContextMenu} from "we-edit-office"
+import {CheckIconButton, Dialog} from "we-edit-office"
 
 import {compose,setDisplayName,withState, withProps, } from "recompose"
 
@@ -39,12 +39,12 @@ export default compose(
     withState('open','setOpen', false),
 )(({toa, mark, build, open, setOpen, selected, getAllTa})=>(
     <ToolbarGroup>
-        <Ribbon.CheckIconButton hint="Mark Citation" onClick={e=>setOpen(true)}>
+        <CheckIconButton hint="Mark Citation" onClick={e=>setOpen(true)}>
             <TAIcon/>
-        </Ribbon.CheckIconButton>
-        <Ribbon.CheckIconButton hint="Table of Authorities" onClick={build}>
+        </CheckIconButton>
+        <CheckIconButton hint="Table of Authorities" onClick={build}>
             <TOAIcon/>
-        </Ribbon.CheckIconButton>
+        </CheckIconButton>
         {open && <BuildTA close={()=>setOpen(false)} apply={mark} selected={selected()} tas={getAllTa()}/>}
     </ToolbarGroup>
 ))

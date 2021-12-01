@@ -2,7 +2,7 @@ import React, {Component, Fragment} from "react"
 import PropTypes from "prop-types"
 import { compose, setDisplayName } from "recompose"
 import {whenSelectionChangeDiscardable} from "we-edit"
-import {Ribbon} from "we-edit-office"
+import {CheckIconButton} from "we-edit-office"
 import InspectorIcon from "material-ui/svg-icons/places/all-inclusive"
 
 export default class Inspector extends Component{
@@ -29,12 +29,12 @@ export default class Inspector extends Component{
         render(){
             const {title=Inspector.panel.props.title, whichPanel="left", ...props}=this.props
             return (
-                <Ribbon.CheckIconButton 
+                <CheckIconButton 
                     {...props}
                     hint={title}
                     onClick={()=>this.context.panelManager.toggle(Inspector.panel,whichPanel)}>
                     <InspectorIcon/>
-                </Ribbon.CheckIconButton>
+                </CheckIconButton>
             )
         }
     }

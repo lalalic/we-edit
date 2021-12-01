@@ -77,12 +77,11 @@ export default class Base extends Component{
 				const {$type, ...props0}=props
 				if($type){
 					const type=`${isRequired.Type.type}(${$type})`
-					checker.Type=React.cloneElement(type,{...isRequired.Type.props,...props0,isRequired:undefined})
-					checker.isRequired.Type=React.cloneElement(type,{...isRequired.Type.props,...props0})
+					checker.Type=React.createElement(type,{...isRequired.Type.props,...props0,required:undefined})
 				}else{
-					checker.Type=React.cloneElement(isRequired.Type,{...props,isRequired:undefined})
-					checker.isRequired.Type=React.cloneElement(isRequired.Type,{...props})
+					checker.Type=React.cloneElement(isRequired.Type,{...props,required:undefined})
 				}
+				checker.isRequired.Type=React.cloneElement(checker.Type,{required:true})
 			}
 		}
 		const isRequired=checker.isRequired
@@ -91,8 +90,8 @@ export default class Base extends Component{
 			cloned.isRequired=(...args)=>isRequired(...args)
 			const type=checker.Type.type,i=type.indexOf("(")
 			const changedType= i!=-1 ? `${type.substring(0,i)}(${newType})` : `${type}(${newType})`
-			cloned.Type=React.cloneElement(changedType,{...checker.Type.props})
-			cloned.isRequired.Type=React.cloneElement(changedType,{...isRequired.Type.props})
+			cloned.Type=React.createElement(changedType,{...checker.Type.props})
+			cloned.isRequired.Type=React.cloneElement(cloned.Type,{required:true})
 			Object.assign(cloned,{...extend,toType})
 			Object.assign(cloned.isRequired,extend)
 			return cloned
@@ -421,12 +420,9 @@ export default class Base extends Component{
 	static FillShape=this.normalizeChecker(PropTypes.oneOfType([
 		PropTypes.shape({
 			color:this.ColorShape,
-			transparency: PropTypes.number,
-
-			gradient: this.GradientShape,
-			
 			picture: this.FillPictureShape,
-			
+			transparency: PropTypes.number,
+			gradient: this.GradientShape,
 			pattern: this.PatternShape,
 		}),
 
@@ -531,13 +527,13 @@ export default class Base extends Component{
 	})
 
 	static BorderShape=this.normalizeChecker(PropTypes.oneOfType([
+		this.LineShape,//4 edges with same shape
 		PropTypes.shape({
 			left:this.LineShape,
 			right:this.LineShape,
 			top:this.LineShape,
 			bottom:this.LineShape,
 		}),
-		this.LineShape,//4 edges with same shape
 	],{$type:"BorderShape"}),{
 		default:{
 			left:this.LineShape.default,

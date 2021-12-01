@@ -1,7 +1,9 @@
-import React, { Fragment } from "react"
-import {dom} from "we-edit"
-import SvgIcon from "material-ui/SvgIcon"
+import React from "react"
+import {dom, ACTION} from "we-edit"
 import { MenuItem } from "material-ui/Menu"
+import ShapeAsMenu from "../shape-as-menu"
+import textures from "../textures"
+
 import IconBold from "material-ui/svg-icons/editor/format-bold"
 import IconItalic from "material-ui/svg-icons/editor/format-italic"
 import IconUnderlined from "material-ui/svg-icons/editor/format-underlined"
@@ -27,118 +29,27 @@ import IconVertAlignTop from "material-ui/svg-icons/editor/vertical-align-top"
 
 import IconFillShape from "material-ui/svg-icons/editor/format-color-fill"
 import IconOutlineShape from "material-ui/svg-icons/editor/border-color"
+import { IconColumn, Column, IconTextBorder, IconSubscript, IconSuperscript, IconSize, IconOrientation, IconMargin } from "./icons"
 
-
-import ShapeAsMenu from "./shape-as-menu"
-
-const importAll = require =>{
-    return require.keys().reduce((acc, next) => {
-        acc[next.replace("./", "")] = require(next);
-        return acc;
-    }, {});
-}
-
-const IconSuperscript = props => (
-	<SvgIcon {...props}>
-		<g transform="translate(0 3) scale(0.7)">
-			<path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z" />
-		</g>
-		<text x="15" y="9" style={{ fontSize: 9 }}>2</text>
-	</SvgIcon>
-);
-const IconSubscript = props => (
-	<SvgIcon {...props}>
-		<g transform="translate(0 3) scale(0.7)">
-			<path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z" />
-		</g>
-		<text x="15" y="20" style={{ fontSize: 9 }}>2</text>
-	</SvgIcon>
-);
-const IconTextBorder = props => (
-	<SvgIcon {...props}>
-		<g transform="translate(0 2)">
-			<path d="M5 17m4.5-4.2h5l.9 2.2h2.1L12.75 4h-1.5L6.5 15h2.1l.9-2.2zM12 5.98L13.87 11h-3.74L12 5.98z" />
-		</g>
-		<path d="M2 2 h20v20h-20z" fill="none" stroke="black" />
-	</SvgIcon>
-);
-
-const IconBlank=props=><path {...props} d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zM6 20V4h7v5h5v11H6z"/>
-
-const IconSize=()=>(
-	<SvgIcon>
-		<g transform="translate(-3,-3)">
-			<IconBlank transform="scale(0.6) translate(10,10)"/>
-			<path d="M8 3 v3v-1.5 h10v-1.5v3" fill="none" stroke="blue"/>
-			<path d="M9 3 v3v-1.5 h10v-1.5v3" fill="none" stroke="blue" transform="translate(9.5 -1) rotate(90)"/>
-		</g>
-	</SvgIcon>
-)
-
-
-const IconOrientation=props=>(
-	<SvgIcon {...props}>
-		<g transform="scale(0.8) translate(4 4)">
-			<IconBlank transform="translate(-3 -1) scale(0.9)"/>
-			<IconBlank transform="translate(24 4.5) scale(0.9) rotate(90)"/>
-		</g>
-	</SvgIcon>
-)
-
-const IconMargin=({children, ...props})=>(
-	<SvgIcon {...props}>
-		<path d="M4 2h16v20H4z" fill="none" stroke="black"/>
-		
-		{children || 
-			<Fragment>
-				<H/>
-				<H transform="translate(10 0)"/>
-				<V/>
-				<V transform="translate(0 14)"/>
-			</Fragment>
-		}
-	</SvgIcon>
-)
-
-const H=props=><path d="M7 2.5 v19" fill="none" stroke="blue" {...props}/>
-const V=props=><path d="M4.5 5 h15" fill="none" stroke="blue" {...props}/>
-
-const Column=props=><path d="M8.5 6.5v12" fill="none" stroke="blue" strokeWidth="5" strokeDasharray="1.5" {...props}/>
-const IconColumn=({size=20, d=(24-size)/2, children,...props})=>(
-	<SvgIcon {...props}>
-		<path d="M4 2h16v20H4z" fill="none" stroke="black"/>
-		{children}
-	</SvgIcon>
-)
-const ColumnIcons=[
-    <IconColumn>
-        <Column d="M12 6.5v12" strokeWidth="12"/>
-    </IconColumn>,
-    <IconColumn>
-        <Column/>
-        <Column transform="translate(7 0)"/>
-    </IconColumn>,
-    <IconColumn>
-        <Column strokeWidth="3"/>
-        <Column strokeWidth="3" transform="translate(3.5 0)"/>
-        <Column strokeWidth="3" transform="translate(7 0)"/>
-    </IconColumn>,
-    <IconColumn>
-        <Column strokeWidth="3"/>
-        <Column strokeWidth="7" transform="translate(6 0)"/>
-    </IconColumn>,
-    <IconColumn>
-        <Column strokeWidth="7" transform="translate(1 0)"/>
-        <Column strokeWidth="3" transform="translate(7 0)"/>
-    </IconColumn>,
-]
+let uuid=new Date().getTime()
+const setting=type=>void 0
 
 const LineWeights=[0.25,0.5,0.75,1,1.5,2.25,3,4.5,6]
 const LineDashes=["","1", "4 2", "4 2 2 2", "6 2", "6 2 2 2","6 2 2 2 2 2"]
 const LineSketches=["M0 5h30","M0 5h30"]
 
-const FillGradients=[{type:"no",gradients:[]},{type:"light",gradients:[[1,"red",0.2],[]]},{type:"dark",gradients:[]}]
-const FillTextures=Object.values(importAll(require.context("./textures", false, /\.(png)$/))).map(a=>a.default)
+const FillGradients=[
+    {type:"linear",angle:90,stops:[{offset:"0%",color:"blue"},{offset:"100%",color:"red"}]},
+    {type:"linear",angle:90,stops:[{offset:"0%",color:"blue"},{offset:"100%",color:"red"}]},
+    {type:"linear",angle:90,stops:[{offset:"0%",color:"blue"},{offset:"100%",color:"red"}]},
+    {type:"linear",angle:90,stops:[{offset:"0%",color:"blue"},{offset:"100%",color:"red"}]},
+    {type:"linear",angle:90,stops:[{offset:"0%",color:"blue"},{offset:"100%",color:"red"}]},
+    {type:"linear",angle:90,stops:[{offset:"0%",color:"blue"},{offset:"100%",color:"red"}]},
+    {type:"linear",angle:90,stops:[{offset:"0%",color:"blue"},{offset:"100%",color:"red"}]},
+    {type:"linear",angle:90,stops:[{offset:"0%",color:"blue"},{offset:"100%",color:"red"}]},
+    
+]
+const FillTextures=textures
 const FillPatterns=[
     <polygon points={"0,0 2,5 0,10 5,8 10,10 8,5 10,0 5,2"}/>,
     <circle r={1} cx={5} cy={5}/>,
@@ -146,8 +57,14 @@ const FillPatterns=[
 ]
 
 //shape input only be on root level
+/**
+ * configure 
+ *  1. show or not for a prop
+ *  2. default props for component, theme domain, or a prop
+ *  3. priority: props>theme>component
+ *  
+ */
 const Theme={
-    
     UnitShape:{
         Ribbon:{
             style:{
@@ -168,6 +85,32 @@ const Theme={
                     {children}
                 </div>
             )
+        }
+    },
+
+    VertAlignShape:{
+        Ribbon:{
+            label:"Align Text",
+            DropDown:true,
+            icon:<IconVertAlign/>,
+            icons:[<IconVertAlignTop/>,<IconVertAlignMiddle/>,<IconVertAlignBottom/>],
+        }
+    },
+
+    LineShape:{
+        Ribbon:{
+            i:2,
+
+            join:false,
+            dashOffset:false,
+            cap: false,
+            miterLimit: false,
+            
+            opacity: false,
+            
+            style: false,
+            compound: false,
+            gradient:false,
         }
     },
 
@@ -214,7 +157,7 @@ const Theme={
             position:false,
             kerning:false,
             emphasizeMark:false,
-            vanish: false,
+            vanish: false
         },
         Dialog:{
             emphasizeMark:<oneOf values={["."]} style={{width:100}}/>,
@@ -227,6 +170,7 @@ const Theme={
         End:false,
         defaultStyle:false,
         wrap:false,
+        
         Ribbon:{
             spacing:{
                 lineHeight:false,
@@ -282,18 +226,39 @@ const Theme={
                 onClick={false} 
                 DropDown={true} 
                 icon={<IconMargin/>}
-                children={<MenuItem primaryText="Custom Margins..." />}
+                children={<MenuItem primaryText="Custom Margins..." onClick={e=>setting("page")}/>}
                 />,
             cols:<oneOf
                 onClick={false}
                 DropDown={true}
                 values={[[1],[2],[3],[1,2],[2,1]]}
                 labels={["One", "Two", "Three", "Left", "Right"]}
-                icons={ColumnIcons}
+                icons={[
+                    <IconColumn>
+                        <Column key={++uuid} d="M12 6.5v12" strokeWidth="12"/>
+                    </IconColumn>,
+                    <IconColumn>
+                        <Column key={++uuid}/>
+                        <Column key={++uuid} transform="translate(7 0)"/>
+                    </IconColumn>,
+                    <IconColumn>
+                        <Column key={++uuid} strokeWidth="3"/>
+                        <Column key={++uuid} strokeWidth="3" transform="translate(3.5 0)"/>
+                        <Column key={++uuid} strokeWidth="3" transform="translate(7 0)"/>
+                    </IconColumn>,
+                    <IconColumn>
+                        <Column key={++uuid} strokeWidth="3"/>
+                        <Column key={++uuid} strokeWidth="7" transform="translate(6 0)"/>
+                    </IconColumn>,
+                    <IconColumn>
+                        <Column key={++uuid} strokeWidth="7" transform="translate(1 0)"/>
+                        <Column key={++uuid} strokeWidth="3" transform="translate(7 0)"/>
+                    </IconColumn>,
+                ]}
                 icon={
                     <IconColumn>
-                        <Column/>
-                        <Column transform="translate(7 0)"/>
+                        <Column key={++uuid}/>
+                        <Column key={++uuid} transform="translate(7 0)"/>
                     </IconColumn>
                 }
                 children={<MenuItem primaryText="More Columns..." />}
@@ -307,28 +272,88 @@ const Theme={
 
     },
 	Table:{
-
+        Ribbon:{
+            width:false,
+            headers:false,
+            footers:false,
+            cols:false,
+            indent:false,
+        }
     },
 	Row:{
-
+        Ribbon:{
+            keepLines:false,
+            minHeight:false,
+        }
     },
 	Cell:{
+        Ribbon:{
+            margin:false,
+            rowSpan:false,
+            colSpan:false,
+            border:{
+                width:<oneOf label="Line Weights" 
+                    values={[...LineWeights]}
+                    DropDown={true}
+                    icon={<IconOutlineShape/>}
+                    labels={LineWeights.map(a=><span><i style={{fontSize:9}}>{a}pt</i><hr style={{width:"100%",border:0, borderTop:`${a}pt solid lightgray`}}/></span>)}
+                    />,
+                dashArray:<oneOf label="Line Styles"
+                    values={[...LineDashes]}
+                    DropDown={true}
+                    icon={<IconOutlineShape/>}
+                    labels={LineDashes.map(a=><svg viewBox="0 0 30 10"><line {...{x1:0,x2:30,y1:5,y2:5,strokeDasharray:a,stroke:"black"}}/></svg>)}
+                    />,
+                sketched:false,
 
+                children:<oneOf DropDown={true}
+                        label="Borders" 
+                        onClick={false}
+                        icon={<IconTextBorder/>}
+                        values={[1,1,1,1,"-",2,2,2,2,"-",3,3,"-"]}
+                        labels={[
+                            ..."Bottom,Top,Left,Right".split(",").map(a=>`${a} Border`),
+                            "-",
+                            ...["No","All","Outside","Inside"].map(a=>`${a} Borders`),
+                            "-",
+                            ...["Inside Horizontal","Inside Vertical"].map(a=>`${a} Borders`),
+                        ]}
+                        children={<MenuItem primaryText="Borders And Shadings..." onClick={e=>setting('table')}/>}
+                    />
+            },
+            fill:{
+                picture:false,
+                transparency:false,
+                gradient:false,
+                pattern:false,
+                color:{
+                    label:"shading"
+                }
+            }
+        }
     },
 	Frame:{
-
+        Ribbon:{
+            width:false,
+            height:false,
+            x:false,
+            y:false,
+            z:false,
+            margin:false,
+            xhref:false,
+            autoCompose2Parent:false,
+            equalBalanceThreshold:false,
+            balance:false,
+            allowOverflow:false,
+            focusable:false,
+            async:false,
+            space:false,
+        }
     },
 	Anchor:{
         Ribbon:{
             x:false,
-            y:<oneOf {...{
-                    icon:<IconVertAlign/>,
-                    label:"Align Text",
-                    DropDown:true,
-                    onClick:false,
-                    values:dom.Anchor.VertAlignShape.Type.props.values,
-                    icons:[<IconVertAlignTop/>,<IconVertAlignMiddle/>,<IconVertAlignBottom/>]
-                }}/>,
+            y:false,
             z:false,
             wrap:{
                 mode:{
@@ -343,6 +368,7 @@ const Theme={
                     onClick:false,
                     label:"Wrap Side"
                 },
+                distance:false,
             }
         }
     },
@@ -369,15 +395,6 @@ const Theme={
                     labels={LineSketches.map(d=><svg viewBox="0 0 30 10"><path {...{stroke:"black",d}}/></svg>)}
                     children={<MenuItem primaryText="More Lines..."/>}
                     />,
-                join:false,
-                dashOffset:false,
-                cap: false,
-                miterLimit: false,
-                
-                opacity: false,
-                
-                style: false,
-                compound: false,
             },
             fill: {
                 i:0,
@@ -389,7 +406,7 @@ const Theme={
                     values={[...FillGradients,"-"]}
                     Layout="grid"
                     Item={({value, onClick})=><Gradient value={value} onClick={onClick}/>}
-                    children={<MenuItem primaryText="More Gradients..."/>}
+                    children={<MenuItem primaryText="More Gradients..." onClick={e=>setting("shape")}/>}
                     />,
                 picture:{
                     spread:true,
@@ -398,14 +415,14 @@ const Theme={
                         values={[...FillTextures,"-"]}
                         Layout="grid"
                         Item={({value,onClick})=><img src={value} onClick={onClick} style={{width:45,height:45}}/>}
-                        children={<MenuItem primaryText="More Textures..."/>}
+                        children={<MenuItem primaryText="More Textures..." onClick={e=>setting("shape")}/>}
                         />
                 },
                 pattern: <oneOf label="Pattern" 
                     values={[...FillPatterns,"-"]}
                     Layout="grid"
                     Item={({value,onClick})=><Pattern value={value} onClick={onClick}/>}
-                    children={<MenuItem primaryText="More Patterns..."/>}
+                    children={<MenuItem primaryText="More Patterns..." onClick={e=>setting("shape")}/>}
                     />
             },
             rotate: <oneOf 
@@ -413,7 +430,7 @@ const Theme={
                 DropDown={true} 
                 onClick={false} 
                 icon={<IconRotate/>} 
-                children={<MenuItem primaryText="More Rotation Options..."/>}
+                children={<MenuItem primaryText="More Rotation Options..." onClick={e=>setting("shape")}/>}
                 />,
             scale: {
                 style:{
@@ -429,7 +446,13 @@ const Theme={
     },
 }
 
-const Gradient=props=>null
+const Gradient=({value:{type,angle=0,stops},onClick})=>(
+    <div onClick={onClick} style={{width:45,height:45,}}>
+        <div style={{width:"100%",height:"100%", 
+            background:`${type}-gradient(${angle}deg,${stops.map(({offset,color})=>`${color} ${offset}`).join(",")})`
+        }}/>
+    </div>
+)
 const Pattern=({value, onClick, id=`ptn_${uuid++}`})=>(
     <svg style={{width:45,height:45}} onClick={onClick}>
         <defs>
@@ -440,6 +463,5 @@ const Pattern=({value, onClick, id=`ptn_${uuid++}`})=>(
         <rect width="100%" height="100%" fill={`url(#${id})`}/>
     </svg>
 )
-let uuid=new Date().getTime()
 
 export default Theme

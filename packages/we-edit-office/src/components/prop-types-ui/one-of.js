@@ -12,6 +12,8 @@ import CheckIconButton from "../check-icon-button"
 import DropDownButton from "../drop-down-button"
 
 export default class oneOf extends base{
+    static displayName="oneOf"
+    
     static propTypes={
         ...super.propTypes,
         defaultValue: PropTypes.any,
@@ -29,7 +31,7 @@ export default class oneOf extends base{
     }
     
     renderRibbon(){
-        const {values, defaultValue,value=defaultValue,DropDown, name, label=name, labels=[], icons=[]}=this.$props
+        const {values, children, defaultValue,value=defaultValue,DropDown, name, label=name, labels=[], icons=[]}=this.$props
         if(DropDown)
             return this.renderRibbonDropDown()
         return (
@@ -42,6 +44,7 @@ export default class oneOf extends base{
                         hint={labels[i]||a}
                         />
                 )}
+                {children}
             </Fragment>
         )
     }
@@ -52,6 +55,7 @@ export default class oneOf extends base{
             <select name={name} value={value} onChange={e=>this.set(this.path, e.target.value)} style={style}>
                 {!required && <option value={""}></option>}
                 {values.map((a,i)=><option value={a} key={i}>{labels[i]||a}</option>)}
+                {children}
             </select>
         )
     }

@@ -4,6 +4,7 @@ import CheckIconButton from "../check-icon-button"
 import base from "./base"
 
 export default class bool extends base{
+    static displayName="bool"
     renderRibbon(){
         const {name, value, label=name, path, uiContext, ...props}=this.props
         return <CheckIconButton {...props}

@@ -18,28 +18,42 @@ export default class shape extends base{
         return value
     }
 
-    getKeyTheme(key){
-        if(React.isValidElement(this.theme[key]))
-            return {}
-        return super.getKeyTheme(key)
-    }
-
     renderDialog(){
-        const {theme, context:{uiContext="Dialog"}, $props:{Wrapper}}=this
+        const {theme, context:{uiContext="Dialog"}, $props:{Wrapper, children}}=this
+        const schema={...this.schema}
+        const content=Object.keys(schema).map((key,i)=>{
+            let keyTheme=theme[key]
 
-        const content=Object.keys(this.schema).map(key=>{
-            const {type, props,value=this.value[key],UIType=this.getUIType(type)}=(()=>{
-                if(React.isValidElement(theme[key]))
+            const {type, props,value=this.value[key]}=(()=>{
+                if(React.isValidElement(theme[key])){
+                    keyTheme=null
                     return theme[key]
-                return this.schema[key]?.Type||{}
+                }
+                return schema[key]?.Type||{}
             })();
+
+            const UIType=this.getUIType(type)
             
             if(!UIType || theme[key]===false || theme[key]?.[uiContext]===false)
                 return null
             
-            return <UIType {...{...props, theme:this.getKeyTheme(key), value, key, name:key, path:`${this.makePath(key)}`}}/>
+            if(!keyTheme || Object.keys(keyTheme).length==0){
+                keyTheme=undefined
+            }
+
+            return <UIType {...{theme:keyTheme,...props, value, key, name:key, path:`${this.makePath(key)}`}}/>
         })
-        
+
+        if(children){
+            if(React.isValidElement(children) && 
+                typeof(children.type)=="string" && 
+                this.Types[children.type]){
+                content.push(React.createElement(this.Types[children.type], children.props))    
+            }else{
+                content.push(children)
+            }
+        }
+
         if(!Wrapper || content.length==0){
             return content
         }

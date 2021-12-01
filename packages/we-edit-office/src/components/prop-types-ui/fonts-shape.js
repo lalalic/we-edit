@@ -3,6 +3,7 @@ import base from "./base"
 import FontList from "../fonts"
 
 export default class FontsShape extends base{
+    static displayName="FontsShape"
     renderRibbon(){
         const {value, name, label=name, style=this.theme.style||{}}=this.props
         return <FontList value={value} onChange={font=>this.set(this.path,font)} placeholder={label} title={label} style={style}/>

@@ -1,6 +1,6 @@
 import React,{Fragment} from "react"
 import base from "./base"
-import ColorButton from "../color-button"
+import {ColorButton} from "we-edit/office"
 import SelectColor from "../select-color"
 import { Dialog } from "material-ui"
 

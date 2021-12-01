@@ -1,6 +1,6 @@
 import React, {} from "react"
 import {dom, ACTION} from "we-edit"
-import {Ribbon} from "we-edit-office"
+import {CheckIconButton} from "we-edit-office"
 import IconTextBox from "material-ui/svg-icons/editor/format-shapes"
 
 const Shape=dom.Shape
@@ -100,10 +100,10 @@ export const shapes=[
 ]
 
 export const textbox=(
-    <Ribbon.CheckIconButton hint="text box" 
+    <CheckIconButton hint="text box" 
         create={(e,props)=>rect(e,{...props,type:"textbox"})}>
         <IconTextBox/>
-    </Ribbon.CheckIconButton>
+    </CheckIconButton>
 )
 
 export const defaultShape=rect
