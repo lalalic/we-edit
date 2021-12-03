@@ -227,7 +227,16 @@ export class WeDocumentStub extends Component{
 const UIDialog=connect(state=>{
 	const {dialog}=getUI(state)
 	return {dialog}
-})(({dialog})=>dialog||null)
+})(({dialog, dispatch})=>{
+	if(dialog){
+		return React.cloneElement(dialog,{onRequestClose:e=>{
+			dispatch(ACTION.UI({dialog:null}))
+			dialog.props.onRequestClose?.(e)
+		}})
+	}
+
+	return null
+})
 
 
 const Root=connect(state=>{
