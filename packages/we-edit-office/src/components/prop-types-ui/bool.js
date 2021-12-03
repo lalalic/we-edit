@@ -9,7 +9,7 @@ export default class bool extends base{
         isPrimitive:true,
     }
     renderRibbon(){
-        const {name, value, label=name, path, uiContext, ...props}=this.props
+        const {name, value, label=name, path, uiContext, isPrimitive, ...props}=this.props
         return <CheckIconButton {...props}
             label={label} 
             status={value ? "checked" : "unchecked"} 

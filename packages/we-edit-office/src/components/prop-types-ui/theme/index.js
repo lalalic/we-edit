@@ -30,7 +30,6 @@ import IconVertAlignTop from "material-ui/svg-icons/editor/vertical-align-top"
 import IconFillShape from "material-ui/svg-icons/editor/format-color-fill"
 import IconOutlineShape from "material-ui/svg-icons/editor/border-color"
 import { IconColumn, Column, IconTextBorder, IconSubscript, IconSuperscript, IconSize, IconOrientation, IconMargin } from "./icons"
-import ObjectTree from "../../object-tree"
 
 let uuid=new Date().getTime()
 const setting=type=>void 0
@@ -48,7 +47,6 @@ const FillGradients=[
     {type:"linear",angle:90,stops:[{offset:"0%",color:"blue"},{offset:"100%",color:"red"}]},
     {type:"linear",angle:90,stops:[{offset:"0%",color:"blue"},{offset:"100%",color:"red"}]},
     {type:"linear",angle:90,stops:[{offset:"0%",color:"blue"},{offset:"100%",color:"red"}]},
-    
 ]
 const FillTextures=textures
 const FillPatterns=[
@@ -139,8 +137,6 @@ const Theme={
 
     LineShape:{
         Ribbon:{
-            i:2,
-
             join:false,
             dashOffset:false,
             cap: false,

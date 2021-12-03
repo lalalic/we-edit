@@ -7,6 +7,7 @@ import TestRenderer from "react-test-renderer"
 import MuiThemeProvider from 'material-ui/styles/MuiThemeProvider'
 jest.mock("material-ui/internal/Tooltip",()=>props=><span/>)
 jest.mock("../src/components/prop-types-ui/textures",()=>()=>[])
+jest.mock("../src/developer/diff",()=>()=>({}))
             
 
 describe("propTypes UI",()=>{
@@ -219,7 +220,15 @@ describe("propTypes UI",()=>{
                 <MuiThemeProvider>
                     {content}
                 </MuiThemeProvider>
-            )
+            ,{
+                createNodeMock(element){
+                    if(element.type=="button"){
+                        return {
+                            blur:jest.fn(),
+                        }
+                    }
+                }
+            })
             testRenderer.toJSON()
         }
 
@@ -238,6 +247,16 @@ describe("propTypes UI",()=>{
                 expect(()=>test(<PropTypesUI propTypes={A.propTypes||{}} uiContext={uiContext} theme={Type}/>)).not.toThrow()
             })
         })
+    })
+
+
+    xit("shape support $preset for quick selection",()=>{
+        const schema={
+            name: PropTypes.string,
+            age: PropTypes.number,
+        }
+        const a=TestRenderer.create(<PropTypesUI.shape schema={schema} $preset={[{name:"test0"},{name:"test1"}]}/>).root
+        expect(()=>a.findByType(PropTypesUI.oneOf)).not.toThrow()
     })
 
 

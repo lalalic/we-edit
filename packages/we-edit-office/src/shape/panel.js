@@ -9,6 +9,7 @@ import IconLayout from "material-ui/svg-icons/image/crop"
 import IconPicture from "material-ui/svg-icons/image/photo"
 import IconPlus from "material-ui/svg-icons/content/add"
 import IconMinus from "material-ui/svg-icons/content/remove"
+import SelectStyle from "../components/select-style"
 
 const Label=({children})=><span style={{fontSize:9}}>{children}</span>
 export default class FormatPanel extends PureComponent {

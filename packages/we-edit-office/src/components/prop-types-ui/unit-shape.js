@@ -32,7 +32,7 @@ export default class UnitShape extends base{
             $props:{
                 min,max,step,onChange,name,label=name,types,path,required,style=this.theme.style,
                 uiContext,FieldWrapper,theme,
-                defaultValue,
+                defaultValue, isPrimitive,
                 ...props
             }, 
             state:{value=""}

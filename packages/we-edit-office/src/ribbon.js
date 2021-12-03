@@ -22,6 +22,8 @@ import * as Layout from "./layout"
 import * as Developer from "./developer"
 
 import {PropTypesUI} from "./components"
+import WhenActive from "./components/when-active"
+import SelectStyle from "./components/select-style"
 
 const Ribbon=compose(
 	setDisplayName("Ribbon"),
@@ -218,7 +220,12 @@ const Ribbon=compose(
 			when: {
 				table: <Table.Active label="Table Format"/>,
 				shape: <Shape.Active label="Shape Format"/>,
-				picture: null,
+				image: <WhenActive label="Picture Format">
+					<SelectStyle type="anchor">
+						{({})=><PropTypesUI propTypes={dom.Anchor.PropTypes}/>}
+					</SelectStyle>	
+
+				</WhenActive>,
 			}
 		})
 	}

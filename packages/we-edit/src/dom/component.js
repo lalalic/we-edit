@@ -22,7 +22,27 @@ export default class Base extends Component{
 	static Geometry=Geometry
 
 	static memorize=types=>{
-		const {string,bool,number}=types
+		const {string,bool,number}=types;
+		[string,bool,number].forEach(checker=>{
+			checker.$=props=>{
+				const isRequired=checker.isRequired
+				const clonedChecker=(...args)=>checker(...args)
+				clonedChecker.$=checker.$
+				clonedChecker.isRequired=(...args)=>isRequired(...args)
+				if(props && React.isValidElement(isRequired.Type)){
+					const {$type, ...props0}=props
+					if($type){
+						const type=`${isRequired.Type.type}(${$type})`
+						clonedChecker.Type=React.createElement(type,{...isRequired.Type.props,...props0,required:undefined})
+					}else{
+						clonedChecker.Type=React.cloneElement(isRequired.Type,{...props,required:undefined})
+					}
+					clonedChecker.isRequired.Type=React.cloneElement(clonedChecker.Type,{required:true})
+				}
+
+				return clonedChecker
+			}
+		})
 		string.Type=<string/>
 		string.isRequired.Type=<string required={true}/>
 		bool.Type=<bool/>
@@ -68,36 +88,21 @@ export default class Base extends Component{
 		
 	}
 
-	static normalizeChecker=(checker,extend,props)=>{
-		if(isPrimitiveChecker(checker)){
-			const isRequired=checker.isRequired
-			checker=(...args)=>checker(...args)
-			checker.isRequired=(...args)=>isRequired(...args)
-			if(props && React.isValidElement(isRequired.Type)){
-				const {$type, ...props0}=props
-				if($type){
-					const type=`${isRequired.Type.type}(${$type})`
-					checker.Type=React.createElement(type,{...isRequired.Type.props,...props0,required:undefined})
-				}else{
-					checker.Type=React.cloneElement(isRequired.Type,{...props,required:undefined})
-				}
-				checker.isRequired.Type=React.cloneElement(checker.Type,{required:true})
-			}
-		}
+	static normalizeChecker=(checker,extend)=>{
 		const isRequired=checker.isRequired
-		const toType=newType=>{
+		const $=({$type:newType, ...props})=>{
 			const cloned=(...args)=>checker(...args)
 			cloned.isRequired=(...args)=>isRequired(...args)
 			const type=checker.Type.type,i=type.indexOf("(")
 			const changedType= i!=-1 ? `${type.substring(0,i)}(${newType})` : `${type}(${newType})`
-			cloned.Type=React.createElement(changedType,{...checker.Type.props})
+			cloned.Type=React.createElement(changedType,{...checker.Type.props, ...props})
 			cloned.isRequired.Type=React.cloneElement(cloned.Type,{required:true})
-			Object.assign(cloned,{...extend,toType})
+			Object.assign(cloned,{...extend,$})
 			Object.assign(cloned.isRequired,extend)
 			return cloned
 		}
 
-		Object.assign(checker,{...extend,toType})
+		Object.assign(checker,{...extend,$})
 		Object.assign(isRequired,extend)
 		return checker
 	}
@@ -155,15 +160,13 @@ export default class Base extends Component{
 	})
 
 	//CSS valid values, keyword/hsl()/hsla()/rgb()/rgba()/#hex rgb
-	static ColorShape=this.normalizeChecker(PropTypes.oneOfType([
-		PropTypes.string,
-	],{$type:"ColorShape"}),{
+	static ColorShape=this.normalizeChecker(PropTypes.string.$({$type:"ColorShape"}),{
 		normalize:value=>value,
 		denormalize:(value,normalized)=>normalized,
 		is:value=>true,
 	})
 
-	static URLShape=this.normalizeChecker(PropTypes.string,{
+	static URLShape=this.normalizeChecker(PropTypes.string.$({$type:"URLShape"}),{
 		normalize:value=>value,
 		denormalize:(value,normalized)=>normalized,
 		is:value=>{
@@ -173,9 +176,9 @@ export default class Base extends Component{
 				return false
 			}
 		},
-	},{$type:"URLShape"})
+	})
 
-	static BlobShape=this.normalizeChecker(PropTypes.string,{
+	static BlobShape=this.normalizeChecker(PropTypes.string.$({$type:"BlobShape",type:"file"}),{
 		normalize:value=>value,
 		denormalize:(value,normalized)=>normalized,
 		is:value=>{
@@ -185,7 +188,7 @@ export default class Base extends Component{
 				return false
 			}
 		},
-	},{$type:"BlobShape",type:"file"})
+	})
 
 	static GradientStopShape=this.normalizeChecker(PropTypes.shape({
 		offset: this.UnitShape,
@@ -308,7 +311,7 @@ export default class Base extends Component{
 			color: this.ColorShape,
 			width: this.UnitShape.isRequired,
 			
-			dashArray: PropTypes.string,
+			dashArray: PropTypes.string.$({$type:"LineDashShape"}),
 			dashOffset: PropTypes.string,
 			join: PropTypes.oneOf(["miter","round","bevel"]),
 			cap: PropTypes.string,
@@ -317,11 +320,11 @@ export default class Base extends Component{
 			opacity: PropTypes.number,
 			
 			style: PropTypes.string,
-			sketched: PropTypes.string,
+			sketched: PropTypes.string.$({$type:"LineSketchedShape"}),
 			compound: PropTypes.string,
 			gradient: this.GradientShape
-		}),
-	],{$type:"LineShape"}),{
+		},{$type:"LineShape"}),
+	]),{
 		default:{width:1,color:"black"},
 		normalize:(value)=>{
 			switch(typeof(value)){
@@ -374,8 +377,8 @@ export default class Base extends Component{
 				mirror: PropTypes.string,
 			}),
 			margin:this.MarginShape,
-		})
-	],{$type:"FillPictureShape"}),{
+		},{$type:"FillPictureShape"})
+	]),{
 		normalize:(value)=>{
 			if(typeof(value)=="string"){
 				return {url:value}
@@ -418,16 +421,15 @@ export default class Base extends Component{
 	})
 
 	static FillShape=this.normalizeChecker(PropTypes.oneOfType([
+		this.ColorShape,
 		PropTypes.shape({
 			color:this.ColorShape,
 			picture: this.FillPictureShape,
 			transparency: PropTypes.number,
 			gradient: this.GradientShape,
 			pattern: this.PatternShape,
-		}),
-
-		this.ColorShape,
-	],{$type:"FillShape"}),{
+		},{$type:"FillShape"}),
+	]),{
 		normalize:(value)=>{
 			if(typeof(value)=="object"){
 				const {color, pattern, picture,gradient, ...normalized}=value
@@ -488,7 +490,7 @@ export default class Base extends Component{
 			y: this.UnitShape,
 			rx: this.UnitShape,
 			ry: this.UnitShape,
-		}),
+		},{$type:"RectGeometryShape"}),
 
 		PropTypes.shape({
 			intersects: PropTypes.func,//({x1,x2,y2,y1})=>[{x,width},{x,width}]
@@ -496,23 +498,24 @@ export default class Base extends Component{
 			clone: PropTypes.func,//()=>to clone this geometry
 			width: PropTypes.number,
 			height: PropTypes.number,
-		}),
+		},{$type:"AnyGeometryShape"}),
+		
+		PropTypes.string.$({$type:"PathGeometryPath"}),// a svg path
 
-
-		PropTypes.string,// a svg path
 		PropTypes.shape({
 			type: PropTypes.oneOf(["ellipse"]).isRequired,
 			rx: this.UnitShape.isRequired,
 			ry: this.UnitShape,
 			cx: this.UnitShape,
 			cy: this.UnitShape,
-		}),
+		},{$type:"EllipseGeometryShape"}),
+
 		PropTypes.shape({
 			type: PropTypes.oneOf(["circle"]).isRequired,
 			r: this.UnitShape.isRequired,
 			cx: this.UnitShape,
 			cy: this.UnitShape,
-		})
+		},{$type:"CircleGeometryShape"})
 	],{$type:"GeometryShape"}),{
 		normalize:value=>Geometry.create(value),
 		denormalize:(value,normalized)=>{
@@ -536,8 +539,8 @@ export default class Base extends Component{
 			right:this.LineShape,
 			top:this.LineShape,
 			bottom:this.LineShape,
-		}),
-	],{$type:"BorderShape"}),{
+		},{$type:"BorderShape"}),
+	]),{
 		default:{
 			left:this.LineShape.default,
 			right:this.LineShape.default,
@@ -578,9 +581,9 @@ export default class Base extends Component{
 			right: this.UnitShape,
 			top: this.UnitShape,
 			bottom: this.UnitShape
-		}),
+		},{$type:"MarginShape"}),
 		this.UnitShape//all is same
-	],{$type:"MarginShape"}),{
+	]),{
 		default:{left:0,right:0,top:0,bottom:0},
 		normalize:(value)=>{
 			switch(typeof(value)){
@@ -609,7 +612,7 @@ export default class Base extends Component{
 		}
 	})
 
-	static PaddingShape=this.MarginShape.toType("PaddingShape")
+	static PaddingShape=this.MarginShape.$({$type:"PaddingShape"})
 
 	static AutofitShape=PropTypes.oneOf(["block","font"],{$type:"AutofitShape"})
 
