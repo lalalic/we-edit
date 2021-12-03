@@ -29,13 +29,13 @@ class TextStyle extends Component{
 		super(...arguments)
 		this.clear=this.clear.bind(this)
 		this.apply=this.apply.bind(this)
-		this.state={setting:false}
+		this.setting=this.setting.bind(this)
 	}
 	render(){
-		const {props:{style, children,dispatch},state:{setting}}=this
+		const {props:{style, children}}=this
 		return (
 			<ContextMenu.Support menus={
-				<MenuItem primaryText="Font..." onClick={e=>dispatch(ACTION.UI({dialog:this.dialog(()=>dispatch(ACTION.UI({dialog:null})))}))}/>
+				<MenuItem primaryText="Font..." onClick={this.setting}/>
 			}>
 				<Fragment>
 					<PropTypesUI 
@@ -50,10 +50,9 @@ class TextStyle extends Component{
 						children={<IconClear/>}
 						/>
 					<CheckIconButton label="Text setting..."
-						onClick={e=>this.setState({setting:true})}
+						onClick={this.setting}
 						children={<IconMore/>}
 						/>
-					{setting && this.dialog(e=>this.setState({setting:false}))}
 					{children}
 				</Fragment>
 			</ContextMenu.Support>
@@ -68,35 +67,23 @@ class TextStyle extends Component{
 		this.props.dispatch(ACTION.Selection.UPDATE({text}))
 	}
 
-	dialog(close){
+	setting(){
 		const {style, dispatch}=this.props
 		const refTextSetting=React.createRef()
-		return (
-			<Dialog title="Font Setting" 
-				actions={[
+		dispatch(ACTION.UI({dialog:
+			<Dialog 
+				title="Font Setting" 
+				onSubmit={e=>this.apply(refTextSetting.current.value)}
+				moreActions={
 					<FlatButton
 						label="Set As Default..."
 						onClick={()=>dispatch(ACTION.Entity.UPDATE({document:{defaultTextStyle:refTextSetting.current.value}}))}
-					/>,
-
-					<FlatButton
-						label="Cancel"
-						onClick={close}
-					/>,
-					
-					<FlatButton
-						label="Submit"
-						primary={true}
-						onClick={e=>{
-							this.apply(refTextSetting.current.value)
-							close()
-						}}
-					/>,
-				]}
+					/>
+				}
 			>
 				<PropTypesUI uiContext="Dialog" theme="Text" propTypes={dom.Text.propTypes} props={style} ref={refTextSetting}/>
 			</Dialog>
-		)
+		}))
 	}
 }
 

@@ -1,5 +1,6 @@
 import React, {Fragment} from "react"
 import { MenuItem } from "material-ui/Menu"
+import Workspace from "../../../workspace"
 import ShapeAsMenu from "../shape-as-menu"
 import textures from "../textures"
 

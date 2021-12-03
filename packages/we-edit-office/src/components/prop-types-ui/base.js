@@ -111,7 +111,7 @@ export default class base extends PureComponent{
         if(!show||!this[`render${uiContext}`]) 
             return null 
             
-        return (this[`render${uiContext}`]).call(this)
+        return this[`render${uiContext}`].call(this)
     }
 
     set(path, value){

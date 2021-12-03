@@ -18,6 +18,15 @@ import IconClose from "material-ui/svg-icons/action/highlight-off"
  * doc.Store can't be removed to Workspace since cursor
  */
 export default class Workspace extends PureComponent{
+	static Context=class PureComponent{
+		static contextTypes={
+			dispatch: PropTypes.func
+		}
+		render(){
+			const {children, ...props}=this.props
+			return children(this.context, props)
+		}
+	}
 	static childContextTypes={
 		events: PropTypes.object,
 		panelManager: PropTypes.shape({
@@ -26,6 +35,7 @@ export default class Workspace extends PureComponent{
 		}),
 		debug: PropTypes.bool,
 		propTypesUITheme:PropTypes.object,
+		dispatch: PropTypes.func,
 	}
 
 	static propTypes={
@@ -88,7 +98,8 @@ export default class Workspace extends PureComponent{
 			events:this.events,
 			panelManager:this.panelManager,
 			debug,
-			propTypesUITheme:this.props.propTypesUITheme
+			propTypesUITheme:this.props.propTypesUITheme,
+			dispatch: action=>this.store.current.dispatch(action)
 		}
 	}
 
