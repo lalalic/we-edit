@@ -1,7 +1,7 @@
 import React,{Fragment} from "react"
 import {Editor,ACTION} from "we-edit"
 
-import {Workspace, Ribbon, ContextMenu} from "we-edit-office"
+import {Workspace, Ribbon, ContextMenu, PropTypesUI} from "we-edit-office"
 import {Divider, ToolbarSeparator, Tab} from "material-ui"
 
 import Field from "./field"
@@ -13,6 +13,7 @@ import {shapes,textbox, defaultShape} from "./shape"
 
 import Canvas from "../representation/canvas"
 import Inspector from "./inspector"
+import theme from "./themes"
 
 const KEY="docx"
 export default (
@@ -21,6 +22,7 @@ export default (
         accept="*.docx"
         name={KEY}
         key={KEY}
+        propTypesUITheme={PropTypesUI.getTheme(theme)}
         ruler={{
             vertical:true,
             horizontal:{

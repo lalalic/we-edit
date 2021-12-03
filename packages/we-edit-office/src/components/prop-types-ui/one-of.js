@@ -11,7 +11,6 @@ import DropDownButton from "../drop-down-button"
 
 export default class oneOf extends base{
     static displayName="oneOf"
-    
     static propTypes={
         ...super.propTypes,
         defaultValue: PropTypes.any,
@@ -19,9 +18,14 @@ export default class oneOf extends base{
         DropDown: PropTypes.oneOfType([PropTypes.func,PropTypes.bool]),
         check: PropTypes.func,
         icon: PropTypes.element,
-        labels: PropTypes.arrayOf(PropTypes.string),
+        labels: PropTypes.arrayOf(PropTypes.node),
         icons: PropTypes.arrayOf(PropTypes.element),
     }
+
+    static defaultProps={
+        isPrimitive:true,
+    }
+    
     
     renderRibbon(){
         const {values, children, defaultValue,value=defaultValue,DropDown, name, label=name, labels=[], icons=[]}=this.$props

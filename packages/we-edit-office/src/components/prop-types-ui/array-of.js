@@ -1,23 +1,36 @@
 import React from "react"
 import base from "./base"
+import $String from "./string"
 
 export default class arrayOf extends base{
     static displayName="arrayOf"
-    static string=class extends base{
-        renderDialog(){
-            
+
+    renderDialog(){
+        const {value=[],type:{Type:{type}}, ...props}=this.props
+        if("string,bool,number".split(",").includes(type)){
+            const to=values=>values.map(a=>{
+                switch(type){
+                    case "bool":
+                        return !!a
+                    case "number":
+                        return parseFloat(a)
+                    default:
+                        return a
+                }
+            })
+            return <$String 
+                value={value.join(",")} 
+                {...props} 
+                onChange={value=>this.set(this.path, to(value.split(",")) )}/>
         }
+        return null
     }
 
-    static number=class extends base{
-
+    renderRibbon(){
+        return this.renderDialog()
     }
 
-    static bool=class extends base{
-
-    }
-
-    static shape=class extends base{
-
+    renderMenu(){
+        return this.renderDialog()
     }
 }

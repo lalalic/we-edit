@@ -23,7 +23,7 @@ export default class oneOfType extends base{
         const {types:_, i=this.types.length-1, spread, ...props}=this.$props
         const {type, props:{...props0}}=this.types[i].Type
         const UIType=this.getUIType(type)
-        return UIType&&<UIType {...props0} {...props}/>
+        return UIType&&<UIType key={i} {...props0} {...props}/>
     }
 
     renderRibbon(){
@@ -51,10 +51,15 @@ export default class oneOfType extends base{
         const {types:_, i=0, spread, ...props}=this.$props
         const {Type:{type, props:{...props0}}}=this.types[i]
         const UIType=this.getUIType(type)
-        return UIType && <UIType {...props0} {...props}/>
+        return UIType && <UIType key={i} {...props0} {...props}/>
     }
 
     renderMenu(){
         return this.renderRibbon()
+    }
+
+    static isPrimitive(el,context){
+        const instance=new this(el.props, context)
+        return instance.render()?.props?.isPrimitive
     }
 }

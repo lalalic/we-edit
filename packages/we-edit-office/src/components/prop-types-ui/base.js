@@ -39,7 +39,7 @@ export default class base extends PureComponent{
     }
     
     get theme(){
-        return this.getShapeTheme()
+        return this.getShapeTheme(this.props.theme)
     }
 
     get $props(){
@@ -54,7 +54,7 @@ export default class base extends PureComponent{
     /**
      * uiContext resolved, so don't return any uiContext 
      */
-    getShapeTheme=memoize(()=>{
+    getShapeTheme=memoize(theme=>{
         const Theme=this.Theme
         let merged=fromJS({})
         if(Theme[this.constructor.displayName]){
@@ -71,13 +71,13 @@ export default class base extends PureComponent{
                 .mergeDeep(fromJS(typedShapeTheme?.[this.uiContext]||{}))
         }
 
-        if(this.props.theme){
+        if(theme){
             merged=merged
-                .mergeDeep(this.props.theme||{})
-                .mergeDeep(this.props.theme?.[this.uiContext]||{})
+                .mergeDeep(theme)
+                .mergeDeep(theme?.[this.uiContext]||{})
         }
-        const {Dialog,Tree,Menu,Tab,Ribbon, ...theme}=merged.toJS()
-        return theme
+        const {Dialog,Tree,Menu,Tab,Ribbon, ...mergedTheme}=merged.toJS()
+        return mergedTheme
     })
 
     getUIType(type){
@@ -92,7 +92,9 @@ export default class base extends PureComponent{
                 return this.Types[typedShape]
             if(this.Types[baseShape]){
                 if(this.Theme[typedShape]){
-                    return props=>React.createElement(this.Types[baseShape],{typedShape,...props})
+                    const Type=props=>React.createElement(this.Types[baseShape],{typedShape,...props})
+                    Type.defaultProps=this.Types[baseShape].defaultProps
+                    return Type
                 }
                 return this.Types[baseShape]
             }

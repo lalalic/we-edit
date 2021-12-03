@@ -82,6 +82,14 @@ class Shape extends Path{
 		const y2 = Math.min(me.bottom, other.bottom);
 		return x1 < x2 && y1 < y2
 	}
+
+	get width(){
+		return this.size().width
+	}
+
+	get height(){
+		return this.size().height
+	}
 }
 
 export default class path extends Shape{

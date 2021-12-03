@@ -1,5 +1,4 @@
-import React from "react"
-import {dom, ACTION} from "we-edit"
+import React, {Fragment} from "react"
 import { MenuItem } from "material-ui/Menu"
 import ShapeAsMenu from "../shape-as-menu"
 import textures from "../textures"
@@ -30,6 +29,7 @@ import IconVertAlignTop from "material-ui/svg-icons/editor/vertical-align-top"
 import IconFillShape from "material-ui/svg-icons/editor/format-color-fill"
 import IconOutlineShape from "material-ui/svg-icons/editor/border-color"
 import { IconColumn, Column, IconTextBorder, IconSubscript, IconSuperscript, IconSize, IconOrientation, IconMargin } from "./icons"
+import ObjectTree from "../../object-tree"
 
 let uuid=new Date().getTime()
 const setting=type=>void 0
@@ -65,12 +65,23 @@ const FillPatterns=[
  *  
  */
 const Theme={
+    $Types:{
+
+    },
     UnitShape:{
         Ribbon:{
             style:{
                 width:50,
                 marginLeft:2,
                 marginRight:2,
+            }
+        },
+        Tree:{
+            style:{
+                width:50,
+                border:"none",
+                background:"transparent",
+                outline:"none",
             }
         },
         style:{
@@ -85,6 +96,28 @@ const Theme={
                     {children}
                 </div>
             )
+        },
+    },
+
+    oneOf:{
+        Tree:{
+            style:{
+                border:"none",
+                outline:"none",
+                background:"transparent"
+            }
+        }
+    },
+
+    ColorShape:{
+        Tree:{
+            style:{
+                border:"none",
+                margin:0,
+                padding:0,
+                width:20,
+                height:20,
+            }
         }
     },
 
@@ -94,6 +127,12 @@ const Theme={
             DropDown:true,
             icon:<IconVertAlign/>,
             icons:[<IconVertAlignTop/>,<IconVertAlignMiddle/>,<IconVertAlignBottom/>],
+        }
+    },
+
+    AlignShape:{
+        Tree:{
+            isPrimitive:true
         }
     },
 
@@ -114,13 +153,20 @@ const Theme={
         }
     },
 
-    Text:{
-        fonts: {
+    FontsShape:{
+        Tree:{
             style:{
-                width: 100
-            }
-        },
-		size: {
+                border:"none",
+                outline:"none",
+                width:50,
+                background:"transparent",
+            },
+            label:"..."
+        }
+    },
+
+    Text:{
+        size: {
             FieldWrapper:({children})=>children,
         },
 		color: {
@@ -156,7 +202,6 @@ const Theme={
             spacing:false,
             position:false,
             kerning:false,
-            emphasizeMark:false,
             vanish: false
         },
         Dialog:{
@@ -164,16 +209,18 @@ const Theme={
             underline:<oneOf values={[]}/>,
             strike:<oneOf values={[]}/>,
             border:<oneOf values={[]}/>,
-        }
+        },
+        emphasizeMark:false,
     },
     Paragraph:{
         End:false,
         defaultStyle:false,
         wrap:false,
-        
+        spacing:{
+            lineHeight:false,
+        },
         Ribbon:{
             spacing:{
-                lineHeight:false,
                 top:{
                     label:"spacing top",
                     placeholder:"top",
@@ -369,12 +416,20 @@ const Theme={
                     label:"Wrap Side"
                 },
                 distance:false,
+                geometry:false,
             }
         }
     },
     Shape:{
         Ribbon:{
-            geometry:<shape schema={{width:dom.Shape.UnitShape,height:dom.Shape.UnitShape}}/>,
+            geometry:{
+                i:0,
+                type:false,
+                x:false,
+                y:false,
+                rx:false,
+                ry:false,
+            },
             outline:{
                 i:2,
                 icon:<IconOutlineShape/>,

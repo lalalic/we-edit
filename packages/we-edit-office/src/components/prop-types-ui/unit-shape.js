@@ -8,6 +8,10 @@ export default class UnitShape extends base{
     static propTypes={
         FieldWrapper: PropTypes.any,
     }
+    static defaultProps={
+        isPrimitive:true,
+    }
+    
     constructor({value}){
         super(...arguments)
         this.state={value}
@@ -34,8 +38,9 @@ export default class UnitShape extends base{
             state:{value=""}
         }=this
         return (
-            <span style={{position:"relative", display:"inline-block"}}>
+            <span style={{position:"relative", display:"inline-block"}} className="unit-shape">
                 <input {...{...props,title:label,style,value, type:"text"}} 
+                    onFocus={e=>e.target.select()}
                     onChange={e=>this.setState({value:e.target.value})}
                     onBlur={a=>this.set(this.path, value)}
                     onKeyDown={e=>{

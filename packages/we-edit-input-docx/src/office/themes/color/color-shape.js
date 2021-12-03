@@ -1,5 +1,5 @@
 import React,{Fragment} from "react"
-import { Dialog } from "material-ui"
+import { Dialog, Popover } from "material-ui"
 import {ColorButton, PropTypesUI} from "we-edit-office"
 import SelectColor from "./select-color"
 
@@ -17,6 +17,7 @@ export default class ColorShape extends PropTypesUI.any{
                 onChange={color=>this.set(this.path,color)}
                 value={value||""}
                 label={label}
+                children={<SelectColor/>}
                 />
         )
     }

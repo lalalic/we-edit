@@ -481,14 +481,6 @@ export default class Base extends Component{
 
 	static GeometryShape=this.normalizeChecker(PropTypes.oneOfType([
 		PropTypes.shape({
-			intersects: PropTypes.func,//({x1,x2,y2,y1})=>[{x,width},{x,width}]
-			bounds: PropTypes.func,//()=>{left, right, top, bottom}
-			clone: PropTypes.func,//()=>to clone this geometry
-		}),
-
-
-		PropTypes.string,// a svg path
-		PropTypes.shape({
 			type: PropTypes.oneOf(["rect"]),
 			width:this.UnitShape.isRequired,
 			height:this.UnitShape.isRequired,
@@ -497,6 +489,17 @@ export default class Base extends Component{
 			rx: this.UnitShape,
 			ry: this.UnitShape,
 		}),
+
+		PropTypes.shape({
+			intersects: PropTypes.func,//({x1,x2,y2,y1})=>[{x,width},{x,width}]
+			bounds: PropTypes.func,//()=>{left, right, top, bottom}
+			clone: PropTypes.func,//()=>to clone this geometry
+			width: PropTypes.number,
+			height: PropTypes.number,
+		}),
+
+
+		PropTypes.string,// a svg path
 		PropTypes.shape({
 			type: PropTypes.oneOf(["ellipse"]).isRequired,
 			rx: this.UnitShape.isRequired,
@@ -630,6 +633,8 @@ export default class Base extends Component{
 			return normalized
 		}
 	})
+
+	//static ListShape=PropTypes.oneOfType([BulletListShape, NumberListShape, OutlineListShape])
 
 	static NumberingShape=this.normalizeChecker(PropTypes.shape({
 		id: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),

@@ -1,9 +1,20 @@
 import React, {Component} from "react"
+import PropTypes from "prop-types"
 
 export default class ObjectTree extends Component{
+    static childContextTypes={
+        uiContext: PropTypes.string
+    }
+
     constructor({name, open=!!!name}){
         super(...arguments)
         this.state={open}
+    }
+
+    getChildContext(){
+        return {
+            uiContext:"Tree"
+        }
     }
     
     render(){
@@ -15,16 +26,15 @@ export default class ObjectTree extends Component{
         const folderStyle={display:"inline-block",width:15, cursor:"default"}
         const nameStyle={fontStyle:"italic",fontSize:"smaller",paddingRight:3,whiteSpace:"nowrap"}
         const valueStyle={whiteSpace:"nowrap",paddingLeft:4,fontSize:"smaller"}
-        const keys=Array.isArray(ob) ? 
-            new Array(ob.length).fill(0).map((n,i)=>i) : 
-            Object.keys(ob).filter(a=>!filter.includes(a) && !filter.find(f=>(typeof(f)=="function") && f(a))).sort();
-        
-        [...order].reverse().forEach((a,_,array,i=keys.indexOf(a))=>{
-            if(i!=-1){
-                keys.splice(i,1)
-                keys.unshift(a)
+
+        if(React.isValidElement(ob)){
+            if(ob.props.isPrimitive){
+                return this.renderToPrimitive(name, folderStyle, nameStyle, valueStyle, ob)
             }
-        })
+            return this.renderToObject(open, nameStyle, folderStyle, name, listStyle, ob)
+        }
+
+        const keys = this.getKeys(ob, filter, order)
 
         const lists=keys.map(k=>{
             let v=ob[k]
@@ -43,53 +53,85 @@ export default class ObjectTree extends Component{
                         return null
                     }
                     
-                    return (
-                        <li key={k}>
-                            <div style={{display:"flex", flexDirection:"row"}}>
-                                <div style={{paddingLeft:folderStyle.width, cursor:"default",...nameStyle}}>{k}:</div>
-                                <div style={valueStyle}>{v}</div>
-                            </div>
-                        </li>
-                    )
+                    return this.renderToPrimitive(k, folderStyle, nameStyle, valueStyle, v)
                 }
             }
         }).filter(a=>!!a)
 
         if(isRoot){
-            return (
-                <ul style={{...style,...listStyle}}>
-                    {lists}
-                </ul>
-            )
+            return this.renderToRoot(style, listStyle, lists)
         }
 
         if(lists.length==0){
-            return (
-                <li>
-                    <div style={{display:"flex", flexDirection:"row",...nameStyle}}>
-                        <div style={{paddingLeft:folderStyle.width, cursor:"default"}}>{name}:</div>
-                        <div style={valueStyle}><i>{Array.isArray(ob) ? "[]" : "{}"}</i></div>
-                    </div>
-                </li>
-            )
+            return this.renderToEmptyObject(nameStyle, folderStyle, name, valueStyle, ob)
         }
 
+        return this.renderToObject(open, nameStyle, folderStyle, name, listStyle, lists)
+    }
+
+    renderToRoot(style, listStyle, lists) {
+        return (
+            <ul style={{ ...style, ...listStyle }} className="object-tree">
+                {lists}
+            </ul>
+        )
+    }
+
+    getKeys(ob, filter, order) {
+        const keys = Array.isArray(ob) ? new Array(ob.length).fill(0).map((n, i) => i) :
+            Object.keys(ob).filter(a => !filter.includes(a) && !filter.find(f => (typeof (f) == "function") && f(a))).sort();
+
+        [...order].reverse().forEach((a, _, array, i = keys.indexOf(a)) => {
+            if (i != -1) {
+                keys.splice(i, 1)
+                keys.unshift(a)
+            }
+        })
+        return keys
+    }
+
+    renderToPrimitive(k, folderStyle, nameStyle, valueStyle, v) {
+        return (
+            <li key={k}>
+                <div style={{ display: "flex", flexDirection: "row" }}>
+                    <div style={{ paddingLeft: folderStyle.width, cursor: "default", ...nameStyle }}>{k}:</div>
+                    <div style={valueStyle}>{v}</div>
+                </div>
+            </li>
+        )
+    }
+
+    renderToObject(open, nameStyle, folderStyle, name, listStyle, content) {
         return (
             <li>
-                <div onClick={()=>this.setState({open:!open})} style={{cursor:"default",...nameStyle}}>
+                <div onClick={() => this.setState({ open: !open })} style={{ cursor: "default", ...nameStyle }}>
                     <span style={folderStyle}>
                         {open ? "-" : "+"}
                     </span>
                     <span>{name}</span>
                 </div>
-                {open && 
-                    <div style={{paddingLeft:listStyle.paddingLeft}}>
-                        <ul style={{...listStyle}}>
-                            {lists}
+                {open &&
+                    <div style={{ paddingLeft: listStyle.paddingLeft }}>
+                        <ul style={{ ...listStyle }}>
+                            {content}
                         </ul>
-                    </div>
-                }
+                    </div>}
             </li>
-        )     
+        )
     }
+
+    renderToEmptyObject(nameStyle, folderStyle, name, valueStyle, ob) {
+        return (
+            <li>
+                <div style={{ display: "flex", flexDirection: "row", ...nameStyle }}>
+                    <div style={{ paddingLeft: folderStyle.width, cursor: "default" }}>{name}:</div>
+                    <div style={valueStyle}><i>{Array.isArray(ob) ? "[]" : "{}"}</i></div>
+                </div>
+            </li>
+        )
+    }
+}
+
+class Node extends Component{
+
 }

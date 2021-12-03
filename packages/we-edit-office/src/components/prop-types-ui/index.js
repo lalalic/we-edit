@@ -1,4 +1,4 @@
-import React, {Component} from "react"
+import React, {PureComponent} from "react"
 import PropTypes from "prop-types"
 import {Map, fromJS} from "immutable"
 
@@ -20,7 +20,7 @@ import BaseTheme from "./theme"
 /**
  * <PropTypesUI component={this}/>
  */
-export default class PropTypesUI extends Component{
+export default class PropTypesUI extends PureComponent{
     static Theme=BaseTheme
 
     static getTheme=a=>{
@@ -86,7 +86,7 @@ export default class PropTypesUI extends Component{
         }
     }
 
-    constructor({props={}}){
+    constructor({props={},onChange}){
         super(...arguments)
         this.state={props:fromJS(props)}
         this.set=this.set.bind(this)
@@ -99,7 +99,16 @@ export default class PropTypesUI extends Component{
     
     render(){
         const {props:{propTypes}, state:{props}}=this
-        return <this.Types.shape schema={propTypes.Type?.props.schema||propTypes} theme={this.theme} value={props.toJS()} Wrapper={null}/>
+        return <this.Types.shape schema={propTypes.Type?.props.schema||propTypes} theme={this.theme} value={props.toJS()}/>
+    }
+
+    componentDidUpdate({onChange, props}, prevState){
+        if(onChange){
+            const newProps=fromJS(this.props.props)
+            if(!newProps.equals(fromJS(props))){
+                this.setState({props:newProps})
+            }
+        }
     }
 
     set(path, value){

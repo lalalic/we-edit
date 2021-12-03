@@ -10,6 +10,7 @@ export default class ColorButton extends Component{
 	constructor(){
 		super(...arguments)
 		this.state={open:false}
+		this.container=React.createRef()
 	}
 
 	render(){
@@ -17,11 +18,18 @@ export default class ColorButton extends Component{
 		const {onChange=a=>a,children,value:color, icon, ...props}=this.props
 		const toggle=e=>this.setState({open:!open})
 		return (
-			<span style={{whiteSpace:"nowrap"}}>
+			<span style={{whiteSpace:"nowrap"}} ref={this.container}>
 				<SizeIconButton {...props} icon={<ColorIcon {...{icon, color}}/>}
 					onClick={e=>props.status=="checked" ? onChange("") : toggle(e)}/>
 				<IconMore style={{height:24,width:6}} viewBox="6 -12 18 36" onClick={toggle}/>
-				{open && React.cloneElement(children,{value:color,onChange:v=>{onChange(v);toggle()}})}
+				{open && (
+					<Popover 
+						open={true} 
+						anchorEl={this.container.current}
+						onRequestClose={e=>this.setState({open:false})}>
+						{React.cloneElement(children, {value:color, onChange:color=>{this.setState({open:false});onChange(color)}})}
+					</Popover>
+				)}
 			</span>
 		)
 	}

@@ -5,12 +5,16 @@ import Base from "./base"
 
 export default class ColorShape extends Base{
     static displayName="ColorShape"
+    static defaultProps={
+        isPrimitive:true,
+    }
+    
     constructor(){
         super(...arguments)
         this.state={open:false}
     }
     renderRibbon(){
-        const {name,label=name, value}=this.props
+        const {name,label=name, value}=this.$props
         return (
             <ColorButton label={label} value={value} 
                 onChange={v=>this.set(this.path, v)}>
@@ -24,11 +28,12 @@ export default class ColorShape extends Base{
     }
 
     renderTree(){
-        return this.renderRibbon()
+        const {value, style}=this.$props
+        return <input type="color" value={value} onChange={e=>this.set(this.path,e.target.value)} style={style}/>
     }
 
     renderMenu(){
-        const {name,label=name,value}=this.props
+        const {name,label=name,value}=this.$props
         return (
             <Fragment>
                 <MenuItem primaryText={`${label}...`} onClick={e=>this.setState({open:true})}/>
@@ -46,10 +51,6 @@ class ColorSelector extends Component{
     render(){
         const {value, onChange}=this.props
         return <input ref={this.input} type="color" 
-            onClick={e=>{
-                debugger
-                e.stopPropagation()
-            }} 
             value={value} 
             style={{width:0,height:1,padding:0,border:0,margin:0}} 
             onChange={e=>onChange(e.target.value)}

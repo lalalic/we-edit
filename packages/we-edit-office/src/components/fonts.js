@@ -28,12 +28,13 @@ export default class FontList extends React.Component{
 		return (
 			<span ref={this.container} style={{marginLeft:2,marginRight:2}}>
 				<input {...props}
-					style={{...style,outline:"none",border:"1px solid lightgray",margin:"5px 2px 0 0", padding:"0 2px",lineHeight:"24px",height:24}}
+					style={style}
 					name="font" 
 					value={open?filter:value} 
 					autoComplete="off"
 					onFocus={e=>{
 						this.setState({open:true})
+						e.target.select()
 					}}
 					onChange={e=>{
 						this.setState({filter:e.currentTarget.value})

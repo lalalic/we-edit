@@ -7,6 +7,9 @@ import selectFile from "../file-select"
 
 export default class extends base{
     static displayName="string"
+    static defaultProps={
+        isPrimitive:true,
+    }
     
     type="text"
     renderRibbon(){
