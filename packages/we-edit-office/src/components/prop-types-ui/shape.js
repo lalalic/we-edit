@@ -23,7 +23,7 @@ export default class shape extends base{
         const {theme, context:{uiContext="Dialog"}, $props:{children}}=this
         const schema={...this.schema}
         const content=Object.keys(schema).map((key,i)=>{
-            if(theme[key]===false || theme[key]?.[uiContext]===false)
+            if((theme[key]===false || theme[key]?.[uiContext]===false)||(theme['*']===false && theme[key]===undefined))
                 return null
 
             let keyTheme=theme[key]
@@ -60,7 +60,7 @@ export default class shape extends base{
         return content
     }
 
-    renderDialog(MyWrapper){
+    renderDialog(MyWrapper=this.constructor.GridAlign){
         const content=this.iterate()
         
         const {Wrapper=MyWrapper}=this.$props
@@ -78,7 +78,7 @@ export default class shape extends base{
     }
 
     renderRibbon(){
-        return this.renderDialog()
+        return this.renderDialog(null)
     }
 
     renderTree(){
@@ -86,7 +86,7 @@ export default class shape extends base{
     }
 
     renderMenu(){
-        return this.renderDialog()
+        return this.renderDialog(null)
     }
 
     static Tree=class extends Component{
@@ -119,4 +119,13 @@ export default class shape extends base{
             )
         }
     }
+
+    static GridAlign=({shape:{$props:{name,label=name}}, children})=>(
+        <div style={{borderBottom:"1px solid lightgray", marginTop:5}}>
+            <h3 style={{fontSize:"bigger"}}>{label}</h3>
+            <div style={{display:"grid",gridTemplateColumns:"repeat(2, 1fr)"}}>
+                {children}
+            </div>
+        </div>
+    )
 }

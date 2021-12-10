@@ -15,15 +15,11 @@ import History from "./history"
 import Clipboard from "./clipboard"
 import Recorder from "./record"
 
-import * as Shape from "./shape"
-import * as Table from "./table"
-import * as Picture from "./picture"
+import Shape from "./shape"
+import Table from "./table"
+import Picture from "./picture"
 import * as Layout from "./layout"
 import * as Developer from "./developer"
-
-import {PropTypesUI} from "./components"
-import WhenActive from "./components/when-active"
-import SelectStyle from "./components/select-style"
 
 const Ribbon=compose(
 	setDisplayName("Ribbon"),
@@ -109,7 +105,6 @@ const Ribbon=compose(
 								{design.font}
 								{design.effect}
 								{design.more}
-								{<PropTypesUI propTypes={dom.Text.propTypes} theme="Text"/>}
 							</ToolbarGroup>
 						</Toolbar>
 					</Tab>}
@@ -167,17 +162,12 @@ const Ribbon=compose(
 						const when = merged.when
 						merged.when = Object.keys(when).filter(k=>when[k])
 							.reduce((collected, type) => {
-								const style = selection.props(type)
-								if (style) {
-									let plugins=when[type]
-									plugins=!Array.isArray(plugins) ? [plugins] : plugins
-									plugins.forEach(plugin=>{
-										if(React.isValidElement(plugin)){
-											collected.push(React.cloneElement(plugin,{
-												label:plugin.props.label||`${type.charAt(0).toUpperCase()+type.substr(1)} Format`
-											}))
-										}
-									})
+								const plugin=when[type]
+								const {active=selection=>!!selection.props(type)}=plugin.props
+								if (active(selection) && React.isValidElement(plugin)){
+									collected.push(React.cloneElement(plugin,{
+										label:plugin.props.label||`${type.charAt(0).toUpperCase()+type.substr(1)} Format`
+									}))
 								}
 								return collected
 							}, [])
@@ -196,9 +186,9 @@ const Ribbon=compose(
 				paragraph: <Paragraph><ToolbarSeparator /></Paragraph>
 			},
 			insert: {
-				table: <Table.Create/>,
-				picture: <Picture.Create/>,
-				shape: <Shape.Create/>,
+				table: <Table/>,
+				shape: <Shape/>,
+				image: <Picture/>,
 			},
 			design: {
 				theme: null,
@@ -207,7 +197,6 @@ const Ribbon=compose(
 				effect: null,
 			},
 			layout: {
-				//section: <Layout.Section/>,
 				page: <Layout.Page/>,
 				shape: <Layout.Shape/>,
 				paragraph: <Layout.Paragraph/>,
@@ -220,17 +209,12 @@ const Ribbon=compose(
 			when: {
 				table: <Table.Active label="Table Format"/>,
 				shape: <Shape.Active label="Shape Format"/>,
-				image: <WhenActive label="Picture Format">
-					<SelectStyle type="anchor">
-						{({})=><PropTypesUI propTypes={dom.Anchor.PropTypes}/>}
-					</SelectStyle>	
-
-				</WhenActive>,
+				image: <Picture.Active label="Picture Format"/>,
 			}
 		})
 	}
 })
 
 export default Ribbon
-export {Create as Shape} from "./shape"
-export {Ribbon, Clipboard, Text, Paragraph,File,History,Table,Picture,Layout,Developer,Recorder}
+
+export {Ribbon, Clipboard, Text, Paragraph,File,History,Table,Picture,Shape,Layout,Developer,Recorder}

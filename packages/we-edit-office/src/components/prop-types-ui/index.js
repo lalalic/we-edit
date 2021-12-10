@@ -29,13 +29,13 @@ export default class PropTypesUI extends PureComponent{
     
     static Types=(types=>(Object.assign(this,types),types))({
         any,string,number,bool,shape,oneOf,oneOfType,arrayOf,
-        UnitShape, ColorShape, FontsShape,NumberingShape,
+        UnitShape, ColorShape,NumberingShape,
+        FontsShape
     });
     
     static childContextTypes={
         uiContext: PropTypes.oneOf(["Ribbon","Dialog","Tree","Tab"]),
         set: PropTypes.func,
-        onEvent: PropTypes.func,
     }
     static contextTypes={
         uiContext: this.childContextTypes.uiContext,
@@ -45,7 +45,6 @@ export default class PropTypesUI extends PureComponent{
     static propTypes={
         theme: PropTypes.oneOfType([PropTypes.string, PropTypes.object]),
         uiContext: PropTypes.string,
-        onEvent: PropTypes.func,
         propTypes: PropTypes.object, //->shape.schema
         props: PropTypes.object,//->shape.value
 
@@ -59,19 +58,19 @@ export default class PropTypesUI extends PureComponent{
     }
 
     get theme(){
-        const {theme}=this.props
-        const BaseTheme=this.Theme
-        if(theme){
-            switch(typeof(theme)) {
-                case "string":
-                    return BaseTheme[theme]
-                case "object":
-                    const domain=Object.keys(theme)[0]
-                    return fromJS(BaseTheme[domain]).mergeDeep(fromJS(theme[domain])).toJS()
-            }
-        }
-        return {}
+        const {theme={}}=this.props
         
+        if(!theme)
+            return null
+        const BaseTheme=this.Theme
+        switch(typeof(theme)) {
+            case "string":
+                return BaseTheme[theme]
+            case "object":
+                const domain=Object.keys(theme)[0]
+                return fromJS(BaseTheme[domain]||{})
+                    .mergeDeep(fromJS({[this.uiContext]:theme[domain]})).toJS()
+        }
     }
 
     get uiContext(){
@@ -81,8 +80,7 @@ export default class PropTypesUI extends PureComponent{
     getChildContext(){
         return {
             uiContext: this.uiContext,
-            set: this.set,
-            onEvent:this.onEvent,
+            set: this.set
         }
     }
 
@@ -90,7 +88,6 @@ export default class PropTypesUI extends PureComponent{
         super(...arguments)
         this.state={props:fromJS(props)}
         this.set=this.set.bind(this)
-        this.onEvent=this.onEvent.bind(this)
     }
 
     get value(){
@@ -119,10 +116,6 @@ export default class PropTypesUI extends PureComponent{
         }else{
             onChange(new Map().setIn(keyPath,value).toJS(), changed.toJS())
         }
-    }
-
-    onEvent(){
-        this.props.onEvent?.(...arguments)
     }
 }
 

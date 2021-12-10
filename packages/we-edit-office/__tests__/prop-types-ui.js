@@ -6,7 +6,8 @@ import TestRenderer from "react-test-renderer"
 
 import MuiThemeProvider from 'material-ui/styles/MuiThemeProvider'
 jest.mock("material-ui/internal/Tooltip",()=>props=><span/>)
-jest.mock("../src/components/prop-types-ui/textures",()=>()=>[])
+jest.mock("material-ui/MenuItem/MenuItem",()=>props=><span/>)
+jest.mock("../src/components/prop-types-ui/theme/textures",()=>()=>[])
 jest.mock("../src/developer/diff",()=>()=>({}))
             
 
@@ -127,11 +128,48 @@ describe("propTypes UI",()=>{
             const {root}=TestRenderer.create(<PropTypesUI.oneOf values={[1,2]} defaultValue={2}/>)
             expect(root.findByProps({value:2})).toBeDefined()
         })
+
     })
 
     describe("shape",()=>{
+        const schema={
+            fname: PropTypes.string,
+            age: PropTypes.number,
+        }
+        const el=<PropTypesUI.shape schema={schema}/>
+
         it("can be wrapped",()=>{
 
+        })
+
+        xit("shape support $preset for quick selection",()=>{
+            expect(()=>TestRenderer.create(React.cloneElement(el,{$preset:[{fname:"test0"},{fname:"test1"}]})).root.findByType(PropTypesUI.oneOf)).not.toThrow()
+        })
+
+        it("shape support theme {'*':false}",()=>{
+            expect(()=>TestRenderer.create(el).root.findByType(PropTypesUI.string)).not.toThrow()
+            expect(()=>TestRenderer.create(React.cloneElement(el,{theme:{'*':false}})).root.findByType(PropTypesUI.string)).toThrow()
+            expect(()=>TestRenderer.create(React.cloneElement(el,{theme:{'*':false,age:{}}})).root.findByType(PropTypesUI.number)).not.toThrow()
+        })
+
+        it("shape Wrapper",()=>{
+            const Wrapper=jest.fn(({children})=>{
+                expect(children.length).toBe(2)
+                return null
+            })
+            TestRenderer.create(React.cloneElement(el,{Wrapper}))
+            expect(Wrapper).toHaveBeenCalledTimes(1)
+        })
+
+        it("can customize a field with el </>",()=>{
+            const renderer=TestRenderer.create(React.cloneElement(el,{theme:{fname:<div good={true}/>}}))
+            expect(renderer.root.findAllByProps({good:true}).length).toBe(1)
+        })
+
+        it("schema {name,path} should not overwrite props{name,path}",()=>{
+            const renderer=TestRenderer.create(React.cloneElement(el,{schema:{name:PropTypes.string},theme:{name:<div good={true}/>}}))
+            expect(renderer.toJSON()).toMatchSnapshot()
+            expect(renderer.root.findAllByProps({good:true}).length).toBe(1)
         })
     })
 
@@ -208,10 +246,6 @@ describe("propTypes UI",()=>{
         it("uiContext theme",()=>{
 
         })
-
-        it("theme.style always be picked up",()=>{
-
-        })
     })
 
     describe("every dom can create PropTypesUI",()=>{
@@ -248,16 +282,4 @@ describe("propTypes UI",()=>{
             })
         })
     })
-
-
-    xit("shape support $preset for quick selection",()=>{
-        const schema={
-            name: PropTypes.string,
-            age: PropTypes.number,
-        }
-        const a=TestRenderer.create(<PropTypesUI.shape schema={schema} $preset={[{name:"test0"},{name:"test1"}]}/>).root
-        expect(()=>a.findByType(PropTypesUI.oneOf)).not.toThrow()
-    })
-
-
 })

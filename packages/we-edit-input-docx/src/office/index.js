@@ -85,11 +85,14 @@ export default (
             <ContextMenu desktop={true}>
                 <Ribbon.Clipboard/>
                 <Divider/>
-                <TOC/>
-                <Field/>
                 <Ribbon.Text/>
                 <Ribbon.Paragraph/>
+                <Divider/>
+                <TOC/>
+                <Field/>
                 <Ribbon.Shape/>
+                <Ribbon.Table/>
+                <Ribbon.Picture/>
             </ContextMenu>
         }
     >

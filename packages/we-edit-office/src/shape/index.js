@@ -1,2 +1,5 @@
-export {default as Active} from "./when-active"
-export {default as Create} from "./create"
+import Active from "./when-active"
+import Create from "./create"
+
+export default Object.assign(Create,{Active})
+

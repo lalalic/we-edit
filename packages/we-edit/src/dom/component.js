@@ -363,7 +363,7 @@ export default class Base extends Component{
 	})
 
 	static FillPictureShape=this.normalizeChecker(PropTypes.oneOfType([
-		PropTypes.string,
+		this.BlobShape,
 		PropTypes.shape({
 			url: this.BlobShape,
 			texture: PropTypes.bool,

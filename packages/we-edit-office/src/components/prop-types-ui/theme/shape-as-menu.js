@@ -1,6 +1,6 @@
 import React from "react"
 import PropTypes from "prop-types"
-import DropDownButton from "../drop-down-button"
+import DropDownButton from "../../drop-down-button"
 
 export default class ShapeAsMenu extends React.Component{
     static displayName="ShapeAsMenu"

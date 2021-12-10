@@ -11,9 +11,9 @@ export default class base extends PureComponent{
         uiContext: PropTypes.string,
         PropTypes: PropTypes.object,
         set: PropTypes.func,
-        onEvent: PropTypes.func,
         propTypesUITheme: PropTypes.object,
         onItemClick: PropTypes.func,
+        setting: PropTypes.func,
     }
 
     static propTypes={
@@ -21,8 +21,7 @@ export default class base extends PureComponent{
         path: PropTypes.string,//set(path,name)
         value: PropTypes.any,
         name: PropTypes.string,
-        label: PropTypes.string,
-        onEvent: PropTypes.func,//(name,data)=>{}
+        label: PropTypes.string
     }
 
     get Types(){
@@ -43,12 +42,16 @@ export default class base extends PureComponent{
     }
 
     get $props(){
-        const {Dialog, Ribbon, Tree, Tab, ...theme}=this.theme
+        const {Dialog, Ribbon, Tree, Tab, name, path, ...theme}=this.theme
         return {...theme,...this.props}
     }
 
     get uiContext(){
         return this.props.uiContext||this.context.uiContext||"Dialog"
+    }
+
+    setting(){
+        this.context.setting(...arguments)
     }
 
     /**
@@ -120,15 +123,6 @@ export default class base extends PureComponent{
             onChange(value)
         }else{
             this.context.set(path,value)
-        }
-    }
-
-    fire(event,data){
-        const {onEvent}=this.props
-        if(onEvent){
-            onEvent(...arguments)
-        }else{
-            this.context.onEvent(...arguments)
         }
     }
 

@@ -6,7 +6,7 @@ import PropTypesUI from "../components/prop-types-ui"
 
 export default compose(
     setDisplayName("Content Properties"),
-    whenSelectionChangeDiscardable(({ selection: { positioning, end: { id } = {} } , content=false, computed=false, layout=true}) => {
+    whenSelectionChangeDiscardable(({ selection: { positioning, end: { id } = {} } , content=true, computed=true, layout=true}) => {
         if (id) {
             const { type, props } = positioning.getContent(id)?.toJS();
             const composer = positioning.getComposer(id);

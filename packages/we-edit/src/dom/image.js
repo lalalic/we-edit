@@ -1,6 +1,3 @@
-import React from "react"
-import PropTypes from "prop-types"
-
 import Component from "./component"
 
 
@@ -9,7 +6,7 @@ export default class Image extends Component{
 	static propTypes={
 		width: this.UnitShape.isRequired,
 		height: this.UnitShape.isRequired,
-		src: PropTypes.string,
+		src: this.BlobShape,
 		outline: this.LineShape,
 		fill: this.FillShape,
 	}

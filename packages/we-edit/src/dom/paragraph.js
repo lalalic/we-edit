@@ -103,8 +103,15 @@ export default class Paragraph extends Component{
 	}
 
 	static defaultProps={
-		spacing:{},
-		indent:{},
+		spacing:{
+			top:0,
+			bottom:0,
+		},
+		indent:{
+			left:0,
+			right:0,
+			firstLine:0,
+		},
 		widow:true,
 		orphan:true,
 		wrap:true,

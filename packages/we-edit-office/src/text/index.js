@@ -11,80 +11,65 @@ import IconClear from "material-ui/svg-icons/editor/format-clear"
 import IconMore from "material-ui/svg-icons/navigation/more-horiz"
 import Dialog from "../components/dialog"
 
-export default props=>(
-	<SelectStyle 
-		getStyle={selection=>{
-			const style=selection?.props("text",false)
-			if(style?.size){
-				style.size=dom.Unknown.UnitShape.normalize(style.size,"pt","px")+"pt"
-			}
-			return style
-		}}>
-		{props=><TextStyle {...props}/>}
+function getTextStyle(selection){
+	const style=selection?.props("text",false)
+	if(style?.size){
+		style.size=dom.Unknown.UnitShape.normalize(style.size,"pt","px")+"pt"
+	}
+	return style
+}
+
+export default ({children})=>(
+	<SelectStyle getStyle={getTextStyle}>
+		{({style,dispatch,setting})=>{
+			return (
+				<ContextMenu.Support menus={
+					<MenuItem primaryText="Font..." onClick={()=>setting('font')}/>
+				}>
+					<Fragment>
+						<PropTypesUI 
+							theme="Text" 
+							propTypes={dom.Text.propTypes} 
+							props={style} 
+							onChange={text=>dispatch(ACTION.Selection.UPDATE({text}))}
+							/>
+						<ToolbarSeparator/>
+						<CheckIconButton label="clear all text formatting"
+							onClick={()=>dispatch(ACTION.Selection.UPDATE({text:{_clear:true}}))}
+							children={<IconClear/>}
+							/>
+						<CheckIconButton label="Text setting..."
+							onClick={()=>setting('font')}
+							children={<IconMore/>}
+							/>
+						{children}
+					</Fragment>
+				</ContextMenu.Support>
+			)
+		}}
 	</SelectStyle>
 )
 
-class TextStyle extends Component{
-	constructor(){
-		super(...arguments)
-		this.clear=this.clear.bind(this)
-		this.apply=this.apply.bind(this)
-		this.setting=this.setting.bind(this)
-	}
-	render(){
-		const {props:{style, children}}=this
-		return (
-			<ContextMenu.Support menus={
-				<MenuItem primaryText="Font..." onClick={this.setting}/>
-			}>
-				<Fragment>
-					<PropTypesUI 
-						theme="Text" 
-						propTypes={dom.Text.propTypes} 
-						props={style} 
-						onChange={this.apply}
-						/>
-					<ToolbarSeparator/>
-					<CheckIconButton label="clear all text formatting"
-						onClick={this.clear}
-						children={<IconClear/>}
-						/>
-					<CheckIconButton label="Text setting..."
-						onClick={this.setting}
-						children={<IconMore/>}
-						/>
-					{children}
-				</Fragment>
-			</ContextMenu.Support>
-		)
-	}
-
-	clear(){
-		this.props.dispatch(ACTION.Selection.UPDATE({text:{_clear:true}}))
-	}
-
-	apply(text){
-		this.props.dispatch(ACTION.Selection.UPDATE({text}))
-	}
-
-	setting(){
-		const {style, dispatch}=this.props
-		const refTextSetting=React.createRef()
-		dispatch(ACTION.UI({dialog:
-			<Dialog 
-				title="Font Setting" 
-				onSubmit={e=>this.apply(refTextSetting.current.value)}
-				moreActions={
-					<FlatButton
-						label="Set As Default..."
-						onClick={()=>dispatch(ACTION.Entity.UPDATE({document:{defaultTextStyle:refTextSetting.current.value}}))}
-					/>
-				}
-			>
-				<PropTypesUI uiContext="Dialog" theme="Text" propTypes={dom.Text.propTypes} props={style} ref={refTextSetting}/>
-			</Dialog>
-		}))
-	}
+export function FontSetting({}){
+	return (
+		<SelectStyle getStyle={getTextStyle}>
+			{({style,dispatch})=>{
+				const refTextSetting=React.createRef()
+				return (
+					<Dialog 
+						title="Font Setting" 
+						onSubmit={e=>dispatch(ACTION.Selection.UPDATE({text:refTextSetting.current.value}))}
+						moreActions={
+							<FlatButton
+								label="Set As Default..."
+								onClick={()=>dispatch(ACTION.Entity.UPDATE({document:{defaultTextStyle:refTextSetting.current.value}}))}
+							/>
+						}
+					>
+						<PropTypesUI theme="Text" propTypes={dom.Text.propTypes} props={style} ref={refTextSetting}/>
+					</Dialog>
+				)
+			}}
+		</SelectStyle>
+	)
 }
-
-

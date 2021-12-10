@@ -1,18 +1,14 @@
 import React, {Fragment} from "react"
 import {compose, mapProps} from "recompose"
-
-import IconPicture from "material-ui/svg-icons/editor/insert-photo"
-
-import SizeIconButton from "../components/size-icon-button"
-import selectFile from "../components/file-select"
-
 import {ACTION, connect} from "we-edit"
 
+import IconPicture from "material-ui/svg-icons/editor/insert-photo"
+import SizeIconButton from "../components/size-icon-button"
+import selectFile from "../components/file-select"
 import FileType from "file-type/browser"
+import Active from "./when-active"
 
-export {default as Active} from "./when-active"
-
-export const Create=compose(
+const Create=compose(
 	connect(),
 	mapProps(({children,dispatch})=>({
 		children,
@@ -48,4 +44,4 @@ export const Create=compose(
 })
 
 
-
+export default Object.assign(Create,{Active})

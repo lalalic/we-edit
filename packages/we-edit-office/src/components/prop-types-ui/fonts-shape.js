@@ -15,10 +15,13 @@ export default class FontsShape extends base{
     renderDialog(){
         const {value, name, label=name, style}=this.$props
         return (
-            <Fragment>
-                {this.lineField(<FontList value={value?.ascii||""} onChange={font=>this.set(this.path+".ascii",font)}/>,"Latin Text Font")}
-                {this.lineField(<FontList value={value?.ea||""} onChange={font=>this.set(this.path+".ea",font)}/>, "Asian Text Font")}
-            </Fragment>
+            <div style={{borderBottom:"1px solid lightgray", marginTop:5}}>
+                <h3 style={{fontSize:"bigger"}}>{label}</h3>
+                <div style={{display:"grid",gridTemplateColumns:"repeat(2, 1fr)"}}>
+                    {this.lineField(<FontList value={value?.ascii||""} onChange={font=>this.set(this.path+".ascii",font)}/>,"Latin Text Font")}
+                    {this.lineField(<FontList value={value?.ea||""} onChange={font=>this.set(this.path+".ea",font)}/>, "Asian Text Font")}
+                </div>
+            </div>
         )
     }
 

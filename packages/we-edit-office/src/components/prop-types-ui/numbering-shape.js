@@ -28,6 +28,7 @@ export default class NumberingShape extends OneOfType{
                 {style:{fonts:"Arial"},label:String.fromCharCode(0x263B)},
             ]
         }
+
         renderRibbon(){
             const {defaults,schema, ...props}=this.$props
             return <OneOf {...props}
@@ -36,7 +37,7 @@ export default class NumberingShape extends OneOfType{
                         check={({format="bullet"})=>format=="bullet"}
                         DropDown={(({value:{label,style:{fonts}}, ...props})=><MenuItem {...props} primaryText={label}  style={{fontFamily:fonts}} />)}
                         values={defaults}
-                        children={<MenuItem primaryText="Define New Bullet" onClick={e=>this.fire('bullet')}/>}
+                        children={<MenuItem primaryText="Define New Bullet" onClick={e=>this.setting('bullet')}/>}
                         />
         }
 
@@ -65,7 +66,7 @@ export default class NumberingShape extends OneOfType{
                         check={({format="bullet"})=>format!=="bullet"}
                         DropDown={(({value:{format, label}, ...props})=><MenuItem {...props} primaryText={label.replace("%1",numberings[format](0))}/>)}
                         values={defaults}
-                        children={<MenuItem primaryText="Define New Number List" onClick={e=>this.fire("numbering")}/>}
+                        children={<MenuItem primaryText="Define New Number List" onClick={e=>this.setting("numbering")}/>}
                         />
         }
 
@@ -93,7 +94,7 @@ export default class NumberingShape extends OneOfType{
                         check={a=>false}
                         DropDown={(({value:{format, label}, ...props})=><MenuItem {...props} primaryText={label.replace("%1",numberings[format](0))}/>)}
                         values={defaults}
-                        children={<MenuItem primaryText="Define New Outline List" onClick={e=>this.fire("outline")}/>}
+                        children={<MenuItem primaryText="Define New Outline List" onClick={e=>this.setting("outline")}/>}
                         />
         }
 

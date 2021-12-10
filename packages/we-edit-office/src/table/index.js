@@ -7,9 +7,9 @@ import IconTable from "material-ui/svg-icons/editor/border-all"
 import {ACTION, whenSelectionChangeDiscardable} from "we-edit"
 import SizeIconButton from "../components/size-icon-button"
 
-export {default as Active} from "./when-active"
+import Active from "./when-active"
 
-export const Create=whenSelectionChangeDiscardable()(class  extends Component{
+const Create=whenSelectionChangeDiscardable()(class  extends Component{
 	state={show:false}
 	render(){
 		const {selection, children}=this.props
@@ -144,3 +144,6 @@ const RCSize=compose(
 		this.setState({row, col})
 	}
 })
+
+
+export default Object.assign(Create,{Active})

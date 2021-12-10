@@ -13,6 +13,7 @@ import Ribbon, {Clipboard, Text, Paragraph, Shape} from "./ribbon"
 import Canvas from "./canvas"
 import ACTION,{getOffice} from "./state/action"
 import IconClose from "material-ui/svg-icons/action/highlight-off"
+import Theme from "./components/prop-types-ui/theme"
 
 /**
  * doc.Store can't be removed to Workspace since cursor
@@ -28,15 +29,23 @@ export default class Workspace extends PureComponent{
 		}
 	}
 	static childContextTypes={
+		debug: PropTypes.bool,
 		events: PropTypes.object,
 		panelManager: PropTypes.shape({
 			register: PropTypes.func,
 			toggle: PropTypes.func,
 		}),
-		debug: PropTypes.bool,
+		dialogManager: PropTypes.shape({
+			register: PropTypes.func,
+			show: PropTypes.func,
+			get: PropTypes.func,
+		}),
 		propTypesUITheme:PropTypes.object,
 		dispatch: PropTypes.func,
+		setting: PropTypes.func,
 	}
+
+
 
 	static propTypes={
 		toolBar:PropTypes.node,
@@ -53,6 +62,7 @@ export default class Workspace extends PureComponent{
 	}
 
 	static defaultProps={
+		propTypesUITheme:Theme,
 		toolBar: (<Ribbon/>),
 		statusBar:(<Status/>),
 		contextMenu:(
@@ -67,6 +77,7 @@ export default class Workspace extends PureComponent{
 
 	constructor(){
 		super(...arguments)
+		const me=this
 		this.store=React.createRef()
 		this.events=new EventEmitter()
 		const panelContainers=[]
@@ -89,17 +100,51 @@ export default class Workspace extends PureComponent{
 				return panelContainers.find(a=>a.props.name==name)||panelContainers[0]
 			}
 		}
+
+		const dialogs=new Proxy({},{
+			get(target,key){
+				return target[key]||me.props.propTypesUITheme.$settingDialogs[key]
+			},
+			set(target,key,value){
+				target[key]=value
+				return true
+			}
+		})
+
+		this.dialogManager={
+			register(el){
+				return dialogs[el.props.name]=el
+			},
+			show(type){
+				me.dispatch(weACTION.UI({dialog:dialogs[type]}))
+			},
+			get(type){
+				return dialogs[type]
+			}
+		}
 		this.state={inited:false}
+	}
+
+	get dispatch(){
+		return this.store.current.store.dispatch
 	}
 	
 	getChildContext(){
 		const {debug}=this.props
 		return {
+			debug,
 			events:this.events,
 			panelManager:this.panelManager,
-			debug,
+			dialogManager:this.dialogManager,
 			propTypesUITheme:this.props.propTypesUITheme,
-			dispatch: action=>this.store.current.dispatch(action)
+			dispatch: action=>this.dispatch(action),
+			setting:type=>{
+				if(this.dialogManager.get(type)){
+					this.dialogManager.show(type)
+				}else if(this.panelManager.get(type)){
+					this.panelManager.toggle(type)
+				}
+			}
 		}
 	}
 
@@ -113,12 +158,12 @@ export default class Workspace extends PureComponent{
 	}
 
 	componentDidMount(){
-		const {store:{current:{store}},props:{theme, contextMenu, reducer, doc:{doc}}}=this
-		contextMenu && store.dispatch(weACTION.UI({contextMenu}));
-		reducer && store.dispatch(ACTION.reducer(reducer))
+		const {props:{theme, contextMenu, reducer, doc:{doc}}}=this
+		contextMenu && this.dispatch(weACTION.UI({contextMenu}));
+		reducer && this.dispatch(ACTION.reducer(reducer))
 
 		const themes=[theme,doc.theme].filter(a=>!!a)
-		themes.length && store.dispatch(ACTION.theme(...themes));
+		themes.length && this.dispatch(ACTION.theme(...themes));
 
 		this.setState({inited:true})
 	}

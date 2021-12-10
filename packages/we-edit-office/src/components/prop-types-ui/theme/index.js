@@ -1,8 +1,8 @@
 import React, {Fragment} from "react"
-import { MenuItem } from "material-ui/Menu"
-import Workspace from "../../../workspace"
-import ShapeAsMenu from "../shape-as-menu"
-import textures from "../textures"
+import { Tab, Tabs, MenuItem } from "material-ui"
+
+import ShapeAsMenu from "./shape-as-menu"
+import textures from "./textures"
 
 import IconBold from "material-ui/svg-icons/editor/format-bold"
 import IconItalic from "material-ui/svg-icons/editor/format-italic"
@@ -29,7 +29,13 @@ import IconVertAlignTop from "material-ui/svg-icons/editor/vertical-align-top"
 
 import IconFillShape from "material-ui/svg-icons/editor/format-color-fill"
 import IconOutlineShape from "material-ui/svg-icons/editor/border-color"
+
+import IconImage from "material-ui/svg-icons/editor/insert-photo"
+
 import { IconColumn, Column, IconTextBorder, IconSubscript, IconSuperscript, IconSize, IconOrientation, IconMargin } from "./icons"
+import {FontSetting} from "../../../text"
+import {ParagraphSetting, ListSetting} from "../../../paragraph"
+import NumberingShape from "../numbering-shape"
 
 let uuid=new Date().getTime()
 const setting=type=>void 0
@@ -67,6 +73,16 @@ const Theme={
     $Types:{
 
     },
+    $settingDialogs:{
+        font:<FontSetting/>,
+        paragraph: <ParagraphSetting/>,
+        bullet: <ListSetting shape={NumberingShape.BulletListShape}/>,
+        numbering: <ListSetting shape={NumberingShape.NumberListShape}/>,
+        outline: <ListSetting shape={NumberingShape.OutlineListShape}/>,
+    },
+    $settingPanels:{
+        format:<div/>,
+    },
     UnitShape:{
         Ribbon:{
             style:{
@@ -89,12 +105,7 @@ const Theme={
     },
     shape:{
         Dialog:{
-            Wrapper:({shape:{$props:{name,label=name}}, children})=>(
-                <div style={{borderBottom:"1px solid lightgray", marginTop:5}}>
-                    <h3 style={{fontSize:"bigger"}}>{label}</h3>
-                    {children}
-                </div>
-            )
+            
         },
     },
 
@@ -147,10 +158,61 @@ const Theme={
             style: false,
             compound: false,
             gradient:false,
+
+            Wrapper:ShapeAsMenu,
+
+            width:<oneOf label="Weight" 
+                values={[...LineWeights,"-"]}
+                labels={LineWeights.map(a=><span key={a}><i style={{fontSize:9}}>{a}pt</i><hr style={{width:"100%",border:0, borderTop:`${a}pt solid lightgray`}}/></span>)}
+                children={<MenuItem key="more" primaryText="More Lines..."/>}
+                />,
+            dashArray:<oneOf label="Dashes"
+                values={[...LineDashes,"-"]}
+                labels={LineDashes.map(a=><svg viewBox="0 0 30 10"><line {...{x1:0,x2:30,y1:5,y2:5,strokeDasharray:a,stroke:"black"}}/></svg>)}
+                children={<MenuItem key="more"primaryText="More Lines..."/>}
+                />,
+            sketched:<oneOf label="Sketch"
+                values={[...LineSketches,"-"]}
+                labels={LineSketches.map(d=><svg viewBox="0 0 30 10"><path {...{stroke:"black",d}}/></svg>)}
+                children={<MenuItem key="more"primaryText="More Lines..."/>}
+                />,
+        }
+    },
+
+    FillShape:{
+        Ribbon:{
+            Wrapper:ShapeAsMenu,
+
+            transparency:false,
+            gradient:<oneOf label="Gradient" 
+                values={[...FillGradients,"-"]}
+                Layout="grid"
+                Item={({value, onClick})=><Gradient value={value} onClick={onClick}/>}
+                children={<MenuItem primaryText="More Gradients..." onClick={e=>setting("shape")}/>}
+                />,
+            picture:{
+                spread:true,
+                $type0:<string label="Picture..." accept="image/*"/>,
+                $type1:<oneOf label="Texture" 
+                    values={[...FillTextures,"-"]}
+                    Layout="grid"
+                    Item={({value,onClick})=><img src={value} onClick={onClick} style={{width:45,height:45}}/>}
+                    children={<MenuItem primaryText="More Textures..." onClick={e=>setting("shape")}/>}
+                    />
+            },
+            pattern: <oneOf label="Pattern" 
+                values={[...FillPatterns,"-"]}
+                Layout="grid"
+                Item={({value,onClick})=><Pattern value={value} onClick={onClick}/>}
+                children={<MenuItem primaryText="More Patterns..." onClick={e=>setting("shape")}/>}
+                />
         }
     },
 
     FontsShape:{
+        style:{
+            width:50,
+        },
         Tree:{
             style:{
                 border:"none",
@@ -183,12 +245,15 @@ const Theme={
             icon:<IconBackground/>
         },
 		border: {
+            i:0,
             icon: <IconTextBorder/>
         },
 		underline: {
+            i:0,
             icon: <IconUnderlined/>
         },
 		strike: {
+            i:0,
             icon: <IconStrike/>
         },
 		vertAlign: {
@@ -199,13 +264,23 @@ const Theme={
             spacing:false,
             position:false,
             kerning:false,
-            vanish: false
+            vanish: false,
         },
         Dialog:{
             emphasizeMark:<oneOf values={["."]} style={{width:100}}/>,
-            underline:<oneOf values={[]}/>,
-            strike:<oneOf values={[]}/>,
-            border:<oneOf values={[]}/>,
+            Wrapper:({children})=>{
+                const i=children.findIndex(a=>a.props?.name==="scale")
+                return (
+                    <Tabs>
+                        <Tab label="Font">
+                            {children.slice(0,i)}
+                        </Tab>
+                        <Tab label="Advanced">
+                            {children.slice(i)}
+                        </Tab>
+                    </Tabs>
+                )
+            }
         },
         emphasizeMark:false,
     },
@@ -220,18 +295,12 @@ const Theme={
             spacing:{
                 top:{
                     label:"spacing top",
-                    placeholder:"top",
-                    defaultValue:"0cm"
-                },
-                bottom:{
-                    defaultValue:"0cm"
                 }
             },
             indent:{
                 firstLine:false,
                 left:{
                     label:"intent left",
-                    placeholder:"left",
                 }
             },
             align:{
@@ -313,15 +382,42 @@ const Theme={
         screenBuffer:false,
     },
 	Image:{
-
+        Ribbon:{
+            src:{
+                icon:<IconImage/>,
+                accept:"image/*",
+                label:"picture from file..."
+            },
+            outline:{
+                i:2,
+                icon:<IconOutlineShape/>,
+                label:"Picture Border",
+            },
+            fill: {
+                i:1,
+                icon:<IconFillShape/>,
+            },
+        },
+        editableSpots:false,
+    },
+    ShapeImage:{
+        Ribbon:{
+            '*':false,
+            fill:{
+                i:1,
+                icon:<IconImage/>,
+                label:"picture from file..."
+            },
+            outline:{
+                i:2,
+                icon:<IconOutlineShape/>,
+                label:"Picture Border"
+            },
+        }
     },
 	Table:{
         Ribbon:{
-            width:false,
-            headers:false,
-            footers:false,
-            cols:false,
-            indent:false,
+            '*':false
         }
     },
 	Row:{
@@ -332,9 +428,7 @@ const Theme={
     },
 	Cell:{
         Ribbon:{
-            margin:false,
-            rowSpan:false,
-            colSpan:false,
+            '*':false,
             border:{
                 width:<oneOf label="Line Weights" 
                     values={[...LineWeights]}
@@ -430,52 +524,10 @@ const Theme={
             outline:{
                 i:2,
                 icon:<IconOutlineShape/>,
-                Wrapper:ShapeAsMenu,
-
-                width:<oneOf label="Weight" 
-                    values={[...LineWeights,"-"]}
-                    labels={LineWeights.map(a=><span><i style={{fontSize:9}}>{a}pt</i><hr style={{width:"100%",border:0, borderTop:`${a}pt solid lightgray`}}/></span>)}
-                    children={<MenuItem primaryText="More Lines..."/>}
-                    />,
-                dashArray:<oneOf label="Dashes"
-                    values={[...LineDashes,"-"]}
-                    labels={LineDashes.map(a=><svg viewBox="0 0 30 10"><line {...{x1:0,x2:30,y1:5,y2:5,strokeDasharray:a,stroke:"black"}}/></svg>)}
-                    children={<MenuItem primaryText="More Lines..."/>}
-                    />,
-                sketched:<oneOf label="Sketch"
-                    values={[...LineSketches,"-"]}
-                    labels={LineSketches.map(d=><svg viewBox="0 0 30 10"><path {...{stroke:"black",d}}/></svg>)}
-                    children={<MenuItem primaryText="More Lines..."/>}
-                    />,
             },
             fill: {
-                i:0,
+                i:1,
                 icon:<IconFillShape/>,
-                Wrapper:ShapeAsMenu,
-
-                transparency:false,
-                gradient:<oneOf label="Gradient" 
-                    values={[...FillGradients,"-"]}
-                    Layout="grid"
-                    Item={({value, onClick})=><Gradient value={value} onClick={onClick}/>}
-                    children={<MenuItem primaryText="More Gradients..." onClick={e=>setting("shape")}/>}
-                    />,
-                picture:{
-                    spread:true,
-                    $type0:<string label="Picture..." accept="image/*"/>,
-                    $type1:<oneOf label="Texture" 
-                        values={[...FillTextures,"-"]}
-                        Layout="grid"
-                        Item={({value,onClick})=><img src={value} onClick={onClick} style={{width:45,height:45}}/>}
-                        children={<MenuItem primaryText="More Textures..." onClick={e=>setting("shape")}/>}
-                        />
-                },
-                pattern: <oneOf label="Pattern" 
-                    values={[...FillPatterns,"-"]}
-                    Layout="grid"
-                    Item={({value,onClick})=><Pattern value={value} onClick={onClick}/>}
-                    children={<MenuItem primaryText="More Patterns..." onClick={e=>setting("shape")}/>}
-                    />
             },
             rotate: <oneOf 
                 values={[90,-90,"-"]} 
@@ -489,11 +541,7 @@ const Theme={
                     width:50
                 }
             },
-
-            editableSpots: false,
-            clip: false,
-            autofit: false,
-            autofitHeight: false,
+            '*':false,
         }
     },
 }
