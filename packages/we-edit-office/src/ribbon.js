@@ -15,11 +15,11 @@ import History from "./history"
 import Clipboard from "./clipboard"
 import Recorder from "./record"
 
+import Developer from "./developer"
 import Shape from "./shape"
 import Table from "./table"
 import Picture from "./picture"
 import * as Layout from "./layout"
-import * as Developer from "./developer"
 
 const Ribbon=compose(
 	setDisplayName("Ribbon"),
@@ -186,9 +186,9 @@ const Ribbon=compose(
 				paragraph: <Paragraph><ToolbarSeparator /></Paragraph>
 			},
 			insert: {
-				table: <Table/>,
-				shape: <Shape/>,
-				image: <Picture/>,
+				table: <Table.Create/>,
+				shape: <Shape.Create/>,
+				image: <Picture.Create/>,
 			},
 			design: {
 				theme: null,
@@ -202,14 +202,14 @@ const Ribbon=compose(
 				paragraph: <Layout.Paragraph/>,
 			},
 			developer: {
-				information: <Developer.Ribbon />,
+				information: <Developer />,
 				debug: null,
 				recorder: <Recorder />,
 			},
 			when: {
-				table: <Table.Active label="Table Format"/>,
-				shape: <Shape.Active label="Shape Format"/>,
-				image: <Picture.Active label="Picture Format"/>,
+				table: <Table label="Table Format"/>,
+				shape: <Shape label="Shape Format"/>,
+				image: <Picture label="Picture Format"/>,
 			}
 		})
 	}

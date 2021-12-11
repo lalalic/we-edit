@@ -228,14 +228,18 @@ const UIDialog=connect(state=>{
 	const {dialog}=getUI(state)
 	return {dialog}
 })(({dialog, dispatch})=>{
-	if(dialog){
-		return React.cloneElement(dialog,{onRequestClose:e=>{
-			dispatch(ACTION.UI({dialog:null}))
-			dialog.props.onRequestClose?.(e)
-		}})
+	if(!dialog){
+		return null
 	}
 
-	return null
+	if(!dialog.type)
+		return dialog
+	
+	return React.cloneElement(dialog,{onRequestClose:e=>{
+		dispatch(ACTION.UI({dialog:null}))
+		dialog.props.onRequestClose?.(e)
+	}})
+	
 })
 
 

@@ -8,7 +8,7 @@ import Field from "./field"
 import TOC from "./toc"
 import TOA from "./toa"
 import * as DocxTabs from "./tabs"
-import {parseFile, anchor} from "./util"
+import {anchor} from "./util"
 import {shapes,textbox, defaultShape} from "./shape"
 
 import Canvas from "../representation/canvas"
@@ -72,9 +72,9 @@ export default (
                 },
                 developer:{
                     information: (
-                        <Ribbon.Developer.Ribbon diff={{parseFile}}>
+                        <Ribbon.Developer>
                             <Inspector.Button/>
-                        </Ribbon.Developer.Ribbon>
+                        </Ribbon.Developer>
                     ),
                 }
             }}>

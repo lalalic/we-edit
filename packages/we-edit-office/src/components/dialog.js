@@ -32,7 +32,7 @@ export default class extends Component{
                     onClick={onRequestClose}
                 />,
                 
-                <FlatButton
+                onSubmit && <FlatButton
                     label="Submit"
                     primary={true}
                     onClick={e=>{

@@ -33,9 +33,14 @@ import IconOutlineShape from "material-ui/svg-icons/editor/border-color"
 import IconImage from "material-ui/svg-icons/editor/insert-photo"
 
 import { IconColumn, Column, IconTextBorder, IconSubscript, IconSuperscript, IconSize, IconOrientation, IconMargin } from "./icons"
+import NumberingShape from "../numbering-shape"
 import {FontSetting} from "../../../text"
 import {ParagraphSetting, ListSetting} from "../../../paragraph"
-import NumberingShape from "../numbering-shape"
+import {Setting as ShapeSetting} from "../../../shape"
+import {Setting as PictureSetting} from "../../../picture"
+import DocumentTree from "../../../developer/filter-document-tree"
+import Tester from "../../../developer/tester"
+import Diff from "../../../developer/diff"
 
 let uuid=new Date().getTime()
 const setting=type=>void 0
@@ -79,9 +84,13 @@ const Theme={
         bullet: <ListSetting shape={NumberingShape.BulletListShape}/>,
         numbering: <ListSetting shape={NumberingShape.NumberListShape}/>,
         outline: <ListSetting shape={NumberingShape.OutlineListShape}/>,
+        diff: <Diff.Setting portalContainer={document.body}/>,
     },
     $settingPanels:{
-        format:<div/>,
+        shape: <ShapeSetting title="Shape Format"/>,
+        picture: <PictureSetting title="Picture Format"/>,
+        documentTree: <DocumentTree title="Document Tree" toNodeProps={({ id, type }) => ({ name: `${type}(${id.split("{")[0]})` })} />,
+        tester: <Tester title="Test" />,
     },
     UnitShape:{
         Ribbon:{

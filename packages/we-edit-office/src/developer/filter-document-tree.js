@@ -1,8 +1,5 @@
 import React, { PureComponent } from "react";
-import PropTypes from "prop-types";
 import { DocumentTree } from "we-edit";
-import IconButton from "../components/size-icon-button";
-import IconDocTree from "material-ui/svg-icons/action/list";
 import ObjectInspector from "./object-inspector";
 
 
@@ -33,23 +30,4 @@ export default class FilterDocumentTree extends PureComponent {
             </div>
         );
     }
-
-    static panel = <FilterDocumentTree title="Document Tree" toNodeProps={({ id, type }) => ({ name: `${type}(${id.split("{")[0]})` })} />;
-    static Button = class extends PureComponent {
-        static contextTypes = {
-            panelManager: PropTypes.any
-        };
-
-        render() {
-            const { title = FilterDocumentTree.panel.props.title, whichPanel = "right", ...props } = this.props;
-            return (
-                <IconButton
-                    {...props}
-                    hint={title}
-                    onClick={() => this.context.panelManager.toggle(FilterDocumentTree.panel, whichPanel)}>
-                    <IconDocTree />
-                </IconButton>
-            );
-        }
-    };
 }

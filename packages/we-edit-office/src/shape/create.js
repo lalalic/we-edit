@@ -2,13 +2,10 @@ import React, { Fragment, PureComponent } from "react";
 import PropTypes from "prop-types";
 import { ACTION, whenSelectionChangeDiscardable, dom, ReactQuery } from "we-edit";
 import { Geometry, Composed } from "we-edit-representation-pagination";
-import { SvgIcon, MenuItem } from "material-ui";
+import { SvgIcon } from "material-ui";
 import { compose, setDisplayName } from "recompose";
 import FontKit from "fontkit";
 import DropDownButton from "../components/drop-down-button";
-import ContextMenu from "../components/context-menu";
-import Setting from "./panel";
-import Layout from "./layout";
 import textbox from "./text-box";
 import flowchart from "!!file-loader?name=[name].[ext]!./flowchart.ttf";
 import shapes from "!!file-loader?name=[name].[ext]!./shapes.ttf";
@@ -16,14 +13,7 @@ import shapes from "!!file-loader?name=[name].[ext]!./shapes.ttf";
 const { Shape } = dom;
 export default compose(
     setDisplayName("DrawShape"),
-    whenSelectionChangeDiscardable(({ selection }) => {
-        if (selection) {
-            const shape = selection.props("shape", false);
-            const image = selection.props("image", false);
-            return { selection, style: image || shape, type: image ? "Image" : "Shape" };
-        }
-        return {};
-    })
+    whenSelectionChangeDiscardable(({ selection }) => ({selection}))
 )(class DrawShape extends PureComponent {
     static defaultProps = {
         shapeProps: {
@@ -92,30 +82,22 @@ export default compose(
     }
 
     render() {
-        const { props: { children, defaultShape, style, type = "Shape", color = "black" }, state: { shapeIcons } } = this;
+        const { props: { children, defaultShape, color = "black" }, state: { shapeIcons } } = this;
         return (
-            <ContextMenu.Support menus={!style ? null :
-                (
-                    <Fragment>
-                        <MenuItem primaryText={`Format ${type}...`} onClick={e => this.context.panelManager.toggle(Setting.panel)} />
-                        <MenuItem primaryText={`Layout ${type}...`} onClick={e => this.context.panelManager.toggle(Layout.panel)} />
-                    </Fragment>
-                )}>
-                <Fragment>
-                    <DropDownButton
-                        hint="draw shape"
-                        icon={<IconShape />}
-                        style={{ width: 200 }}
-                        menuStyle={{ width: "30%" }}
-                        onClick={defaultShape ? e => this.send(defaultShape) : null}>
-                        {shapeIcons}
-                    </DropDownButton>
-                    {[textbox, ...React.Children.toArray(children)].map((a, key) => {
-                        return React.cloneElement(a, { key, onClick: e => this.send(a.props.create), create: undefined });
-                    })}
-                </Fragment>
-            </ContextMenu.Support>
-        );
+            <Fragment>
+                <DropDownButton
+                    hint="draw shape"
+                    icon={<IconShape />}
+                    style={{ width: 200 }}
+                    menuStyle={{ width: "30%" }}
+                    onClick={defaultShape ? e => this.send(defaultShape) : null}>
+                    {shapeIcons}
+                </DropDownButton>
+                {[textbox, ...React.Children.toArray(children)].map((a, key) => {
+                    return React.cloneElement(a, { key, onClick: e => this.send(a.props.create), create: undefined });
+                })}
+            </Fragment>
+        )
     }
 
     fontShape = ({ name, path, bbox: { minX, maxX, minY, maxY } = {} }, { code, kind, font }) => {

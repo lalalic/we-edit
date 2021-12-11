@@ -1,11 +1,19 @@
 import React from "react"
+import PropTypes from "prop-types"
 import {dom,ACTION} from "we-edit"
-import WhenActive from "../components/when-active"
 import SelectStyle from "../components/select-style"
 import PropTypesUI from "../components/prop-types-ui"
-export default Object.assign(({children})=>{
+import ContextMenu from "../components/context-menu"
+import SizableIconButton from "../components/size-icon-button"
+import { MenuItem, ToolbarSeparator } from "material-ui"
+
+import IconFormat from "material-ui/svg-icons/editor/format-shapes"
+
+export default Object.assign(({children},{setting})=>{
 	return (
-		<WhenActive label="Picture Format">
+		<ContextMenu.Support menus={[
+			<MenuItem primaryText="Format Picture..." onClick={e=>setting('picture')}/>
+		]}>
             <SelectStyle getStyle={selection=>{
 				const image=selection.props('image',false)
 				const shape=selection.props('shape',false)
@@ -38,12 +46,17 @@ export default Object.assign(({children})=>{
 			}}
 			</SelectStyle>
 			{children}
-		</WhenActive>
+			<ToolbarSeparator/>
+			<SizableIconButton hint="Format Picture..." icon={<IconFormat/>} onClick={e=>setting("picture")}/>
+		</ContextMenu.Support>
 	)
 },{
 	defaultProps:{
 		active:selection=>{
 			return !!(selection.props("image",false)||selection.props("shape",false)?.fill?.picture)
 		}
+	},
+	contextTypes:{
+		setting: PropTypes.func,
 	}
 })

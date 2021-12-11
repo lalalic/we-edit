@@ -1,18 +1,21 @@
 import React,{Fragment} from "react"
+import PropTypes from "prop-types"
 import {ACTION, dom} from "we-edit"
-import {compose, setDisplayName} from "recompose"
 import {MenuItem, SvgIcon, ToolbarSeparator} from "material-ui"
+import IconFormat from "material-ui/svg-icons/editor/format-shapes"
 
 import Create from "./create"
 import SelectStyle from "../components/select-style"
 import PropTypesUI from "../components/prop-types-ui"
 import {Shape} from "../layout"
+import ContextMenu from "../components/context-menu"
+import SizableIconButton from "../components/size-icon-button"
 
-export default compose(
-	setDisplayName("Shape Ribbon")
-)(({children})=>{
+export default Object.assign(({children},{setting})=>{
 	return (
-		<Fragment>
+		<ContextMenu.Support menus={[
+			<MenuItem primaryText={`Format Shape...`} onClick={e =>setting("shape")} />,
+		]}>
 			<Create/>
 			<ToolbarSeparator/>
 			<PropTypesUI.oneOf label="edit shape" icon={<IconGeometry/>}
@@ -35,9 +38,16 @@ export default compose(
 			</SelectStyle>
 			
 			{children}
-		</Fragment>
+			<ToolbarSeparator/>
+			<SizableIconButton hint="Format Shape..." icon={<IconFormat/>} onClick={e=>setting("shape")}/>
+		</ContextMenu.Support>
 	)
+},{
+	contextTypes:{
+		setting: PropTypes.func,
+	}
 })
+
 const IconGeometry=props=>(
 	<SvgIcon {...props}>
 		<path d="M23 7V1h-6v2H7V1H1v6h2v10H1v6h6v-2h10v2h6v-6h-2V7h2zM3 3h2v2H3V3zm2 18H3v-2h2v2zm12-2H7v-2H5V7h2V5h10v2h2v10h-2v2z"/>

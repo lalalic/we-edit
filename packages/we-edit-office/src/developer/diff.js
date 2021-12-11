@@ -1,7 +1,11 @@
 import React,{Component, Fragment} from "react"
+import PropTypes from "prop-types"
+import {getFile} from "we-edit"
+
 import format from "xml-formatter"
 import {ReactGhLikeDiff} from "react-gh-like-diff"
 import 'react-gh-like-diff/dist/css/diff2html.min.css'
+import Dialog from "../components/dialog"
 
 const ICON=a=>`
 <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" 
@@ -139,6 +143,44 @@ export default class Diff extends Component{
         }
         return {}
     }
+
+    static Setting=Object.assign(({parseFile,parseActive},{activeDocStore})=>{
+        if(!parseActive){
+            parseActive=file=>(file.doc?.parts||{})
+        }
+        const activeFile=new Proxy(parseActive(getFile(activeDocStore.getState())), {
+            get(target, k) {
+                if (k in target) {
+                    const f = target[k];
+                    return {
+                        asText() {
+                            if ('asText' in f)
+                                return f.asText();
+                            else if ('html' in f) {
+                                return f.html();
+                            }
+                            return "[]";
+                        }
+                    };
+                }
+            }
+        })
+
+        return (
+            <Dialog
+                title="File Content Inspector" 
+                contentStyle={{maxWidth:"unset",width:"80%"}}
+                autoScrollBodyContent={true}
+                modal={true}>
+                <Diff files={[{ name: "[Active]", parts: activeFile }]} parse={parseFile}
+                    style={{
+                        background: "white",
+                        border: "1px solid lightgray",
+                        overflow: "hidden", top: 80,
+                    }} />
+            </Dialog>
+        )
+    },{contextTypes:{activeDocStore: PropTypes.any}})
 }
 
 class Compare extends Component{

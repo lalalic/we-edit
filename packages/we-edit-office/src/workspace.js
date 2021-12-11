@@ -1,4 +1,5 @@
 import React, {PureComponent, Component, Children, Fragment} from "react"
+import { createPortal } from "react-dom"
 import {connect, ACTION as weACTION} from "we-edit"
 import PropTypes from "prop-types"
 import {pure}  from "recompose"
@@ -9,7 +10,7 @@ import Divider from "material-ui/Divider"
 
 import Status from "./status"
 import ContextMenu from "./components/context-menu"
-import Ribbon, {Clipboard, Text, Paragraph, Shape} from "./ribbon"
+import Ribbon, {Clipboard, Text, Paragraph} from "./ribbon"
 import Canvas from "./canvas"
 import ACTION,{getOffice} from "./state/action"
 import IconClose from "material-ui/svg-icons/action/highlight-off"
@@ -116,7 +117,11 @@ export default class Workspace extends PureComponent{
 				return dialogs[el.props.name]=el
 			},
 			show(type){
-				me.dispatch(weACTION.UI({dialog:dialogs[type]}))
+				let dialog=dialogs[type]
+				if(dialog.props.portalContainer){
+					dialog=createPortal(React.cloneElement(dialog,{portalContainer:undefined}), dialog.props.portalContainer)
+				}
+				me.dispatch(weACTION.UI({dialog}))
 			},
 			get(type){
 				return dialogs[type]
@@ -130,19 +135,24 @@ export default class Workspace extends PureComponent{
 	}
 	
 	getChildContext(){
-		const {debug}=this.props
+		const {debug, propTypesUITheme}=this.props
 		return {
 			debug,
 			events:this.events,
 			panelManager:this.panelManager,
 			dialogManager:this.dialogManager,
-			propTypesUITheme:this.props.propTypesUITheme,
+			propTypesUITheme,
 			dispatch: action=>this.dispatch(action),
 			setting:type=>{
 				if(this.dialogManager.get(type)){
 					this.dialogManager.show(type)
-				}else if(this.panelManager.get(type)){
-					this.panelManager.toggle(type)
+				}else{
+					const panel=propTypesUITheme.$settingPanels[type]
+					if(panel){
+						this.panelManager.toggle(panel, panel.props.side||"right")
+					}else{
+						console.warn(`no setting for ${type}`)
+					}
 				}
 			}
 		}

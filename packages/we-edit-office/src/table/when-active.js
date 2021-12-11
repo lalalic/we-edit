@@ -1,12 +1,16 @@
 import React from "react"
+import PropTypes from "prop-types"
 import {dom,ACTION} from "we-edit"
-import WhenActive from "../components/when-active"
 import Design from "./design"
 import PropTypesUI from "../components/prop-types-ui"
 import SelectStyle from "../components/select-style"
+import ContextMenu from "../components/context-menu"
+import { MenuItem } from "material-ui"
 
-export default ({})=>(
-	<WhenActive label="Table Design">
+export default Object.assign(({},{setting})=>(
+	<ContextMenu.Support menus={[
+			<MenuItem primaryText="Insert"/>,
+		]}>
 		<Design/>
 		<SelectStyle type="table">
 			{({style,dispatch})=>
@@ -35,5 +39,9 @@ export default ({})=>(
 					/>
 			}
 		</SelectStyle>
-	</WhenActive>
-)
+	</ContextMenu.Support>
+),{
+	contextTypes:{
+		setting: PropTypes.func,
+	}
+})
