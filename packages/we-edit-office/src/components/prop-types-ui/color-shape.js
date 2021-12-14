@@ -1,18 +1,20 @@
 import React, {Component, Fragment} from "react"
 import MenuItem from "material-ui/MenuItem"
 import ColorButton from "../color-button"
-import Base from "./base"
+import Base from "./string"
 
 export default class ColorShape extends Base{
     static displayName="ColorShape"
     static defaultProps={
         isPrimitive:true,
+        type:"color"
     }
     
     constructor(){
         super(...arguments)
         this.state={open:false}
     }
+
     renderRibbon(){
         const {name,label=name, value}=this.$props
         return (
@@ -21,15 +23,6 @@ export default class ColorShape extends Base{
                 <ColorSelector/>
             </ColorButton>
         )
-    }
-
-    renderDialog(){
-        return this.lineField(this.renderRibbon())
-    }
-
-    renderTree(){
-        const {value, style}=this.$props
-        return <input type="color" value={value} onChange={e=>this.set(this.path,e.target.value)} style={style}/>
     }
 
     renderMenu(){

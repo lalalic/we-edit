@@ -11,8 +11,9 @@ export default Object.assign(Active,{Create})
 export const Setting=({})=>(
     <SelectStyle type="shape">
         {({style,dispatch})=>(
-            <PropTypesUI theme="Shape" uiDialog="dialog"
-                propTypes={dom.Shape.propTypes} props={style} 
+            <PropTypesUI theme="Shape" uiContext="Dialog"
+                propTypes={(({fill,outline})=>({fill,outline}))(dom.Shape.propTypes)} 
+                props={style} 
                 onChange={change=>dispatch(ACTION.Entity.UPDATE({shape:change}))}/>
         )}
     </SelectStyle>

@@ -35,7 +35,7 @@ export default class NumberingShape extends OneOfType{
                         label="bullet list"
                         icon={<IconListBullet/>}
                         check={({format="bullet"})=>format=="bullet"}
-                        DropDown={(({value:{label,style:{fonts}}, ...props})=><MenuItem {...props} primaryText={label}  style={{fontFamily:fonts}} />)}
+                        wrapper1={React.createElement(({value:{label,style:{fonts}}, ...props})=><MenuItem {...props} primaryText={label}  style={{fontFamily:fonts}} />)}
                         values={defaults}
                         children={<MenuItem primaryText="Define New Bullet" onClick={e=>this.setting('bullet')}/>}
                         />
@@ -64,7 +64,7 @@ export default class NumberingShape extends OneOfType{
                         label="nubering list"
                         icon={<IconListNumber/>}
                         check={({format="bullet"})=>format!=="bullet"}
-                        DropDown={(({value:{format, label}, ...props})=><MenuItem {...props} primaryText={label.replace("%1",numberings[format](0))}/>)}
+                        wrapper1={React.createElement(({value:{format, label}, ...props})=><MenuItem {...props} primaryText={label.replace("%1",numberings[format](0))}/>)}
                         values={defaults}
                         children={<MenuItem primaryText="Define New Number List" onClick={e=>this.setting("numbering")}/>}
                         />
@@ -92,7 +92,7 @@ export default class NumberingShape extends OneOfType{
                         label="Outline list"
                         icon={<IconListOutline/>}
                         check={a=>false}
-                        DropDown={(({value:{format, label}, ...props})=><MenuItem {...props} primaryText={label.replace("%1",numberings[format](0))}/>)}
+                        wrapper1={React.createElement(({value:{format, label}, ...props})=><MenuItem {...props} primaryText={label.replace("%1",numberings[format](0))}/>)}
                         values={defaults}
                         children={<MenuItem primaryText="Define New Outline List" onClick={e=>this.setting("outline")}/>}
                         />

@@ -1,13 +1,8 @@
-import React, {Component} from "react"
-import PropTypes from "prop-types"
-import base from "./base"
-import ToolbarField from "../toolbar-field"
+import React from "react"
+import base from "./string"
 
 export default class UnitShape extends base{
     static displayName="UnitShape"
-    static propTypes={
-        FieldWrapper: PropTypes.any,
-    }
     static defaultProps={
         isPrimitive:true,
     }
@@ -23,15 +18,11 @@ export default class UnitShape extends base{
         this.setState({value})
     }
 
-    renderDialog(){
-        return this.lineField(this.renderTree(false))
-    }
-
     renderTree(){
         const {
             $props:{
                 min,max,step,onChange,name,label=name,types,path,required,style=this.theme.style,
-                uiContext,FieldWrapper,theme,
+                uiContext,theme,
                 defaultValue, isPrimitive,
                 ...props
             }, 
@@ -55,11 +46,6 @@ export default class UnitShape extends base{
                 </svg>
             </span>
         )
-    }
-    
-    renderRibbon(){
-        const {name, label=name, FieldWrapper=ToolbarField}=this.$props
-        return <FieldWrapper label={label}>{this.renderTree()}</FieldWrapper>
     }
 
     stepUp(){

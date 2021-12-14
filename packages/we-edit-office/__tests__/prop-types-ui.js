@@ -1,14 +1,15 @@
-import React from "react"
+import React,{Fragment} from "react"
 import PropTypes from "prop-types"
 import {dom} from "we-edit"
 import PropTypesUI from "../src/components/prop-types-ui"
 import TestRenderer from "react-test-renderer"
+import {fromJS} from "immutable"
 
 import MuiThemeProvider from 'material-ui/styles/MuiThemeProvider'
 jest.mock("material-ui/internal/Tooltip",()=>props=><span/>)
 jest.mock("material-ui/MenuItem/MenuItem",()=>props=><span/>)
 jest.mock("../src/components/prop-types-ui/theme/textures",()=>()=>[])
-jest.mock("../src/developer/diff",()=>()=>({}))
+jest.mock("../src/developer/diff",()=>class{static Setting=props=>null})
             
 
 describe("propTypes UI",()=>{
@@ -18,10 +19,58 @@ describe("propTypes UI",()=>{
         expect(dom.Text.propTypes.italic.Type).toMatchObject({type:"bool"})
     })
 
+    it("react element and json should be replaced each other when merge",()=>{
+        const fromJS1=props=>fromJS(props,PropTypesUI.reviver)
+        const element={a:<div/>}, json={a:{b:1}}
+        expect(fromJS1(element).mergeDeep(fromJS1(json)).toJS()).toMatchObject(json)
+        expect(fromJS1(element).mergeDeep(fromJS1(json)).toJS().a.type).toBe(undefined)
+        expect(fromJS1(element).mergeDeep(fromJS1(json)).toJS().a.props).toBe(undefined)
+
+        expect(fromJS1(json).mergeDeep(fromJS1(element)).toJS()).toMatchObject(element)
+        expect(fromJS1(json).mergeDeep(fromJS1(element)).toJS().a.b).toBe(undefined)
+    })
+
+    fit("uiContext as react element",()=>{
+        const TestShape=PropTypes.shape({
+            a:PropTypes.string,
+            b:PropTypes.bool,
+        },{$type:"TestShape"})
+        PropTypesUI.Theme.TestShape={
+            Dialog:<div/>,
+            wrapper:null,
+        }
+
+        const renderer=TestRenderer.create(<PropTypesUI propTypes={{tr:TestShape}} props={{tr:{a:'1',b:true}}} uiContext="Dialog"/>)
+        const shapes=renderer.root.findAllByProps({name:"tr"})
+        expect(shapes.length).toBe(2)
+        expect(shapes[0].instance.theme.Dialog).toMatchObject(<div/>)
+        expect(shapes[1].type).toBe("div")
+    })
+
     it("should create for {name:string}",()=>{
         const testRenderer=TestRenderer.create(<PropTypesUI propTypes={{name:PropTypes.string}} props={{name:"test"}}/>)
         const testInstance=testRenderer.root
         expect(testInstance.findAllByType(PropTypesUI.string).length).toBe(1)
+    })
+
+    it("should support custmized theme",()=>{
+        const testRenderer=TestRenderer.create(<PropTypesUI 
+            propTypes={{name:PropTypes.string}} 
+            props={{name:"test"}} 
+            theme={{name:{good:true}}}
+            />)
+        const nameEl=testRenderer.root.findByType(PropTypesUI.string)
+        expect(nameEl.props.theme.good).toBe(true)
+    })
+
+    it("should support wrapper",()=>{
+        const Wrapper=props=>null
+        const testRenderer=TestRenderer.create(<PropTypesUI 
+            propTypes={{name:PropTypes.string}} 
+            props={{name:"test"}} 
+            theme={{name:{wrapper:<Wrapper/>}}}
+            />)
+        expect(()=>testRenderer.root.findByType(Wrapper)).not.toThrow()
     })
 
     it("should create for {name:PropTypes.shape({first:PropTypes.string, last:PropTypes.string})}",()=>{
@@ -128,7 +177,6 @@ describe("propTypes UI",()=>{
             const {root}=TestRenderer.create(<PropTypesUI.oneOf values={[1,2]} defaultValue={2}/>)
             expect(root.findByProps({value:2})).toBeDefined()
         })
-
     })
 
     describe("shape",()=>{
@@ -137,10 +185,6 @@ describe("propTypes UI",()=>{
             age: PropTypes.number,
         }
         const el=<PropTypesUI.shape schema={schema}/>
-
-        it("can be wrapped",()=>{
-
-        })
 
         xit("shape support $preset for quick selection",()=>{
             expect(()=>TestRenderer.create(React.cloneElement(el,{$preset:[{fname:"test0"},{fname:"test1"}]})).root.findByType(PropTypesUI.oneOf)).not.toThrow()
@@ -152,12 +196,12 @@ describe("propTypes UI",()=>{
             expect(()=>TestRenderer.create(React.cloneElement(el,{theme:{'*':false,age:{}}})).root.findByType(PropTypesUI.number)).not.toThrow()
         })
 
-        it("shape Wrapper",()=>{
-            const Wrapper=jest.fn(({children})=>{
+        xit("shape Wrapper",()=>{
+            const Wrapper=jest.fn(({children,host})=>{
                 expect(children.length).toBe(2)
                 return null
             })
-            TestRenderer.create(React.cloneElement(el,{Wrapper}))
+            TestRenderer.create(React.cloneElement(el,{wrapper:<Wrapper/>}))
             expect(Wrapper).toHaveBeenCalledTimes(1)
         })
 
@@ -168,7 +212,6 @@ describe("propTypes UI",()=>{
 
         it("schema {name,path} should not overwrite props{name,path}",()=>{
             const renderer=TestRenderer.create(React.cloneElement(el,{schema:{name:PropTypes.string},theme:{name:<div good={true}/>}}))
-            expect(renderer.toJSON()).toMatchSnapshot()
             expect(renderer.root.findAllByProps({good:true}).length).toBe(1)
         })
     })
@@ -244,6 +287,10 @@ describe("propTypes UI",()=>{
         })
 
         it("uiContext theme",()=>{
+
+        })
+
+        it("React element",()=>{
 
         })
     })

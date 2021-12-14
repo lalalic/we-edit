@@ -1,6 +1,6 @@
 import React, {PureComponent} from "react"
 import PropTypes from "prop-types"
-import {Map, fromJS} from "immutable"
+import {Map, fromJS, Iterable} from "immutable"
 
 import any from "./base"
 import string from "./string"
@@ -17,10 +17,17 @@ import ColorShape from "./color-shape"
 
 import BaseTheme from "./theme"
 
+
 /**
  * <PropTypesUI component={this}/>
  */
 export default class PropTypesUI extends PureComponent{
+    static reviver=function(key,value){
+        if(React.isValidElement(this[key])){
+            return this[key]
+         }
+         return Iterable.isKeyed(value) ? value.toMap() : value.toList()
+    }
     static Theme=BaseTheme
 
     static getTheme=a=>{
@@ -30,7 +37,7 @@ export default class PropTypesUI extends PureComponent{
     static Types=(types=>(Object.assign(this,types),types))({
         any,string,number,bool,shape,oneOf,oneOfType,arrayOf,
         UnitShape, ColorShape,NumberingShape,
-        FontsShape
+        FontsShape,
     });
     
     static childContextTypes={
@@ -58,18 +65,26 @@ export default class PropTypesUI extends PureComponent{
     }
 
     get theme(){
-        const {theme={}}=this.props
+        const {theme,propTypes={}}=this.props
         
         if(!theme)
-            return null
+            return theme
         const BaseTheme=this.Theme
         switch(typeof(theme)) {
             case "string":
                 return BaseTheme[theme]
-            case "object":
-                const domain=Object.keys(theme)[0]
-                return fromJS(BaseTheme[domain]||{})
-                    .mergeDeep(fromJS({[this.uiContext]:theme[domain]})).toJS()
+            case "object":{
+                const keys=Object.keys(theme)
+                if(keys.length==1){
+                    const isProp=keys[0] in propTypes
+                    if(!isProp){
+                        const domain=Object.keys(theme)[0]
+                        return fromJS(BaseTheme[domain]||{})
+                            .mergeDeep(fromJS({[this.uiContext]:theme[domain]},this.constructor.reviver)).toJS()
+                    }
+                }
+                return theme
+            }
         }
     }
 
@@ -118,5 +133,3 @@ export default class PropTypesUI extends PureComponent{
         }
     }
 }
-
-const Wrapper=({children})=>children

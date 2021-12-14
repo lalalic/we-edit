@@ -3,6 +3,7 @@ import PropTypes from "prop-types"
 import memoize from "memoize-one"
 import {fromJS} from "immutable"
 import PropTypesUI from "."
+import { LabelField } from "./wrappers"
 
 
 export default class base extends PureComponent{
@@ -57,31 +58,39 @@ export default class base extends PureComponent{
     /**
      * uiContext resolved, so don't return any uiContext 
      */
-    getShapeTheme=memoize(theme=>{
+    getShapeTheme(theme){
         const Theme=this.Theme
-        let merged=fromJS({})
+        const reviver=PropTypesUI.reviver
+        let merged=fromJS({},reviver)
         if(Theme[this.constructor.displayName]){
             const shapeTheme=Theme[this.constructor.displayName]
-            merged=merged
-                .mergeDeep(fromJS(shapeTheme))
-                .mergeDeep(fromJS(shapeTheme?.[this.uiContext]||{}))
+            merged=merged.mergeDeep(fromJS(shapeTheme,reviver))
+            if(!React.isValidElement(shapeTheme?.[this.uiContext])){
+                merged=merged.mergeDeep(fromJS(shapeTheme?.[this.uiContext]||{}))
+            }
         }
 
         if(Theme[this.props.typedShape]){
             const typedShapeTheme=Theme[this.props.typedShape]
-            merged=merged
-                .mergeDeep(fromJS(typedShapeTheme||{}))
-                .mergeDeep(fromJS(typedShapeTheme?.[this.uiContext]||{}))
+            merged=merged.mergeDeep(fromJS(typedShapeTheme||{},reviver))
+            if(!React.isValidElement(typedShapeTheme?.[this.uiContext])){
+                merged=merged.mergeDeep(fromJS(typedShapeTheme?.[this.uiContext]||{}))
+            }
         }
 
         if(theme){
-            merged=merged
-                .mergeDeep(theme)
-                .mergeDeep(theme?.[this.uiContext]||{})
+            merged=merged.mergeDeep(fromJS(theme,reviver))
+            if(!React.isValidElement(theme?.[this.uiContext])){
+                merged=merged.mergeDeep(theme?.[this.uiContext]||{})
+            }
         }
         const {Dialog,Tree,Menu,Tab,Ribbon, ...mergedTheme}=merged.toJS()
+        const context={Dialog,Tree,Menu,Tab,Ribbon}[this.uiContext]
+        if(React.isValidElement(context)){
+            mergedTheme[this.uiContext]=context
+        }
         return mergedTheme
-    })
+    }
 
     getUIType(type){
         if(!type || typeof(type)!="string")
@@ -97,6 +106,7 @@ export default class base extends PureComponent{
                 if(this.Theme[typedShape]){
                     const Type=props=>React.createElement(this.Types[baseShape],{typedShape,...props})
                     Type.defaultProps=this.Types[baseShape].defaultProps
+                    Type.displayName=type
                     return Type
                 }
                 return this.Types[baseShape]
@@ -111,11 +121,43 @@ export default class base extends PureComponent{
 
     render(){
         const {uiContext, theme:{[uiContext]:show=true}}=this
-        if(!show||!this[`render${uiContext}`]) 
+        if(!show) 
             return null 
             
-        return this[`render${uiContext}`].call(this)
+        if(React.isValidElement(show)){//to change type
+            const UIType=this.getUIType(show.type)
+            if(UIType){
+                const {theme:{[uiContext]:_, ...theme}={}, typedShape, ...props}=this.props
+                return <UIType {...{theme,...show.props,...props}}/>
+            }
+        }
+
+        if(!(`render${uiContext}` in this)){
+            return null
+        }
+
+        const rendered=this[`render${uiContext}`]()
+
+        let wrapper=this.$props.wrapper
+        if(typeof(wrapper)=="undefined")
+            wrapper=this.getDefaultWrapper()
+        if(wrapper){
+            return React.cloneElement(wrapper, {children:rendered,host:this})
+        }
+        return rendered
     }
+
+    getDefaultWrapper(){
+        switch(this.uiContext){
+            case "Dialog":
+                if(this.$props.isPrimitive){
+                    return <LabelField/>
+                }
+            default:
+        }
+    }
+
+
 
     set(path, value){
         const {onChange}=this.props
@@ -126,20 +168,8 @@ export default class base extends PureComponent{
         }
     }
 
-    lineField(input, title){
-        const {name, label=name}=this.props
-        return (
-            <div style={{marginBottom:4}}>
-                <span style={{width:150,display:"inline-block",textAlign:"right",marginRight:5}}>{title||label}</span>
-                <span>
-                {input}
-                </span>
-            </div>
-        )
-    }
-
     renderDialog(){
-        return this.lineField(this.renderTree())
+        return this.renderTree()
     }
 
     renderTree(){
@@ -147,6 +177,6 @@ export default class base extends PureComponent{
     }
 
     renderRibbon(){
-        return null
+        return this.renderTree()
     }
 }

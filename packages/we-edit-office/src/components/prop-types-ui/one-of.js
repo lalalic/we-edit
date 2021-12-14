@@ -1,4 +1,4 @@
-import React, { Fragment, Component } from "react"
+import React from "react"
 import PropTypes from "prop-types"
 import {MenuItem} from "material-ui/Menu"
 import Divider from 'material-ui/Divider'
@@ -6,7 +6,6 @@ import {fromJS} from "immutable"
 import IconArrowRight from 'material-ui/svg-icons/navigation-arrow-drop-right'
 
 import base from "./base"
-import CheckIconButton from "../check-icon-button"
 import DropDownButton from "../drop-down-button"
 
 export default class oneOf extends base{
@@ -15,7 +14,6 @@ export default class oneOf extends base{
         ...super.propTypes,
         defaultValue: PropTypes.any,
         
-        DropDown: PropTypes.oneOfType([PropTypes.func,PropTypes.bool]),
         check: PropTypes.func,
         icon: PropTypes.element,
         labels: PropTypes.arrayOf(PropTypes.node),
@@ -25,97 +23,71 @@ export default class oneOf extends base{
     static defaultProps={
         isPrimitive:true,
     }
-    
-    
+
+    iterate() {
+        const {values, wrapper1=<MenuItem/>, labels=[], icons=[], value}=this.$props
+        return values.map((a, i) => {
+            if (a === "-")
+                return <Divider key={i} />
+            const checked=this.equal(a, value)
+            return React.cloneElement(wrapper1, {
+                key: i,
+                value: a,
+                primaryText: labels[i] || a,
+                leftIcon: !checked && (icons[i]||<span/>),
+                checked,
+                onClick: e => {
+                    this.context.onItemClick?.(e)
+                    this.set(this.path, a)
+                }
+            })
+        })
+    }
+
     renderRibbon(){
-        const {values, children, defaultValue,value=defaultValue,DropDown, name, label=name, labels=[], icons=[]}=this.$props
-        if(DropDown)
-            return this.renderRibbonDropDown()
-        return (
-            <Fragment>
-                {values.map((a,i)=>
-                    <CheckIconButton key={i}
-                        status={value===a?"checked":"unchecked"}
-                        onClick={()=>this.set(this.path, value==a ? null : a)}
-                        children={icons[i]}
-                        hint={labels[i]||a}
-                        />
-                )}
-                {children}
-            </Fragment>
-        )
-    }
-
-    renderTree(){
-        const {values,defaultValue,value=defaultValue, name, label=name, required, labels=[], style,children}=this.$props
-        return (
-            <select name={name} value={value} onChange={e=>this.set(this.path, e.target.value)} style={style}>
-                {!required && <option value={""}></option>}
-                {values.map((a,i)=><option value={a} key={i}>{labels[i]||a}</option>)}
-                {children}
-            </select>
-        )
-    }
-
-    renderRibbonDropDown(){
-        const {values, style,
+        const {
+            values, defaultValue,value=defaultValue,style, icons=[],
             onClick=()=>this.set(this.path, values[0]), 
-            defaultValue,value=defaultValue, DropDown:_1,
-            check=a=>false, name, label=name, icon,  
-            labels=[], icons=[],children}=this.$props
-        const DropDown=_1===true ? MenuItem : _1
+            check=a=>typeof(a)!='undefined', name, label=name, icon,children
+        }=this.$props
+        
         return (
-            <DropDownButton
-                status={(value && check(value, values)) ? "checked":"unchecked"}
-                onClick={onClick}
-                icon={icon}
-                hint={label}
-                style={style}
-                >
-                {values.map((a,i)=>{
-                    if(a==="-")
-                        return <Divider key={i}/>
-                    return <DropDown key={i} value={a} primaryText={labels[i]||a} onClick={()=>this.set(this.path, a)} leftIcon={icons[i]} checked={this.equal(a,value)}/>
-                })}
+            <DropDownButton 
+                status={value && check(value) ? "checked":"unchecked"} 
+                {...{onClick, icon:icons[values.indexOf(value)]||icon, hint:label,style}}>
+                {this.iterate()}
                 {children}
             </DropDownButton>
         )
     }
 
+    renderTree(){
+        const {values,labels=[],value,isRequired,  wrapper1}=this.$props
+        if(wrapper1){
+            return this.renderMenu()
+        }
+        return (
+            <select onChange={a=>this.set(host.path,a)} value={value}>
+                {!isRequired && <option/>}
+                {values.map((a,i)=><option key={a} value={a}>{labels[i]||a}</option>)}
+            </select>
+        )
+    }
+
     renderMenu(){
-        const {name,label=name, icon, icons=[],values=[],labels=[],
-            Layout:_1, children,value,Item=MenuItem,style,}=this.$props
-        const Layout=typeof(_1)=="string" ? this.constructor.Layouts[_1.toLowerCase()] : (_1||Fragment)
-        const items=[
-            <Layout>
-                {
-                    values.map((a,i)=>{
-                        if(a==="-")
-                            return <Divider key={i}/>
-                        return <Item key={i} value={a}
-                            primaryText={labels[i]||a} 
-                            leftIcon={icons[i]}
-                            checked={this.equal(a,value)} 
-                            set={v=>this.set(this.path,v)}
-                            onClick={e=>{
-                                this.context.onItemClick(e)
-                                this.set(this.path,a)
-                            }}/>
-                    })
-                }
-            </Layout>,
-            ...React.Children.toArray(children),
-        ]
+        const {name,label=name, icon, Layout:_1, children,value,style,}=this.$props
         const me=React.createRef()
-        
         return (<MenuItem ref={me} value={value} style={style}
                 primaryText={label} 
                 leftIcon={icon} 
                 rightIcon={<IconArrowRight/>} 
-                menuItems={items} 
+                menuItems={[
+                    this.iterate(),
+                    children,
+                ]} 
                 onMouseOver={(e)=>{
                     e.currentTarget.click()
-                    this.context.onItemClick(e,me.current)
+                    this.context.onItemClick?.(e,me.current)
                 }}
                 />)
     }
@@ -123,21 +95,4 @@ export default class oneOf extends base{
     equal(a,b){
         return a===b || (!!a && !!b && typeof(a)=="object" && typeof(b)=="object" && fromJS(a).equals(fromJS(b)))
     }
-
-    static Layouts={
-        grid: class Grid extends Component{
-            render(){
-                const {children}=this.props
-                const i=children.findIndex(a=>a.type===Divider)
-                return [
-                    <div key="grid" className="grid"
-                        style={{width:"100%",display:"grid", gridTemplateColumns:`repeat(4, 1fr)`}}>
-                        {children.slice(0,i)}
-                    </div>,
-                    children.slice(i)
-                ]
-            }
-        }
-    }
 }
-

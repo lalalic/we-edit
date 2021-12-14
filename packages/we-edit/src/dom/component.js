@@ -190,17 +190,19 @@ export default class Base extends Component{
 		},
 	})
 
+	static FontShape=PropTypes.string.$({$type:"FontShape"})
+
 	static GradientStopShape=this.normalizeChecker(PropTypes.shape({
-		offset: this.UnitShape,
+		position: this.UnitShape,
 		color: this.ColorShape,
 		transparency: PropTypes.number,
 		brightness: PropTypes.number,
 	},{$type:"GradientStopShape"}),{
-		normalize:({color,offset, ...stop	})=>{
+		normalize:({color,position, ...stop	})=>{
 			if(color!=undefined)
 				stop.color=this.ColorShape.normalize(color)
-			if(offset!=undefined)
-				stop.offset=this.UnitShape.normalize(offset)
+			if(position!=undefined)
+				stop.position=this.UnitShape.normalize(position)
 			return stop
 		},
 		denormalize:(value, normalized)=>{
@@ -273,14 +275,14 @@ export default class Base extends Component{
 	 */
 	static FontsShape=this.normalizeChecker(PropTypes.oneOfType([
 		/** same as {ascii: fontName, hint:"ascii"}*/
-		PropTypes.string, 
+		this.FontShape, 
 		PropTypes.shape({
-			ascii: PropTypes.string,
-			ea: PropTypes.string,
+			ascii: this.FontShape,
+			ea: this.FontShape,
 			//cs: PropTypes.string,
 			//hansi: PropTypes.string,
 			/**fallback font*/
-			fallback: PropTypes.string,
+			fallback: this.FontShape,
 			/** value is scope, such as ea, to indicate all text should use font specified by fonts[hint] */
 			hint: PropTypes.string,
 			//"7F-FF,00-3F":"Arial",
@@ -307,6 +309,7 @@ export default class Base extends Component{
 	static LineShape=this.normalizeChecker(PropTypes.oneOfType([
 		PropTypes.oneOf(["single","double"]),
 		this.UnitShape,//width
+		
 		PropTypes.shape({
 			color: this.ColorShape,
 			width: this.UnitShape.isRequired,
@@ -425,7 +428,6 @@ export default class Base extends Component{
 		PropTypes.shape({
 			color:this.ColorShape,
 			picture: this.FillPictureShape,
-			transparency: PropTypes.number,
 			gradient: this.GradientShape,
 			pattern: this.PatternShape,
 		},{$type:"FillShape"}),

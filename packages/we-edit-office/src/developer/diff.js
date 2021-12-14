@@ -181,6 +181,7 @@ export default class Diff extends Component{
             </Dialog>
         )
     },{contextTypes:{activeDocStore: PropTypes.any}})
+    
 }
 
 class Compare extends Component{

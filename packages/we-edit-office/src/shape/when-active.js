@@ -20,7 +20,7 @@ export default Object.assign(({children},{setting})=>{
 			<ToolbarSeparator/>
 			<PropTypesUI.oneOf label="edit shape" icon={<IconGeometry/>}
 				values={[["Change Shape"],["Edit Points"]]}
-				DropDown={({value:a})=><MenuItem primaryText={a[0]} onClick={a[1]}/>}
+				wrapper1={React.createElement(({value:a})=><MenuItem primaryText={a[0]} onClick={a[1]}/>)}
 				onClick={false}
 				/>	
 			<ToolbarSeparator/>

@@ -51,8 +51,8 @@ export default Object.assign(Active,{Create})
 export const Setting = ({})=>(
 	<SelectStyle type="image">
 		{({style,dispatch})=>(
-			<PropTypesUI theme="Image" 
-				propTypes={dom.Image.propTypes}
+			<PropTypesUI theme="Image" uiContext="Dialog"
+				propTypes={(({fill,outline})=>({fill,outline}))(dom.Image.propTypes)} 
 				props={style}
 				onChange={change=>dispatch(ACTION.Entity.UPDATE({image:change}))}
 				/>

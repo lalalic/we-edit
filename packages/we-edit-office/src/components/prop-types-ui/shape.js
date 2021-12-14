@@ -1,13 +1,17 @@
-import React, {Fragment, Component} from "react"
+import React, { Fragment } from "react"
 import PropTypes from "prop-types"
 import base from "./base"
-import ObjectTree from "../object-tree"
+import { ShapeGrid, ShapeTree } from "./wrappers"
 
 export default class shape extends base{
     static displayName="shape"
     static propTypes={
         ...super.propTypes,
         schema: PropTypes.object,
+    }
+    static defaultWrappers={
+        Dialog:<ShapeGrid/>,
+        Tree:<ShapeTree/>,
     }
     get schema(){
         const {schema={}}=this.props
@@ -19,9 +23,14 @@ export default class shape extends base{
         return value
     }
 
+    getDefaultWrapper(){
+        return this.constructor.defaultWrappers[this.uiContext]
+    }
+
     iterate(){
-        const {theme, context:{uiContext="Dialog"}, $props:{children}}=this
-        const schema={...this.schema}
+        const {theme,uiContext, $props:{children, $presets}}=this
+        
+        const schema=this.schema
         const content=Object.keys(schema).map((key,i)=>{
             if((theme[key]===false || theme[key]?.[uiContext]===false)||(theme['*']===false && theme[key]===undefined))
                 return null
@@ -57,75 +66,46 @@ export default class shape extends base{
                 content.push(children)
             }
         }
+
+        if($presets){
+            const {value,name}=this.$props
+            const UIType=this.getUIType($presets.type)
+            content.unshift(React.createElement(UIType, {value,name,path:this.path,label:`Preset ${name}s`, isPresets:true,...$presets.props}))
+        }
+
         return content
     }
 
-    renderDialog(MyWrapper=this.constructor.GridAlign){
-        const content=this.iterate()
-        
-        const {Wrapper=MyWrapper}=this.$props
-
-        if(!Wrapper || content.length==0){
-            return content
-        }
-
-        return (
-            <Wrapper shape={this}>
-                {content}
-            </Wrapper>
-        )
-        
-    }
-
-    renderRibbon(){
-        return this.renderDialog(null)
-    }
-
     renderTree(){
-        return this.renderDialog(this.constructor.Tree)
+        return this.iterate()
     }
 
-    renderMenu(){
-        return this.renderDialog(null)
+    renderDialog(){
+        const {name,label=name, choices}=this.$props
+        if(!choices)
+            return super.renderDialog()
+
+        const choice=this.choice
+        return (
+            <Fragment>
+                <div style={{borderBottom:"1px solid lightgray"}}>
+                    {choices.map(a=>(
+                        <div key={a}>
+                            <input type="radio" name={`${name}_choices`} checked={a==choice} 
+                                onChange={e=>a!=choice && this.set(this.path,true)}/>
+                            <span>{a} {label}</span>
+                        </div>
+                    ))}
+                </div>
+                <div>
+                    {this.iterate().filter(a=>!choices.includes(a.props.name)||a.props.name==choice)}
+                </div>
+            </Fragment>
+        )
     }
 
-    static Tree=class extends Component{
-        static contextTypes={
-            propTypesUITheme: PropTypes.object,
-            uiContext: PropTypes.string,
-        }
-
-        render(){
-            const {children}=this.props
-            return (
-                <Fragment>
-                    {children.map(a=>{
-                        if(!React.isValidElement(a)){
-                            return a
-                        }
-
-                        const {props:{path,name,},type}=a
-                        if(path){
-                            const props={name, value:a, key:path}
-                            if(type.isPrimitive?.(a, this.context)){
-                                props.value=React.cloneElement(a,{isPrimitive:true})
-                            }
-                            return <ObjectTree {...props}/>
-                        }
-
-                        return a
-                    })}
-                </Fragment>
-            )
-        }
+    get choice(){
+        const {value, choices}=this.$props
+        return choices.findLast(a=>!!value?.[a])||choices[0]
     }
-
-    static GridAlign=({shape:{$props:{name,label=name}}, children})=>(
-        <div style={{borderBottom:"1px solid lightgray", marginTop:5}}>
-            <h3 style={{fontSize:"bigger"}}>{label}</h3>
-            <div style={{display:"grid",gridTemplateColumns:"repeat(2, 1fr)"}}>
-                {children}
-            </div>
-        </div>
-    )
 }

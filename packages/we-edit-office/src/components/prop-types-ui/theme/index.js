@@ -1,7 +1,7 @@
 import React, {Fragment} from "react"
 import { Tab, Tabs, MenuItem } from "material-ui"
+import Divider from 'material-ui/Divider'
 
-import ShapeAsMenu from "./shape-as-menu"
 import textures from "./textures"
 
 import IconBold from "material-ui/svg-icons/editor/format-bold"
@@ -41,6 +41,8 @@ import {Setting as PictureSetting} from "../../../picture"
 import DocumentTree from "../../../developer/filter-document-tree"
 import Tester from "../../../developer/tester"
 import Diff from "../../../developer/diff"
+
+import * as Wrappers from "../wrappers"
 
 let uuid=new Date().getTime()
 const setting=type=>void 0
@@ -93,31 +95,63 @@ const Theme={
         tester: <Tester title="Test" />,
     },
     UnitShape:{
+        style:{width:50},
         Ribbon:{
+            wrapper:<Wrappers.RibbonField/>,
             style:{
                 width:50,
                 marginLeft:2,
                 marginRight:2,
             }
         },
+        Dialog:{
+            style:{width:100},
+        },
         Tree:{
             style:{
-                width:50,
                 border:"none",
                 background:"transparent",
                 outline:"none",
+                width:30,
             }
         },
-        style:{
-            width:100,
-        }
     },
     shape:{
         Dialog:{
             
         },
     },
-
+    string:{
+        style:{width:50},
+        Dialog:{
+            style:{width:100},
+        },
+        Tree:{
+            style:{
+                border:"none",
+                background:"transparent",
+                outline:"none",
+                width:30
+            }
+        },
+    },
+    number:{
+        style:{width:50},
+        Dialog:{
+            style:{width:100},
+        },
+        Ribbon:{
+            wrapper:<Wrappers.RibbonField/>
+        },
+        Tree:{
+            style:{
+                border:"none",
+                background:"transparent",
+                outline:"none",
+                width:30
+            }
+        },
+    },
     oneOf:{
         Tree:{
             style:{
@@ -141,80 +175,201 @@ const Theme={
     },
 
     VertAlignShape:{
-        Ribbon:{
-            label:"Align Text",
-            DropDown:true,
-            icon:<IconVertAlign/>,
-            icons:[<IconVertAlignTop/>,<IconVertAlignMiddle/>,<IconVertAlignBottom/>],
-        }
+        label:"Vertical Align Text",
+        icon:<IconVertAlign/>,
+        icons:[<IconVertAlignTop/>,<IconVertAlignMiddle/>,<IconVertAlignBottom/>]
     },
 
     AlignShape:{
-        Tree:{
-            isPrimitive:true
-        }
+        label:"Align Text",
+        icons:[<IconAlignLeft/>,<IconAlignRight/>,<IconAlignCenter/>,<IconAlignJustify/>]
     },
 
     LineShape:{
+        choices:["no","color","gradient"],
         Ribbon:{
-            join:false,
-            dashOffset:false,
-            cap: false,
-            miterLimit: false,
-            
-            opacity: false,
-            
-            style: false,
-            compound: false,
-            gradient:false,
-
-            Wrapper:ShapeAsMenu,
-
+            '*':false,
+            wrapper:<Wrappers.ShapeMenu/>,
+            gradient:true,
             width:<oneOf label="Weight" 
-                values={[...LineWeights,"-"]}
+                values={LineWeights}
                 labels={LineWeights.map(a=><span key={a}><i style={{fontSize:9}}>{a}pt</i><hr style={{width:"100%",border:0, borderTop:`${a}pt solid lightgray`}}/></span>)}
-                children={<MenuItem key="more" primaryText="More Lines..."/>}
+                children={[<Divider/>,<MenuItem key="more" primaryText="More Lines..."/>]}
                 />,
             dashArray:<oneOf label="Dashes"
-                values={[...LineDashes,"-"]}
+                values={LineDashes}
                 labels={LineDashes.map(a=><svg viewBox="0 0 30 10"><line {...{x1:0,x2:30,y1:5,y2:5,strokeDasharray:a,stroke:"black"}}/></svg>)}
-                children={<MenuItem key="more"primaryText="More Lines..."/>}
+                children={[<Divider/>,<MenuItem key="more"primaryText="More Lines..."/>]}
                 />,
             sketched:<oneOf label="Sketch"
-                values={[...LineSketches,"-"]}
+                values={LineSketches}
                 labels={LineSketches.map(d=><svg viewBox="0 0 30 10"><path {...{stroke:"black",d}}/></svg>)}
-                children={<MenuItem key="more"primaryText="More Lines..."/>}
+                children={[<Divider/>,<MenuItem key="more"primaryText="More Lines..."/>]}
                 />,
+        },
+        Dialog:{
+            wrapper:<Wrappers.ShapeSummary/>,
+            width:<oneOf label="Weight" values={LineWeights}
+                wrapper={<Wrappers.Nest wrappers={[<Wrappers.LabelField/>,<Wrappers.GridOneOf grid={1} selectorStyle={{height:20}}/>]}/>}
+                wrapper1={React.createElement(({value:a,onClick})=>
+                    <span key={a} onClick={onClick}>
+                        <i style={{fontSize:9}}>{a}pt</i>
+                        <hr style={{width:"100%",border:0, borderTop:`${a}pt solid lightgray`}}/>
+                    </span>)}
+                />,
+            dashArray:<oneOf label="Dashes" values={LineDashes}
+                wrapper={<Wrappers.Nest wrappers={[<Wrappers.LabelField/>,<Wrappers.GridOneOf grid={1}  selectorStyle={{height:20}}/>]}/>}
+                wrapper1={React.createElement(({value:a,onClick})=>
+                    <svg viewBox="0 0 30 10" onClick={onClick}>
+                        <line {...{x1:0,x2:30,y1:5,y2:5,strokeDasharray:a,stroke:"black"}}/>
+                    </svg>
+                    )}
+                />,
+            sketched:<oneOf label="Sketch" values={LineSketches}
+                wrapper={<Wrappers.Nest wrappers={[<Wrappers.LabelField/>,<Wrappers.GridOneOf grid={1}  selectorStyle={{height:20}}/>]}/>}
+                wrapper1={React.createElement(({value:a,onClick})=>
+                    <svg viewBox="0 0 30 10" onClick={onClick}>
+                        <path {...{stroke:"black",d}}/>
+                    </svg>
+                    )}
+                />,
+        },
+        Tree:{
+            width:<oneOf label="weight" values={LineWeights}
+                wrapper={<Wrappers.GridOneOf selectorStyle={{width:10,height:10}}/>}
+                wrapper1={React.createElement(({value:a,onClick})=>
+                    <span key={a} onClick={onClick}>
+                        <i style={{fontSize:9}}>{a}pt</i>
+                        <hr style={{width:"100%",border:0, borderTop:`${a}pt solid lightgray`}}/>
+                    </span>)}
+                />,
+            dashArray:<oneOf label="dashes" values={LineDashes}
+                wrapper={<Wrappers.GridOneOf selectorStyle={{width:10,height:10}}/>}
+                wrapper1={React.createElement(({value:a,onClick})=>
+                    <svg viewBox="0 0 30 10" onClick={onClick}>
+                        <line {...{x1:0,x2:30,y1:5,y2:5,strokeDasharray:a,stroke:"black"}}/>
+                    </svg>
+                    )}
+                />,
+            sketched:<oneOf label="sketch" values={LineSketches}
+                wrapper={<Wrappers.GridOneOf selectorStyle={{width:10,height:10}}/>}
+                wrapper1={React.createElement(({value:a,onClick})=>
+                    <svg viewBox="0 0 30 10" onClick={onClick}>
+                        <path {...{stroke:"black",d}}/>
+                    </svg>
+                    )}
+                />,
+        },
+    },
+
+    GradientStopShape:{
+        Dialog:{
+            grid:1,
+        }
+    },
+    GradientShape:{
+        Tree:{
+            $presets:<oneOf values={FillGradients} label="presets"
+                wrapper={<Wrappers.GridOneOf selectorStyle={{width:10,height:10}}/>}
+                wrapper1={React.createElement(({value, onClick})=><Gradient value={value} onClick={onClick}/>)}
+                />,
+        },
+        Dialog:{
+            $presets:<oneOf values={FillGradients}
+                wrapper={<Wrappers.Nest wrappers={[<Wrappers.LabelField/>,<Wrappers.GridOneOf/>]}/>}
+                wrapper1={React.createElement(({value, onClick})=><Gradient value={value} onClick={onClick}/>)}
+                />,
+            stops:{
+                activeFirst:false,
+                wrapper:React.createElement(({host,children})=>{
+                    const [actions, ...others]=children.props.children
+                    return React.cloneElement(
+                        children,{},
+                        <div style={{display:"flex", flexDirection:"row", textAlign:"right"}}>
+                            <span style={{width:100}}>Gradient Stops</span>
+                            <span style={{flex:"auto"}}>
+                                {actions}
+                            </span>
+                        </div>,
+                        others
+                    )
+                }),
+                wrapper1:React.createElement(({value:{position=0,x=parseInt(position)},selected,onClick})=>{
+                    return <line {...{x1:x,x2:x,y1:0,y2:20,stroke:selected ? "red" : "black",strokeWidth:2,onClick}} />
+                }),
+                collection: React.createElement(({style={width:"100%",height:20, border:1,margin:2,background:"lightblue"},children})=><svg viewBox="0 0 100 20" style={style}>{children}</svg>)
+            },
+        },
+        Menu:<oneOf values={FillGradients}
+            wrapper={<Wrappers.GridOneOf/>}
+            wrapper1={React.createElement(({value, onClick})=><Gradient value={value} onClick={onClick}/>)}
+            children={
+                <Fragment>
+                    <Divider/>
+                    <MenuItem primaryText="More Gradients..." onClick={e=>setting("shape")}/>
+                </Fragment>
+            }
+            />,
+    },
+    PatternShape:{
+        Menu:<oneOf values={FillPatterns}
+            wrapper={<Wrappers.GridOneOf/>}
+            wrapper1={React.createElement(({value,onClick})=><Pattern value={value} onClick={onClick}/>)}
+            children={
+                <Fragment>
+                    <Divider/>
+                    <MenuItem primaryText="More Patterns..." onClick={e=>setting("shape")}/>
+                </Fragment>
+            }
+            />,
+        Dialog:{
+            pattern:<oneOf values={FillPatterns}
+                wrapper={<Wrappers.GridOneOf selector={false}/>}
+                wrapper1={React.createElement(({value,onClick, checked})=><Pattern value={value} onClick={onClick}/>)}
+                />,
+        },
+        Tree:{
+            pattern:<oneOf values={FillPatterns}
+                wrapper={<Wrappers.GridOneOf selectorStyle={{width:10,height:10}}/>}
+                wrapper1={React.createElement(({value,onClick})=><Pattern value={value} onClick={onClick}/>)}
+                />
         }
     },
 
     FillShape:{
+        choices:["no","color","gradient","picture","pattern"],
         Ribbon:{
-            Wrapper:ShapeAsMenu,
-
+            wrapper:<Wrappers.ShapeMenu/>,
             transparency:false,
-            gradient:<oneOf label="Gradient" 
-                values={[...FillGradients,"-"]}
-                Layout="grid"
-                Item={({value, onClick})=><Gradient value={value} onClick={onClick}/>}
-                children={<MenuItem primaryText="More Gradients..." onClick={e=>setting("shape")}/>}
-                />,
             picture:{
                 spread:true,
                 $type0:<string label="Picture..." accept="image/*"/>,
                 $type1:<oneOf label="Texture" 
                     values={[...FillTextures,"-"]}
-                    Layout="grid"
-                    Item={({value,onClick})=><img src={value} onClick={onClick} style={{width:45,height:45}}/>}
+                    wrapper={<Wrappers.GridOneOf/>}
+                    wrapper1={React.createElement(({value,onClick})=><img src={value} onClick={onClick} style={{width:45,height:45}}/>)}
                     children={<MenuItem primaryText="More Textures..." onClick={e=>setting("shape")}/>}
                     />
             },
-            pattern: <oneOf label="Pattern" 
-                values={[...FillPatterns,"-"]}
-                Layout="grid"
-                Item={({value,onClick})=><Pattern value={value} onClick={onClick}/>}
-                children={<MenuItem primaryText="More Patterns..." onClick={e=>setting("shape")}/>}
-                />
+        },
+        Dialog:{
+            wrapper:<Wrappers.ShapeSummary/>,
+            picture:{
+                label:false,
+                grid:1,
+                tile:{
+                    grid:1,
+                }
+            },
+            pattern:{
+                grid:1,
+            },
+            gradient:{
+                grid:1,
+            },
+        },
+        Tree:{
+            i:1,
         }
     },
 
@@ -233,15 +388,23 @@ const Theme={
         }
     },
 
+    BlobShape:{
+        Dialog:{
+            wrapper:React.createElement(({children:{props:{onClick}}})=><button onClick={onClick}>Select Picture...</button>)
+        },
+        Tree:{
+            wrapper:React.createElement(({children:{props:{onClick}}})=><button onClick={onClick} style={{background:"transparent",border:0,position:"relative",top:-2}}>...</button>)
+        }
+    },
+
     Text:{
         size: {
-            FieldWrapper:({children})=>children,
+            wrapper:null,
         },
 		color: {
             icon:<IconTextColor/>
         },
-
-		bold: {
+        bold: {
             icon: <IconBold/>
         },
 		italic: {
@@ -265,19 +428,27 @@ const Theme={
             i:0,
             icon: <IconStrike/>
         },
-		vertAlign: {
+
+        vertAlign:{
             icons:[<IconSubscript/>, <IconSuperscript/>],
         },
+		
         Ribbon:{
             scale:false,
             spacing:false,
             position:false,
             kerning:false,
             vanish: false,
+            vertAlign: {
+                wrapper:<Wrappers.HorizontalOneOf/>, 
+            },
         },
         Dialog:{
+            fonts:{
+                label:null,
+            },
             emphasizeMark:<oneOf values={["."]} style={{width:100}}/>,
-            Wrapper:({children})=>{
+            wrapper:React.createElement(({children})=>{
                 const i=children.findIndex(a=>a.props?.name==="scale")
                 return (
                     <Tabs>
@@ -289,7 +460,7 @@ const Theme={
                         </Tab>
                     </Tabs>
                 )
-            }
+            })
         },
         emphasizeMark:false,
     },
@@ -313,9 +484,17 @@ const Theme={
                 }
             },
             align:{
-                icons:[<IconAlignLeft/>,<IconAlignRight/>,<IconAlignCenter/>,<IconAlignJustify/>]
+                wrapper:<Wrappers.HorizontalOneOf/>,
             }
         },
+        Dialog:{
+            spacing:{
+                grid:1,
+            },
+            indent:{
+                grid:1,
+            }
+        }
     },
     Section:{
         Ribbon:{
@@ -333,12 +512,10 @@ const Theme={
             height:false,
             size:<oneOf 
                 values={["A4","A5","A6","Letter"]} 
-                DropDown={true} 
                 onClick={false} 
                 icon={<IconSize/>}
                 />,
             orientation:{
-                DropDown: true,
                 onClick:false,
                 icon: <IconOrientation/>,
             },
@@ -346,13 +523,11 @@ const Theme={
                 values={["2.54cm","1.27cm",{top:"2.54cm",bottom:"2.54",left:"1.91cm",right:"1.91cm"},{top:"2.54cm",bottom:"2.54",left:"5.08cm",right:"5.08cm"},{top:"2.54cm",bottom:"2.54",left:"3.18cm",right:"2.54cm"},"-"]}
                 labels={["Normal","Narrow","Moderate","Wide","Mirrored"]} 
                 onClick={false} 
-                DropDown={true} 
                 icon={<IconMargin/>}
                 children={<MenuItem primaryText="Custom Margins..." onClick={e=>setting("page")}/>}
                 />,
             cols:<oneOf
                 onClick={false}
-                DropDown={true}
                 values={[[1],[2],[3],[1,2],[2,1]]}
                 labels={["One", "Two", "Three", "Left", "Right"]}
                 icons={[
@@ -441,19 +616,17 @@ const Theme={
             border:{
                 width:<oneOf label="Line Weights" 
                     values={[...LineWeights]}
-                    DropDown={true}
                     icon={<IconOutlineShape/>}
                     labels={LineWeights.map(a=><span><i style={{fontSize:9}}>{a}pt</i><hr style={{width:"100%",border:0, borderTop:`${a}pt solid lightgray`}}/></span>)}
                     />,
                 dashArray:<oneOf label="Line Styles"
                     values={[...LineDashes]}
-                    DropDown={true}
                     icon={<IconOutlineShape/>}
                     labels={LineDashes.map(a=><svg viewBox="0 0 30 10"><line {...{x1:0,x2:30,y1:5,y2:5,strokeDasharray:a,stroke:"black"}}/></svg>)}
                     />,
                 sketched:false,
 
-                children:<oneOf DropDown={true}
+                children:<oneOf 
                         label="Borders" 
                         onClick={false}
                         icon={<IconTextBorder/>}
@@ -505,13 +678,11 @@ const Theme={
             wrap:{
                 mode:{
                     icon:<IconWrapMode/>,
-                    DropDown:true,
                     onClick:false,
                     label:"Wrap Mode"
                 },
                 side:{
                     icon:<IconWrapSide/>,
-                    DropDown:true,
                     onClick:false,
                     label:"Wrap Side"
                 },
@@ -521,7 +692,10 @@ const Theme={
         }
     },
     Shape:{
+        editableSpots:false,
+        autofitHeight:false,
         Ribbon:{
+            '*':false,
             geometry:{
                 i:0,
                 type:false,
@@ -540,7 +714,6 @@ const Theme={
             },
             rotate: <oneOf 
                 values={[90,-90,"-"]} 
-                DropDown={true} 
                 onClick={false} 
                 icon={<IconRotate/>} 
                 children={<MenuItem primaryText="More Rotation Options..." onClick={e=>setting("shape")}/>}
@@ -550,10 +723,22 @@ const Theme={
                     width:50
                 }
             },
-            '*':false,
+        },
+        Dialog:{
+            wrapper:null,
+        },
+        Tree:{
+            fill:{
+                i:1
+            },
+            outline:{
+                i:2
+            }
         }
     },
 }
+
+
 
 const Gradient=({value:{type,angle=0,stops},onClick})=>(
     <div onClick={onClick} style={{width:45,height:45,}}>
@@ -562,7 +747,7 @@ const Gradient=({value:{type,angle=0,stops},onClick})=>(
         }}/>
     </div>
 )
-const Pattern=({value, onClick, id=`ptn_${uuid++}`})=>(
+const Pattern=({value, onClick, checked, id=`ptn_${uuid++}`})=>(
     <svg style={{width:45,height:45}} onClick={onClick}>
         <defs>
             <pattern id={id} viewBox="0,0,10,10" width="20%" height="20%">
