@@ -34,7 +34,7 @@ export default class oneOf extends base{
                 key: i,
                 value: a,
                 primaryText: labels[i] || a,
-                leftIcon: !checked && (icons[i]||<span/>),
+                leftIcon: !checked ? (icons[i]||<span/>) : null,
                 checked,
                 onClick: e => {
                     this.context.onItemClick?.(e)
@@ -62,12 +62,12 @@ export default class oneOf extends base{
     }
 
     renderTree(){
-        const {values,labels=[],value,isRequired,  wrapper1}=this.$props
+        const {values,labels=[],value,isRequired, wrapper1,style}=this.$props
         if(wrapper1){
             return this.renderMenu()
         }
         return (
-            <select onChange={a=>this.set(host.path,a)} value={value}>
+            <select onChange={a=>this.set(host.path,a)} value={value} style={style}>
                 {!isRequired && <option/>}
                 {values.map((a,i)=><option key={a} value={a}>{labels[i]||a}</option>)}
             </select>

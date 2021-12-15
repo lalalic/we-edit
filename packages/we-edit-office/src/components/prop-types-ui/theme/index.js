@@ -1,4 +1,5 @@
 import React, {Fragment} from "react"
+import {dom} from "we-edit"
 import { Tab, Tabs, MenuItem } from "material-ui"
 import Divider from 'material-ui/Divider'
 
@@ -191,20 +192,33 @@ const Theme={
             '*':false,
             wrapper:<Wrappers.ShapeMenu/>,
             gradient:true,
-            width:<oneOf label="Weight" 
-                values={LineWeights}
-                labels={LineWeights.map(a=><span key={a}><i style={{fontSize:9}}>{a}pt</i><hr style={{width:"100%",border:0, borderTop:`${a}pt solid lightgray`}}/></span>)}
-                children={[<Divider/>,<MenuItem key="more" primaryText="More Lines..."/>]}
+            width:<oneOf label="Weight" values={LineWeights}
+                wrapper={<Wrappers.GridOneOf grid={1}/>}
+                wrapper1={React.createElement(({value:a,onClick})=>
+                    <span key={a} onClick={onClick} style={{width:40,margin:"auto"}}>
+                        <i style={{fontSize:9}}>{a}pt</i>
+                        <hr style={{width:"100%",border:0, borderTop:`${a}pt solid lightgray`}}/>
+                    </span>)}
+                children={[<Divider key="d"/>,<MenuItem key="more" primaryText="More Lines..."/>]}
                 />,
             dashArray:<oneOf label="Dashes"
                 values={LineDashes}
-                labels={LineDashes.map(a=><svg viewBox="0 0 30 10"><line {...{x1:0,x2:30,y1:5,y2:5,strokeDasharray:a,stroke:"black"}}/></svg>)}
-                children={[<Divider/>,<MenuItem key="more"primaryText="More Lines..."/>]}
+                wrapper={<Wrappers.GridOneOf grid={1}/>}
+                wrapper1={React.createElement(({value:a,onClick})=>
+                    <svg viewBox="0 0 30 10" onClick={onClick} style={{width:40,margin:"auto"}}>
+                        <line {...{x1:0,x2:30,y1:5,y2:5,strokeDasharray:a,stroke:"black"}}/>
+                    </svg>
+                    )}
+                children={[<Divider key="d"/>,<MenuItem key="more"primaryText="More Lines..."/>]}
                 />,
-            sketched:<oneOf label="Sketch"
-                values={LineSketches}
-                labels={LineSketches.map(d=><svg viewBox="0 0 30 10"><path {...{stroke:"black",d}}/></svg>)}
-                children={[<Divider/>,<MenuItem key="more"primaryText="More Lines..."/>]}
+            sketched:<oneOf label="Sketch" values={LineSketches}
+                wrapper={<Wrappers.GridOneOf grid={1}/>}
+                wrapper1={React.createElement(({value:d,onClick})=>
+                    <svg viewBox="0 0 30 10" onClick={onClick} style={{width:40,margin:"auto"}}>
+                        <path {...{stroke:"black",d}}/>
+                    </svg>
+                    )}
+                children={[<Divider key="d"/>,<MenuItem key="more"primaryText="More Lines..."/>]}
                 />,
         },
         Dialog:{
@@ -212,7 +226,7 @@ const Theme={
             width:<oneOf label="Weight" values={LineWeights}
                 wrapper={<Wrappers.Nest wrappers={[<Wrappers.LabelField/>,<Wrappers.GridOneOf grid={1} selectorStyle={{height:20}}/>]}/>}
                 wrapper1={React.createElement(({value:a,onClick})=>
-                    <span key={a} onClick={onClick}>
+                    <span key={a} onClick={onClick} style={{width:40}}>
                         <i style={{fontSize:9}}>{a}pt</i>
                         <hr style={{width:"100%",border:0, borderTop:`${a}pt solid lightgray`}}/>
                     </span>)}
@@ -220,7 +234,7 @@ const Theme={
             dashArray:<oneOf label="Dashes" values={LineDashes}
                 wrapper={<Wrappers.Nest wrappers={[<Wrappers.LabelField/>,<Wrappers.GridOneOf grid={1}  selectorStyle={{height:20}}/>]}/>}
                 wrapper1={React.createElement(({value:a,onClick})=>
-                    <svg viewBox="0 0 30 10" onClick={onClick}>
+                    <svg viewBox="0 0 30 10" onClick={onClick} style={{width:40}}>
                         <line {...{x1:0,x2:30,y1:5,y2:5,strokeDasharray:a,stroke:"black"}}/>
                     </svg>
                     )}
@@ -228,7 +242,7 @@ const Theme={
             sketched:<oneOf label="Sketch" values={LineSketches}
                 wrapper={<Wrappers.Nest wrappers={[<Wrappers.LabelField/>,<Wrappers.GridOneOf grid={1}  selectorStyle={{height:20}}/>]}/>}
                 wrapper1={React.createElement(({value:a,onClick})=>
-                    <svg viewBox="0 0 30 10" onClick={onClick}>
+                    <svg viewBox="0 0 30 10" onClick={onClick} style={{width:40}}>
                         <path {...{stroke:"black",d}}/>
                     </svg>
                     )}
@@ -236,25 +250,25 @@ const Theme={
         },
         Tree:{
             width:<oneOf label="weight" values={LineWeights}
-                wrapper={<Wrappers.GridOneOf selectorStyle={{width:10,height:10}}/>}
+                wrapper={<Wrappers.GridOneOf grid={1} selectorStyle={{width:10,height:10}}/>}
                 wrapper1={React.createElement(({value:a,onClick})=>
-                    <span key={a} onClick={onClick}>
+                    <span key={a} onClick={onClick} style={{width:40}}>
                         <i style={{fontSize:9}}>{a}pt</i>
                         <hr style={{width:"100%",border:0, borderTop:`${a}pt solid lightgray`}}/>
                     </span>)}
                 />,
             dashArray:<oneOf label="dashes" values={LineDashes}
-                wrapper={<Wrappers.GridOneOf selectorStyle={{width:10,height:10}}/>}
+                wrapper={<Wrappers.GridOneOf grid={1} selectorStyle={{width:10,height:10}}/>}
                 wrapper1={React.createElement(({value:a,onClick})=>
-                    <svg viewBox="0 0 30 10" onClick={onClick}>
+                    <svg viewBox="0 0 30 10" onClick={onClick} style={{width:40}}>
                         <line {...{x1:0,x2:30,y1:5,y2:5,strokeDasharray:a,stroke:"black"}}/>
                     </svg>
                     )}
                 />,
             sketched:<oneOf label="sketch" values={LineSketches}
-                wrapper={<Wrappers.GridOneOf selectorStyle={{width:10,height:10}}/>}
-                wrapper1={React.createElement(({value:a,onClick})=>
-                    <svg viewBox="0 0 30 10" onClick={onClick}>
+                wrapper={<Wrappers.GridOneOf grid={1} selectorStyle={{width:10,height:10}}/>}
+                wrapper1={React.createElement(({value:d,onClick})=>
+                    <svg viewBox="0 0 30 10" onClick={onClick} style={{width:40}}>
                         <path {...{stroke:"black",d}}/>
                     </svg>
                     )}
@@ -342,8 +356,8 @@ const Theme={
             wrapper:<Wrappers.ShapeMenu/>,
             transparency:false,
             picture:{
-                spread:true,
-                $type0:<string label="Picture..." accept="image/*"/>,
+                //spread:true,
+                //$type0:<string label="Picture..." accept="image/*"/>,
                 $type1:<oneOf label="Texture" 
                     values={[...FillTextures,"-"]}
                     wrapper={<Wrappers.GridOneOf/>}
@@ -394,6 +408,19 @@ const Theme={
         },
         Tree:{
             wrapper:React.createElement(({children:{props:{onClick}}})=><button onClick={onClick} style={{background:"transparent",border:0,position:"relative",top:-2}}>...</button>)
+        },
+        Menu:{
+            wrapper:React.createElement(({children:{props:{onClick}}})=><MenuItem primaryText="Picture..." onClick={onClick}/>)
+        }
+    },
+
+    FillPictureShape:{
+        url:<oneOfType types={[dom.Unknown.BlobShape,dom.Unknown.BlobShape.$({$type:"TextureShape"})]}/>
+    },
+
+    TextureShape:{
+        Menu:{
+            wrapper:React.createElement(({children:{props:{onClick}}})=><MenuItem primaryText="Texture..." onClick={onClick}/>)
         }
     },
 

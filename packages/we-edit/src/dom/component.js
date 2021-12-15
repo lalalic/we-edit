@@ -312,6 +312,8 @@ export default class Base extends Component{
 		
 		PropTypes.shape({
 			color: this.ColorShape,
+			gradient: this.GradientShape,
+
 			width: this.UnitShape.isRequired,
 			
 			dashArray: PropTypes.string.$({$type:"LineDashShape"}),
@@ -325,7 +327,6 @@ export default class Base extends Component{
 			style: PropTypes.string,
 			sketched: PropTypes.string.$({$type:"LineSketchedShape"}),
 			compound: PropTypes.string,
-			gradient: this.GradientShape
 		},{$type:"LineShape"}),
 	]),{
 		default:{width:1,color:"black"},
@@ -364,6 +365,18 @@ export default class Base extends Component{
 			return !Object.keys(values).find(k=>values[k]!=null && values[k]!=undefined)
 		}
 	})
+
+	static PictureSourceShape=PropTypes.oneOfType([
+		this.BlobShape,
+		PropTypes.string.$({$type:"OnlinePictureSourceShape"}),
+		PropTypes.shape({
+			url: PropTypes.string,
+			texture:PropTypes.bool,
+		},{$type:"TexturePictureSourceShape"}),
+		PropTypes.shape({
+			font: this.BlobShape,
+		},{$type:"IconPictureSourceShape"}),
+	])
 
 	static FillPictureShape=this.normalizeChecker(PropTypes.oneOfType([
 		this.BlobShape,
@@ -485,14 +498,14 @@ export default class Base extends Component{
 
 	static GeometryShape=this.normalizeChecker(PropTypes.oneOfType([
 		PropTypes.shape({
-			type: PropTypes.oneOf(["rect"]),
+			type: PropTypes.string,//rect
 			width:this.UnitShape.isRequired,
 			height:this.UnitShape.isRequired,
 			x: this.UnitShape,
 			y: this.UnitShape,
 			rx: this.UnitShape,
 			ry: this.UnitShape,
-		},{$type:"RectGeometryShape"}),
+		},{$type:"RectGeometryShape",type:"rect"}),
 
 		PropTypes.shape({
 			intersects: PropTypes.func,//({x1,x2,y2,y1})=>[{x,width},{x,width}]
@@ -502,22 +515,22 @@ export default class Base extends Component{
 			height: PropTypes.number,
 		},{$type:"AnyGeometryShape"}),
 		
-		PropTypes.string.$({$type:"PathGeometryPath"}),// a svg path
+		PropTypes.string.$({$type:"PathGeometryPath",type:"path"}),// a svg path
 
 		PropTypes.shape({
-			type: PropTypes.oneOf(["ellipse"]).isRequired,
+			type: PropTypes.string,//ellipse
 			rx: this.UnitShape.isRequired,
 			ry: this.UnitShape,
 			cx: this.UnitShape,
 			cy: this.UnitShape,
-		},{$type:"EllipseGeometryShape"}),
+		},{$type:"EllipseGeometryShape",type:"ellipse"}),
 
 		PropTypes.shape({
-			type: PropTypes.oneOf(["circle"]).isRequired,
+			type: PropTypes.string,//circle
 			r: this.UnitShape.isRequired,
 			cx: this.UnitShape,
 			cy: this.UnitShape,
-		},{$type:"CircleGeometryShape"})
+		},{$type:"CircleGeometryShape",type:"circle"})
 	],{$type:"GeometryShape"}),{
 		normalize:value=>Geometry.create(value),
 		denormalize:(value,normalized)=>{

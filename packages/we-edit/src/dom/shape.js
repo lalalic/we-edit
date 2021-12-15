@@ -29,7 +29,7 @@ export default class Shape extends Component{
 			PropTypes.func,//func(geometry)=>[{x,y,direction,style,control}]
 		]),
 
-		autofit: PropTypes.oneOf([true,"larger"]),
+		autofit: this.AutofitShape,
 		autofitHeight: this.UnitShape,
 	}
 
