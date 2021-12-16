@@ -678,9 +678,7 @@ export default class Base extends Component{
 		label: PropTypes.string,
 	},{$type:"NumberListShape", type:"numbering"})
 
-	static OutlineListShape=PropTypes.shape({
-			...this.CommonListShape,
-		},{$type:"OutlineListShape",type:"outline"})
+	static OutlineListShape=PropTypes.arrayOf(this.NumberListShape,{$type:"OutlineListShape",type:"outline"})
 
 	static ListShape=this.normalizeChecker(PropTypes.oneOfType([
 		this.BulletListShape,

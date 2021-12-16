@@ -83,6 +83,21 @@ const Bullets=[
     {style:{fonts:"Arial"},label:String.fromCharCode(0x263B)},
 ]
 
+const Numberings=[
+    {format:"decimal",label:"%1."},
+    {format:"lowerLetter",label:"%1."},
+    {format:"upperLetter",label:"%1."},
+    {format:"lowerRoman",label:"%1."},
+    {format:"upperRoman",label:"%1."},
+    {format:"chinese",label:"%1"},
+]
+
+const Outlines=[
+    [{format:"decimal",label:"%1."},{format:"decimal",label:"%1.%2."},{format:"decimal",label:"%1.%2.%3."}],
+    [{format:"decimal",label:"%1."},{format:"lowerLetter",label:"%1."},{format:"lowerRoman",label:"%1."},],
+    [{format:"decimal",label:"%1."},{format:"lowerLetter",label:"%1."},{format:"lowerRoman",label:"%1."},],
+]
+
 //shape input only be on root level
 /**
  * configure 
@@ -99,8 +114,8 @@ const Theme={
         font:<FontSetting/>,
         paragraph: <ParagraphSetting/>,
         bullet: <ListSetting shape={dom.Paragraph.BulletListShape} title="Create Bullet List"/>,
-        numbering: <ListSetting shape={dom.Paragraph.NumberListShape}/>,
-        outline: <ListSetting shape={dom.Paragraph.OutlineListShape}/>,
+        numbering: <ListSetting shape={dom.Paragraph.NumberListShape} title="Create Number List"/>,
+        outline: <ListSetting shape={dom.Paragraph.OutlineListShape} title="Create Outline List"/>,
         diff: <Diff.Setting portalContainer={document.body}/>,
     },
     $settingPanels:{
@@ -468,10 +483,17 @@ const Theme={
                         <div><a id="indent"/></div>
                         <h3>Bullet Position</h3>
                         <div><a id="hanging"/></div>
+                        <div><a id="align"/></div>
                         <Wrappers.ShapeGrid role="others" label={null} style={{borderBottom:0}}/>
                     </div>
                     <div style={{width:200,border:"1px solid black",padding:10}}>
-                        hello
+                        <ul>
+                            <li/>
+                            <li/>
+                            <li/>
+                            <li/>
+                            <li/>
+                        </ul>
                     </div>
                 </div>
             }/>,
@@ -492,32 +514,67 @@ const Theme={
         Dialog:<button  style={{marginRight:5}}>Bullet...</button>,
     },
     NumberListShape:{
-        Ribbon:<oneOf label="nubering list" icon={<IconListNumber/>} check={({format="bullet"})=>format!=="bullet"}
-            values={[
-                {format:"decimal",label:"%1."},
-                {format:"lowerLetter",label:"%1."},
-                {format:"upperLetter",label:"%1."},
-                {format:"lowerRoman",label:"%1."},
-                {format:"upperRoman",label:"%1."},
-                {format:"chinese",label:"%1"},
-            ]}
+        Ribbon:<oneOf label="numbering list" icon={<IconListNumber/>} check={({format="bullet"})=>format!=="bullet"}
+            values={Numberings}
             wrapper1={React.createElement(({value:{format, label}, leftIcon,...props})=><MenuItem {...props} primaryText={label.replace("%1",dom.Paragraph.numberings[format](0))}/>)}
             children={<Fragment><Divider/><Show children={setting=><MenuItem primaryText="Define New Number List" onClick={e=>setting("numbering")}/>}/></Fragment>}
-            />  
+            />  ,
+        Dialog:{
+            id:false,
+            level:false,
+            wrapper:<Wrappers.ShapeLayout layout={
+                <div style={{display:"flex", gridColumn:"span 2", gap:5}}>
+                    <div style={{flex:1}}>
+                        <h3>Number Format</h3>
+                        <div style={{display:"grid", gridTemplateColumns:"repeat(2,1fr)"}}>
+                            <a id="label"/><a id="style"/>
+                            <a id="format"/><a id="start"/>    
+                        </div>
+                        
+                        <hr/>
+                        <h3>Text Position</h3>
+                        <div><a id="indent"/></div>
+                        <h3>Number Position</h3>
+                        <div><a id="hanging"/></div>
+                        <div><a id="align"/></div>
+                        
+                    </div>
+                    <div style={{width:200,border:"1px solid black",padding:10}}>
+                        <ol>
+                            <li/>
+                            <li/>
+                            <li/>
+                            <li/>
+                            <li/>
+                        </ol>
+                    </div>
+                </div>
+            }/>,
+            style:(<Show dialog="font" children={<button style={{marginRight:5, width:100}}>Font...</button>}/>),
+            label:{
+                notUILabel:true,
+                label:"format",
+            },
+            indent:{
+                label:"indent at"
+            },
+            hanging:{
+                label:"indent at"
+            }, 
+            format:{
+                label: "number style"
+            },
+            start:{
+                label:"start at"
+            }
+        }
     },
     OutlineListShape:{
-        Ribbon:<oneOf label="Outline list" icon={<IconListOutline/>}
-            values={[
-                {format:"decimal",label:"%1."},
-                {format:"lowerLetter",label:"%1."},
-                {format:"upperLetter",label:"%1."},
-                {format:"lowerRoman",label:"%1."},
-                {format:"upperRoman",label:"%1."},
-                {format:"chinese",label:"%1"},
-            ]}
+        Ribbon:<oneOf label="Outline list" icon={<IconListOutline/>} values={Numberings}
             wrapper1={React.createElement(({value:{format, label}, leftIcon,...props})=><MenuItem {...props} primaryText={label.replace("%1",dom.Paragraph.numberings[format](0))}/>)}
             children={<Fragment><Divider/><Show children={setting=><MenuItem primaryText="Define New Outline List" onClick={e=>setting("outline")}/>}/></Fragment>}
-            />
+            />,
+        
     },
 
     Text:{
