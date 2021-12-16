@@ -43,8 +43,12 @@ export default class base extends PureComponent{
     }
 
     get $props(){
-        const {Dialog, Ribbon, Tree, Tab, name, path, ...theme}=this.theme
-        return {...theme,...this.props}
+        const {Dialog, Ribbon, Tree, Tab, name, path, key, label, ...theme}=this.theme
+        if(label?.notUILabel || label?.props?.notUILabel || label===false){
+            return {...theme,...this.props}
+        } 
+
+        return {...theme,label,...this.props}
     }
 
     get uiContext(){

@@ -10,9 +10,9 @@ import oneOf from "./one-of"
 import oneOfType from "./one-of-type"
 import arrayOf from "./array-of"
 import shape from "./shape"
+import show from "./show"
 import UnitShape from "./unit-shape"
 import FontsShape from "./fonts-shape"
-import NumberingShape from "./numbering-shape"
 import ColorShape from "./color-shape"
 
 import BaseTheme from "./theme"
@@ -35,9 +35,8 @@ export default class PropTypesUI extends PureComponent{
     }
     
     static Types=(types=>(Object.assign(this,types),types))({
-        any,string,number,bool,shape,oneOf,oneOfType,arrayOf,
-        UnitShape, ColorShape,NumberingShape,
-        FontsShape,
+        any,string,number,bool,shape,oneOf,oneOfType,arrayOf,show,
+        UnitShape, ColorShape, FontsShape,
     });
     
     static childContextTypes={
@@ -110,8 +109,8 @@ export default class PropTypesUI extends PureComponent{
     }
     
     render(){
-        const {props:{propTypes}, state:{props}}=this
-        return <this.Types.shape schema={propTypes.Type?.props.schema||propTypes} theme={this.theme} value={props.toJS()}/>
+        const {props:{propTypes, uiContext, props:_, theme,...props0}, state:{props}}=this
+        return <this.Types.shape schema={propTypes.Type?.props.schema||propTypes} theme={this.theme} value={props.toJS()} {...props0}/>
     }
 
     componentDidUpdate({onChange, props}, prevState){

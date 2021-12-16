@@ -28,7 +28,7 @@ export default class shape extends base{
     }
 
     iterate(){
-        const {theme,uiContext, $props:{children, $presets}}=this
+        const {theme,uiContext, $props:{children, $presets,}}=this
         
         const schema=this.schema
         const content=Object.keys(schema).map((key,i)=>{

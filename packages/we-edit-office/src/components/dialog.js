@@ -48,6 +48,7 @@ export default class extends Component{
                 open:true,modal:true,
                 style:{zoom:0.8,...style},
                 titleStyle:{textAlign:"center"},
+                autoScrollBodyContent:true,
                 actions,
                 ...props}}/>
 

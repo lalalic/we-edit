@@ -87,7 +87,7 @@ export default class Paragraph extends Component{
 
 		align:this.AlignShape,
 		
-		numbering: this.NumberingShape,
+		numbering: this.ListShape,
 		
 		/**Pagination control */
 		widow:PropTypes.bool,

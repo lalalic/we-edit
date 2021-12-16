@@ -55,7 +55,7 @@ const Pilcrow=connect(state=>getUI(state))(({dispatch,pilcrow})=>(
 		/>
 ))
 
-export function ParagraphSetting(){
+export function ParagraphSetting(props){
 	const refSetting=React.createRef()
 	return (
 		<SelectStyle type="paragraph">
@@ -68,6 +68,7 @@ export function ParagraphSetting(){
 							onClick={e=>dispatch(ACTION.Entity.UPDATE({document:{defaultParagraphStyle:refSetting.current.value}}))}
 						/>
 					]}
+					{...props}
 					>
 					<PropTypesUI theme="Paragraph" 
 						propTypes={{...dom.Paragraph.propTypes,numbering:null}} 
@@ -78,15 +79,18 @@ export function ParagraphSetting(){
 	)
 }
 
-export function ListSetting({title="Create List",Shape=dom.Paragraph.propTypes.numbering}){
+export function ListSetting({shape=dom.Paragraph.propTypes.numbering, ...props}){
 	const refSetting=React.createRef()
 	return (
 		<SelectStyle type="paragraph">
 			{({style,dispatch})=>(
-				<Dialog title={title} onSubmit={()=>dispatch(ACTION.Selection.UPDATE({paragraph:{numbering:refSetting.current.value}}))}>
+				<Dialog 
+					onSubmit={()=>dispatch(ACTION.Selection.UPDATE({paragraph:{numbering:refSetting.current.value}}))}
+					{...props}
+					>
 					<PropTypesUI
-						propTypes={Shape}
-						props={style.numbering}
+						propTypes={{numbering:shape}}
+						props={{numbering:style.numbering}}
 						ref={refSetting}
 						/>
 				</Dialog>

@@ -651,8 +651,42 @@ export default class Base extends Component{
 			return normalized
 		}
 	})
+	
+	static CommonListShape={
+		id: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+		level: PropTypes.number,
+		indent: this.UnitShape,
+		hanging: this.UnitShape,
+		align: PropTypes.oneOf(["left","center","right"]),
+		style: this.TextStyleShape,
+	}
 
-	//static ListShape=PropTypes.oneOfType([BulletListShape, NumberListShape, OutlineListShape])
+	static BulletListShape=PropTypes.shape({
+		...this.CommonListShape,
+		label: PropTypes.oneOfType([
+			PropTypes.string.$({$type:"BulletShape"}),
+			PropTypes.shape({
+				url: this.BlobShape,
+			})
+		])
+	},{$type:"BulletListShape",type:"bullet"})
+
+	static NumberListShape=PropTypes.shape({
+		...this.CommonListShape,
+		format: PropTypes.string,
+		start: PropTypes.number,
+		label: PropTypes.string,
+	},{$type:"NumberListShape", type:"numbering"})
+
+	static OutlineListShape=PropTypes.shape({
+			...this.CommonListShape,
+		},{$type:"OutlineListShape",type:"outline"})
+
+	static ListShape=this.normalizeChecker(PropTypes.oneOfType([
+		this.BulletListShape,
+		this.NumberListShape,
+		this.OutlineListShape,
+	]))
 
 	static NumberingShape=this.normalizeChecker(PropTypes.shape({
 		id: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),

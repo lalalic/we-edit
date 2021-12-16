@@ -1,5 +1,6 @@
 import React, {Component, Fragment} from "react"
 import PropTypes from "prop-types"
+import {ReactQuery} from "we-edit"
 
 import ObjectTree from "../object-tree"
 import DropDownButton from "../drop-down-button"
@@ -63,8 +64,8 @@ export class ShapeMenu extends React.Component{
     }
 }
 
-export const ShapeGrid=({host:{$props:{name,label=name,grid:_=2}}, children, grid=_})=>(
-    <div style={{borderBottom:"1px solid lightgray", marginTop:5}}>
+export const ShapeGrid=({host:{$props:{name,label:label1=name,grid:_=2}}, style, label=label1, children, grid=_})=>(
+    <div style={{borderBottom:"1px solid lightgray", marginTop:5, ...style}}>
         <h3 style={{fontSize:"bigger"}}>{label}</h3>
         <div style={{display:"grid",gridTemplateColumns:`repeat(${grid}, 1fr)`}}>
             {children}
@@ -124,6 +125,26 @@ export const ShapeSummary=({host:{$props:{name,label=name}}, children})=>(
     </details>
 )
 
+export const ShapeLayout=({host,children, layout,idSelector="a[id]",othersSelector="[role='others']"})=>{
+    let $=new ReactQuery(<Fragment>{layout}</Fragment>), source=$.findFirst(idSelector)
+    while(source.length){
+        const id=source.attr('id')
+        const i=children.findIndex(a=>a.props?.name==id || (id=="$presets" && a.props?.isPresets))
+        if(i>-1){
+            const [target]=children.splice(i,1)
+            $=$.replace(source,target)
+        }
+        source=$.findFirst(idSelector)
+    }
+    if(children.flat().length>0){
+        const others=$.findFirst(othersSelector).get(0)
+        if(others){
+            $=$.replace(others,React.cloneElement(others,{children,host}))
+        }
+    }
+    return $.root
+}
+
 export class HorizontalOneOf extends Component{
     render(){
         const {host}=this.props
@@ -141,14 +162,10 @@ export class HorizontalOneOf extends Component{
 
 export class GridOneOf extends Component{
     render(){
-        const {
-            host:{$props:{grid:_=4}, uiContext}, children:menu, grid=_, 
-            style={width:"100%",display:"grid", gridTemplateColumns:`repeat(${grid}, 1fr)`},
-            selector=true, selectorStyle
-        }=this.props
+        const {host:{$props:{grid:_=4}, uiContext}, children:menu, grid=_, style, selector=true, selectorStyle }=this.props
         const {menuItems:[items, children]}=menu.props
         const gridItems=(
-            <div key="grid" className="grid" style={style}>
+            <div key="grid" className="grid" style={{width:"100%",display:"grid", gridTemplateColumns:`repeat(${grid}, 1fr)`,...style}}>
                 {items}
             </div>
         )

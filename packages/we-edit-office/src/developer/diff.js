@@ -144,7 +144,7 @@ export default class Diff extends Component{
         return {}
     }
 
-    static Setting=Object.assign(({parseFile,parseActive},{activeDocStore})=>{
+    static Setting=Object.assign(({parseFile,parseActive, ...props},{activeDocStore})=>{
         if(!parseActive){
             parseActive=file=>(file.doc?.parts||{})
         }
@@ -171,7 +171,7 @@ export default class Diff extends Component{
                 title="File Content Inspector" 
                 contentStyle={{maxWidth:"unset",width:"80%"}}
                 autoScrollBodyContent={true}
-                modal={true}>
+                modal={true} {...props}>
                 <Diff files={[{ name: "[Active]", parts: activeFile }]} parse={parseFile}
                     style={{
                         background: "white",

@@ -50,7 +50,7 @@ export default ({children})=>(
 	</SelectStyle>
 )
 
-export function FontSetting({}){
+export function FontSetting(props){
 	return (
 		<SelectStyle getStyle={getTextStyle}>
 			{({style,dispatch})=>{
@@ -65,6 +65,7 @@ export function FontSetting({}){
 								onClick={()=>dispatch(ACTION.Entity.UPDATE({document:{defaultTextStyle:refTextSetting.current.value}}))}
 							/>
 						}
+						{...props}
 					>
 						<PropTypesUI theme="Text" propTypes={dom.Text.propTypes} props={style} ref={refTextSetting}/>
 					</Dialog>

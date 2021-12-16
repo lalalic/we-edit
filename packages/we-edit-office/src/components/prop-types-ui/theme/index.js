@@ -1,4 +1,5 @@
 import React, {Fragment} from "react"
+import PropTypes from "prop-types"
 import {dom} from "we-edit"
 import { Tab, Tabs, MenuItem } from "material-ui"
 import Divider from 'material-ui/Divider'
@@ -33,8 +34,12 @@ import IconOutlineShape from "material-ui/svg-icons/editor/border-color"
 
 import IconImage from "material-ui/svg-icons/editor/insert-photo"
 
+import IconListBullet from "material-ui/svg-icons/editor/format-list-bulleted"
+import IconListNumber from "material-ui/svg-icons/editor/format-list-numbered"
+import IconListOutline from "material-ui/svg-icons/editor/pie-chart-outlined"
+
+
 import { IconColumn, Column, IconTextBorder, IconSubscript, IconSuperscript, IconSize, IconOrientation, IconMargin } from "./icons"
-import NumberingShape from "../numbering-shape"
 import {FontSetting} from "../../../text"
 import {ParagraphSetting, ListSetting} from "../../../paragraph"
 import {Setting as ShapeSetting} from "../../../shape"
@@ -42,12 +47,12 @@ import {Setting as PictureSetting} from "../../../picture"
 import DocumentTree from "../../../developer/filter-document-tree"
 import Tester from "../../../developer/tester"
 import Diff from "../../../developer/diff"
+import Show from "../show"
 
 import * as Wrappers from "../wrappers"
 
 let uuid=new Date().getTime()
-const setting=type=>void 0
-
+const WithSetting=Object.assign(({children},{setting})=>children(setting),{contextTypes:{setting:PropTypes.func}})
 const LineWeights=[0.25,0.5,0.75,1,1.5,2.25,3,4.5,6]
 const LineDashes=["","1", "4 2", "4 2 2 2", "6 2", "6 2 2 2","6 2 2 2 2 2"]
 const LineSketches=["M0 5h30","M0 5h30"]
@@ -69,6 +74,15 @@ const FillPatterns=[
     <line {...{x1:0,y1:10,x2:10,y2:0,strokeLinecap:"round",strokeWidth:1, strokeDasharray:"3,5",stroke:"black"}}/>,
 ]
 
+const Bullets=[
+    {style:{fonts:"Arial"},label:String.fromCharCode(0x25CF)},
+    {style:{fonts:"Arial"},label:String.fromCharCode(0x25CB)},
+    {style:{fonts:"Arial"},label:String.fromCharCode(0x25A0)},
+    {style:{fonts:"Arial"},label:String.fromCharCode(0x2666)},
+    {style:{fonts:"Arial"},label:String.fromCharCode(0x263A)},
+    {style:{fonts:"Arial"},label:String.fromCharCode(0x263B)},
+]
+
 //shape input only be on root level
 /**
  * configure 
@@ -84,9 +98,9 @@ const Theme={
     $settingDialogs:{
         font:<FontSetting/>,
         paragraph: <ParagraphSetting/>,
-        bullet: <ListSetting shape={NumberingShape.BulletListShape}/>,
-        numbering: <ListSetting shape={NumberingShape.NumberListShape}/>,
-        outline: <ListSetting shape={NumberingShape.OutlineListShape}/>,
+        bullet: <ListSetting shape={dom.Paragraph.BulletListShape} title="Create Bullet List"/>,
+        numbering: <ListSetting shape={dom.Paragraph.NumberListShape}/>,
+        outline: <ListSetting shape={dom.Paragraph.OutlineListShape}/>,
         diff: <Diff.Setting portalContainer={document.body}/>,
     },
     $settingPanels:{
@@ -320,7 +334,7 @@ const Theme={
             children={
                 <Fragment>
                     <Divider/>
-                    <MenuItem primaryText="More Gradients..." onClick={e=>setting("shape")}/>
+                    <Show children={setting=><MenuItem primaryText="More Gradients..." onClick={e=>setting("shape")}/>}/>
                 </Fragment>
             }
             />,
@@ -332,7 +346,7 @@ const Theme={
             children={
                 <Fragment>
                     <Divider/>
-                    <MenuItem primaryText="More Patterns..." onClick={e=>setting("shape")}/>
+                    <Show children={setting=><MenuItem primaryText="More Patterns..." onClick={e=>setting("shape")}/>}/>
                 </Fragment>
             }
             />,
@@ -371,7 +385,7 @@ const Theme={
                     values={FillTextures.map(url=>({url,texture:true}))}
                     wrapper={<Wrappers.GridOneOf/>}
                     wrapper1={React.createElement(({value,onClick})=><img src={value.url} onClick={onClick} style={{width:45,height:45}}/>)}
-                    children={[<Divider key="-"/>,<MenuItem key="more" primaryText="More Textures..." onClick={e=>setting("shape")}/>]}
+                    children={[<Divider key="-"/>,<Show children={setting=><MenuItem key="more" primaryText="More Textures..." onClick={e=>setting("shape")}/>}/>]}
                     />
             },
         },
@@ -423,6 +437,87 @@ const Theme={
         Menu:{
             wrapper:React.createElement(({children:{props:{onClick}}})=><MenuItem primaryText="Picture..." onClick={onClick}/>)
         }
+    },
+    BulletListShape:{
+        Ribbon:<oneOf values={Bullets} label="bullet list" icon={<IconListBullet/>} 
+            check={({format="bullet"})=>format=="bullet"}
+            wrapper1={React.createElement(({value:{label,style:{fonts}}, leftIcon,...props})=><MenuItem {...props} primaryText={label}  style={{fontFamily:fonts}} />)}
+            children={
+                <Fragment>
+                    <Divider/>
+                    <Show children={setting=><MenuItem primaryText="Define New Bullet" onClick={e=>setting('bullet')}/>}/>
+                </Fragment>
+            }
+            />,
+
+        Dialog:{
+            id:false,
+            level:false,
+            $presets:<oneOf label="Bullet Character"  values={Bullets}
+                wrapper1={React.createElement(({value:{label,style:{fonts}}, leftIcon,...props})=><span style={{font:fonts,width:40,height:40,lineHeight:"40px",margin:4,border:"1px solid lightgray",textAlign:"center"}}>{label}</span>)}
+                wrapper={<Wrappers.GridOneOf selector={false} style={{display:"auto"}}/>}
+                />,
+            wrapper:<Wrappers.ShapeLayout layout={
+                <div style={{display:"flex", gridColumn:"span 2", gap:5}}>
+                    <div style={{flex:1}}>
+                        <h3>Bullet Character</h3>
+                        <div style={{marginBottom:5}}><a id="$presets"/></div>
+                        <div><a id="style"/><a id="label"/></div>
+                        <hr/>
+                        <h3>Text Position</h3>
+                        <div><a id="indent"/></div>
+                        <h3>Bullet Position</h3>
+                        <div><a id="hanging"/></div>
+                        <Wrappers.ShapeGrid role="others" label={null} style={{borderBottom:0}}/>
+                    </div>
+                    <div style={{width:200,border:"1px solid black",padding:10}}>
+                        hello
+                    </div>
+                </div>
+            }/>,
+            style:(<Show dialog="font" children={<button style={{marginRight:5}}>Font...</button>}/>),
+            label:{
+                notUILabel:true,
+                wrapper:null,
+            },
+            indent:{
+                label:"indent at"
+            },
+            hanging:{
+                label:"indent at"
+            }
+        }
+    },
+    BulletShape:{
+        Dialog:<button  style={{marginRight:5}}>Bullet...</button>,
+    },
+    NumberListShape:{
+        Ribbon:<oneOf label="nubering list" icon={<IconListNumber/>} check={({format="bullet"})=>format!=="bullet"}
+            values={[
+                {format:"decimal",label:"%1."},
+                {format:"lowerLetter",label:"%1."},
+                {format:"upperLetter",label:"%1."},
+                {format:"lowerRoman",label:"%1."},
+                {format:"upperRoman",label:"%1."},
+                {format:"chinese",label:"%1"},
+            ]}
+            wrapper1={React.createElement(({value:{format, label}, leftIcon,...props})=><MenuItem {...props} primaryText={label.replace("%1",dom.Paragraph.numberings[format](0))}/>)}
+            children={<Fragment><Divider/><Show children={setting=><MenuItem primaryText="Define New Number List" onClick={e=>setting("numbering")}/>}/></Fragment>}
+            />  
+    },
+    OutlineListShape:{
+        Ribbon:<oneOf label="Outline list" icon={<IconListOutline/>}
+            values={[
+                {format:"decimal",label:"%1."},
+                {format:"lowerLetter",label:"%1."},
+                {format:"upperLetter",label:"%1."},
+                {format:"lowerRoman",label:"%1."},
+                {format:"upperRoman",label:"%1."},
+                {format:"chinese",label:"%1"},
+            ]}
+            wrapper1={React.createElement(({value:{format, label}, leftIcon,...props})=><MenuItem {...props} primaryText={label.replace("%1",dom.Paragraph.numberings[format](0))}/>)}
+            children={<Fragment><Divider/><Show children={setting=><MenuItem primaryText="Define New Outline List" onClick={e=>setting("outline")}/>}/></Fragment>}
+            />
     },
 
     Text:{
@@ -552,7 +647,7 @@ const Theme={
                 labels={["Normal","Narrow","Moderate","Wide","Mirrored"]} 
                 onClick={false} 
                 icon={<IconMargin/>}
-                children={<MenuItem primaryText="Custom Margins..." onClick={e=>setting("page")}/>}
+                children={<Show childing={setting=><MenuItem primaryText="Custom Margins..." onClick={e=>setting("page")}/>}/>}
                 />,
             cols:<oneOf
                 onClick={false}
@@ -666,7 +761,7 @@ const Theme={
                             "-",
                             ...["Inside Horizontal","Inside Vertical"].map(a=>`${a} Borders`),
                         ]}
-                        children={<MenuItem primaryText="Borders And Shadings..." onClick={e=>setting('table')}/>}
+                        children={<Show childing={setting=><MenuItem primaryText="Borders And Shadings..." onClick={e=>setting('table')}/>}/>}
                     />
             },
             fill:{
@@ -744,7 +839,7 @@ const Theme={
                 values={[90,-90,"-"]} 
                 onClick={false} 
                 icon={<IconRotate/>} 
-                children={<MenuItem primaryText="More Rotation Options..." onClick={e=>setting("shape")}/>}
+                children={<Show childing={setting=><MenuItem primaryText="More Rotation Options..." onClick={e=>setting("shape")}/>}/>}
                 />,
             scale: {
                 style:{
