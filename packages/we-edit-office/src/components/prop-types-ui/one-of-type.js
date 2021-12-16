@@ -27,17 +27,17 @@ export default class oneOfType extends base{
     }
 
     get choices(){
-        let {choices, i}=this.$props
-        if(i!=undefined || choices===false)
+        let {choices=true, i}=this.$props
+        if(i!=undefined)
             return
         
         if(choices===true){
-            return true
+            choices=this.types.map(({Type:{props:{type}}})=>type).filter(a=>!!a)
+            if(choices.length==0)
+                return true
         }
 
-        if(choices?.length>1){
-            return choices
-        }
+        return choices
     }
 
     getType(i){
@@ -69,12 +69,12 @@ export default class oneOfType extends base{
     }
 
     iterate(){
-        const {types, i, spread,}=this.props
+        const {types, i , ...props}=this.$props
         return this.types.map((a,i)=>{
-            const {type, props:{type:kind=`$type${i}`,...props0}}=(()=>{
-                if(props[kind]){
-                    a=props[kind]
-                    delete props[kind]
+            const {type, props:{...props0}}=(()=>{
+                if(props[`$${i}`]){
+                    a=props[`$${i}`]
+                    delete props[`$${i}`]
                 }
 
                 if(React.isValidElement(a))
@@ -82,50 +82,49 @@ export default class oneOfType extends base{
                 return a.Type||{}
             })();
             const UIType=this.getUIType(type)
-            return <UIType key={kind} {...props0} {...props}/>
+
+            return <UIType key={i} {...props0} {...props}/>
         })
     }
 
-    renderTree(){
-        let {types:_, i, spread, value, ...props}=this.$props
-        if(i==undefined && this.choices){
-            const items=this.types.map((a,i)=>{
-                const {type, props:{type:kind=`$type${i}`,...props0}}=(()=>{
-                    if(props[kind]){
-                        a=props[kind]
-                        delete props[kind]
-                    }
-    
-                    if(React.isValidElement(a))
-                        return a
-                    return a.Type||{}
-                })();
-                const UIType=this.getUIType(type)
-                return <UIType key={kind} {...props0} {...props}/>
-            })
-
-         /*
-            const schema=choices.reduce((s,k)=>(s[k]=this.getType(k),s),{})
-            return <Shape schema={schema} 
-                choices={choices} 
-                choice={value?.type} 
-                value={value} 
-                {...props}
-                theme={choices.reduce((s,k)=>(s[k]={type:false},s),{})}
-                />
-                */
+    renderMenu(){
+        if(!this.choices){
+            return super.renderMenu()
         }
-
-        if(i==undefined){
-            i=({"Dialog":this.types.length-1}[this.uiContext])||0
-        }
-        const {type, props:{...props0}}=this.getType(i).Type
-        const UIType=this.getUIType(type)
-        return <UIType key={i} {...props0} value={value} {...props}/>
+        return this.iterate()
     }
 
-    renderMenu1(){
-        return this.renderRibbon()
+    renderRibbon(){
+        if(!this.choices){
+            return super.renderRibbon()
+        }
+        return this.iterate()
+    }
+
+    renderTree(){
+        const {types:_, value, ...props}=this.$props
+        const choices=this.choices
+        if(!choices){
+            let {i}=this.$props
+            if(i==undefined){
+                i=({"Dialog":this.types.length-1}[this.uiContext])||0
+            }
+            const {type, props:{...props0}}=this.getType(i).Type
+            const UIType=this.getUIType(type)
+            return <UIType key={i} {...props0} value={value} {...props}/>
+        }
+
+        if(choices===true)
+            return this.iterate()
+
+        const schema=choices.reduce((s,k)=>(s[k]=this.getType(k),s),{})
+        return <Shape schema={schema} 
+            choices={choices} 
+            choice={value?.type} 
+            value={value} 
+            {...props}
+            theme={choices.reduce((s,k)=>(s[k]={type:false},s),{})}
+            />
     }
 
     static isPrimitive(el,context){

@@ -86,7 +86,7 @@ export class ShapeTree extends Component{
                 return a
             }
 
-            const {props:{path,name,label},type}=a
+            const {props:{path,name, theme:{label:_}={},label=_,}, type}=a
             if(path){
                 const props={name, value:a, key:path}
                 if(label)

@@ -350,19 +350,28 @@ const Theme={
         }
     },
 
+    FillPictureShape:{
+        $presets: <oneOf label={"textures"} 
+            values={FillTextures.map(url=>({url,texture:true}))}
+            wrapper={<Wrappers.GridOneOf selectorStyle={{width:20,height:20}}/>}
+            wrapper1={React.createElement(({value,onClick})=><img src={value.url} onClick={onClick} style={{width:45,height:45}}/>)}
+            />,
+        url:{
+            label:"picture",
+        }
+    },
+
     FillShape:{
         choices:["no","color","gradient","picture","pattern"],
         Ribbon:{
             wrapper:<Wrappers.ShapeMenu/>,
             transparency:false,
             picture:{
-                //spread:true,
-                //$type0:<string label="Picture..." accept="image/*"/>,
-                $type1:<oneOf label="Texture" 
-                    values={[...FillTextures,"-"]}
+                $1:<oneOf label="Texture" 
+                    values={FillTextures.map(url=>({url,texture:true}))}
                     wrapper={<Wrappers.GridOneOf/>}
-                    wrapper1={React.createElement(({value,onClick})=><img src={value} onClick={onClick} style={{width:45,height:45}}/>)}
-                    children={<MenuItem primaryText="More Textures..." onClick={e=>setting("shape")}/>}
+                    wrapper1={React.createElement(({value,onClick})=><img src={value.url} onClick={onClick} style={{width:45,height:45}}/>)}
+                    children={[<Divider key="-"/>,<MenuItem key="more" primaryText="More Textures..." onClick={e=>setting("shape")}/>]}
                     />
             },
         },
@@ -383,7 +392,9 @@ const Theme={
             },
         },
         Tree:{
-            i:1,
+            picture:{
+                i:1
+            }
         }
     },
 
@@ -411,16 +422,6 @@ const Theme={
         },
         Menu:{
             wrapper:React.createElement(({children:{props:{onClick}}})=><MenuItem primaryText="Picture..." onClick={onClick}/>)
-        }
-    },
-
-    FillPictureShape:{
-        url:<oneOfType types={[dom.Unknown.BlobShape,dom.Unknown.BlobShape.$({$type:"TextureShape"})]}/>
-    },
-
-    TextureShape:{
-        Menu:{
-            wrapper:React.createElement(({children:{props:{onClick}}})=><MenuItem primaryText="Texture..." onClick={onClick}/>)
         }
     },
 
