@@ -1,6 +1,8 @@
 import React, { Fragment } from "react"
 import {ACTION,dom} from "we-edit"
-import {ToolbarSeparator,SvgIcon,MenuItem} from "material-ui"
+import {ToolbarSeparator,SvgIcon} from "material-ui"
+import {MenuItem} from "../components/menu"
+
 import PropTypesUI from "../components/prop-types-ui"
 import SelectStyle from "../components/select-style"
 

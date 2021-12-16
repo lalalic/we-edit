@@ -1,14 +1,12 @@
-import React, {Component, PureComponent} from "react"
-import PropTypes from "prop-types"
-import {compose,mapProps,getContext,setDisplayName,}  from "recompose"
-
-import {Drawer,Menu, MenuItem, Avatar,Paper} from "material-ui"
+import React, {PureComponent} from "react"
+import {Avatar,Paper} from "material-ui"
 import Divider from 'material-ui/Divider';
 import {yellow500, gray100} from 'material-ui/styles/colors';
 
 import IconLogo from "material-ui/svg-icons/editor/border-color"
 import IconBack from "material-ui/svg-icons/navigation/arrow-back"
 
+import {MenuItem, Menu} from "../components/menu"
 import {Save,Open,Create,Print} from "../file"
 import OptionsUI from "./options"
 

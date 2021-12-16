@@ -5,7 +5,9 @@ import SelectStyle from "../components/select-style"
 import PropTypesUI from "../components/prop-types-ui"
 import ContextMenu from "../components/context-menu"
 import SizableIconButton from "../components/size-icon-button"
-import { MenuItem, ToolbarSeparator } from "material-ui"
+import {MenuItem} from "../components/menu"
+
+import {ToolbarSeparator } from "material-ui"
 
 import IconFormat from "material-ui/svg-icons/editor/format-shapes"
 

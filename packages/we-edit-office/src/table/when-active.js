@@ -5,7 +5,8 @@ import Design from "./design"
 import PropTypesUI from "../components/prop-types-ui"
 import SelectStyle from "../components/select-style"
 import ContextMenu from "../components/context-menu"
-import { MenuItem } from "material-ui"
+import {MenuItem} from "../components/menu"
+
 
 export default Object.assign(({},{setting})=>(
 	<ContextMenu.Support menus={[

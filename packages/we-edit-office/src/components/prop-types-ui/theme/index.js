@@ -1,10 +1,8 @@
 import React, {Fragment} from "react"
 import PropTypes from "prop-types"
 import {dom} from "we-edit"
-import { Tab, Tabs, MenuItem } from "material-ui"
+import { Tab, Tabs } from "material-ui"
 import Divider from 'material-ui/Divider'
-
-import textures from "./textures"
 
 import IconBold from "material-ui/svg-icons/editor/format-bold"
 import IconItalic from "material-ui/svg-icons/editor/format-italic"
@@ -38,7 +36,7 @@ import IconListBullet from "material-ui/svg-icons/editor/format-list-bulleted"
 import IconListNumber from "material-ui/svg-icons/editor/format-list-numbered"
 import IconListOutline from "material-ui/svg-icons/editor/pie-chart-outlined"
 
-
+import textures from "./textures"
 import { IconColumn, Column, IconTextBorder, IconSubscript, IconSuperscript, IconSize, IconOrientation, IconMargin } from "./icons"
 import {FontSetting} from "../../../text"
 import {ParagraphSetting, ListSetting} from "../../../paragraph"
@@ -48,6 +46,8 @@ import DocumentTree from "../../../developer/filter-document-tree"
 import Tester from "../../../developer/tester"
 import Diff from "../../../developer/diff"
 import Show from "../show"
+import {MenuItem} from "../../menu"
+
 
 import * as Wrappers from "../wrappers"
 

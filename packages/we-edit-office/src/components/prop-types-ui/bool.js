@@ -1,5 +1,5 @@
 import React from "react"
-import MenuItem from "material-ui/MenuItem"
+import {MenuItem} from "../menu"
 import CheckIconButton from "../check-icon-button"
 import base from "./base"
 

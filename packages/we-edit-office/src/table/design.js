@@ -3,8 +3,9 @@ import React, {Fragment} from "react"
 import {compose,setDisplayName,mapProps} from "recompose"
 import {ACTION, whenSelectionChangeDiscardable} from "we-edit"
 
-import {MenuItem,SvgIcon} from "material-ui"
+import {SvgIcon} from "material-ui"
 import DropDownButton from "../components/drop-down-button"
+import {MenuItem} from "../components/menu"
 
 import IconSelect from "material-ui/svg-icons/action/open-with"
 

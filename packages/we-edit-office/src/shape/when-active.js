@@ -1,7 +1,7 @@
 import React,{Fragment} from "react"
 import PropTypes from "prop-types"
 import {ACTION, dom} from "we-edit"
-import {MenuItem, SvgIcon, ToolbarSeparator} from "material-ui"
+import {SvgIcon, ToolbarSeparator} from "material-ui"
 import IconFormat from "material-ui/svg-icons/editor/format-shapes"
 
 import Create from "./create"
@@ -10,6 +10,8 @@ import PropTypesUI from "../components/prop-types-ui"
 import {Shape} from "../layout"
 import ContextMenu from "../components/context-menu"
 import SizableIconButton from "../components/size-icon-button"
+import {MenuItem} from "../components/menu"
+
 
 export default Object.assign(({children},{setting})=>{
 	return (

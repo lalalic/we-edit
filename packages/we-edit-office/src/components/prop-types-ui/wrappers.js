@@ -136,11 +136,9 @@ export const ShapeLayout=({host,children, layout,idSelector="a[id]",othersSelect
         }
         source=$.findFirst(idSelector)
     }
-    if(children.flat().length>0){
-        const others=$.findFirst(othersSelector).get(0)
-        if(others){
-            $=$.replace(others,React.cloneElement(others,{children,host}))
-        }
+    const others=$.findFirst(othersSelector).get(0)
+    if(others){
+        $=$.replace(others,React.cloneElement(others,{children,host}))
     }
     return $.root
 }

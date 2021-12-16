@@ -1,11 +1,12 @@
 import React,{Component, Fragment} from "react"
 import {ACTION, dom} from "we-edit"
-import {MenuItem,ToolbarSeparator,FlatButton} from "material-ui"
+import {ToolbarSeparator,FlatButton} from "material-ui"
 
 import SelectStyle  from "../components/select-style"
 import PropTypesUI from "../components/prop-types-ui"
 import CheckIconButton from "../components/check-icon-button"
 import ContextMenu from "../components/context-menu"
+import {MenuItem} from "../components/menu"
 
 import IconClear from "material-ui/svg-icons/editor/format-clear"
 import IconMore from "material-ui/svg-icons/navigation/more-horiz"

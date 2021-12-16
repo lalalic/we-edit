@@ -1,7 +1,9 @@
 import React,{Component,Fragment} from "react"
 import {ACTION, connect,getUI,dom} from "we-edit"
 
-import {ToolbarSeparator,MenuItem, SvgIcon, FlatButton} from "material-ui"
+import {ToolbarSeparator, SvgIcon, FlatButton} from "material-ui"
+import {MenuItem} from "../components/menu"
+
 import CheckIconButton from "../components/check-icon-button"
 import ContextMenu from "../components/context-menu"
 import Dialog from "../components/dialog"

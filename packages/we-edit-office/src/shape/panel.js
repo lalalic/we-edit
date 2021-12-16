@@ -2,7 +2,7 @@ import React, { PureComponent, Fragment } from "react";
 import PropTypes from "prop-types";
 import CheckIconButton from "../components/check-icon-button";
 import IconFormatPanel from "material-ui/svg-icons/editor/format-shapes"
-import {Tabs, Tab, RadioButton, RadioButtonGroup, Checkbox, TextField, SelectField, MenuItem,IconButton} from "material-ui"
+import {Tabs, Tab, RadioButton, RadioButtonGroup, Checkbox, TextField, SelectField,IconButton} from "material-ui"
 import IconFillLine from "material-ui/svg-icons/editor/format-color-fill"
 import IconEffect from "material-ui/svg-icons/editor/format-line-spacing"
 import IconLayout from "material-ui/svg-icons/image/crop"
@@ -10,6 +10,8 @@ import IconPicture from "material-ui/svg-icons/image/photo"
 import IconPlus from "material-ui/svg-icons/content/add"
 import IconMinus from "material-ui/svg-icons/content/remove"
 import SelectStyle from "../components/select-style"
+import {MenuItem} from "../components/menu"
+
 
 const Label=({children})=><span style={{fontSize:9}}>{children}</span>
 export default class FormatPanel extends PureComponent {

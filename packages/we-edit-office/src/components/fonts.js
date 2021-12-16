@@ -1,8 +1,10 @@
-import React, {Fragment} from "react"
-import {Menu, MenuItem, Popover} from "material-ui"
+import React, {Component} from "react"
+import {Popover} from "material-ui"
+import {Menu, MenuItem} from "./menu"
+
 import ArrowDropRight from 'material-ui/svg-icons/navigation-arrow-drop-right';
 
-export default class FontList extends React.Component{
+export default class FontList extends Component{
 	constructor(){
 		super(...arguments)
 		this.state={fonts:[]}
@@ -102,9 +104,6 @@ export default class FontList extends React.Component{
 								onClick(e){
 									e.stopPropagation()
 									e.preventDefault()
-								},
-								onMouseOver(e){
-									e.currentTarget.click()
 								},
 								menuItems:[React.cloneElement(last.value,{primaryText:"Regular"}),item],
 							})

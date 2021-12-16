@@ -1,6 +1,6 @@
 import React from "react"
 import PropTypes from "prop-types"
-import {MenuItem} from "material-ui/Menu"
+import {MenuItem} from "../menu"
 import Divider from 'material-ui/Divider'
 import {fromJS} from "immutable"
 import IconArrowRight from 'material-ui/svg-icons/navigation-arrow-drop-right'
@@ -84,11 +84,7 @@ export default class oneOf extends base{
                 menuItems={[
                     this.iterate(),
                     children,
-                ]} 
-                onMouseOver={(e)=>{
-                    e.currentTarget.click()
-                    this.context.onItemClick?.(e,me.current)
-                }}
+                ]}
                 />)
     }
 

@@ -3,12 +3,8 @@ import PropTypes from "prop-types"
 import {connect} from "react-redux"
 import {compose,setDisplayName, getContext, mapProps} from "recompose"
 
-import {IconButton,Drawer,Menu,MenuItem,Popover,FlatButton} from "material-ui"
 import IconClose from "material-ui/svg-icons/navigation/close"
-import IconFiles from "material-ui/svg-icons/navigation/arrow-drop-down"
 import IconMenu from "material-ui/svg-icons/navigation/menu"
-
-import Dashboard from "../dashboard"
 
 import {ACTION,getAll} from "we-edit"
 

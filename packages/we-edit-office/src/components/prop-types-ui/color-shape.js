@@ -1,5 +1,5 @@
 import React, {Component, Fragment} from "react"
-import MenuItem from "material-ui/MenuItem"
+import {MenuItem} from "../menu"
 import ColorButton from "../color-button"
 import Base from "./string"
 

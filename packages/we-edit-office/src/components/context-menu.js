@@ -1,10 +1,10 @@
 import React, {Component,Fragment} from "react"
 import PropTypes from "prop-types"
 
-import {MenuItem, Paper, Menu, ToolbarGroup} from "material-ui"
+import {Paper, ToolbarGroup} from "material-ui"
 import MuiThemeProvider from 'material-ui/styles/MuiThemeProvider'
 import getMuiTheme from 'material-ui/styles/getMuiTheme'
-
+import {MenuItem, Menu} from "./menu"
 
 export default class OfficeContextMenu extends Component{
     render(){
