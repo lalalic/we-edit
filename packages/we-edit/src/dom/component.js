@@ -43,14 +43,20 @@ export default class Base extends Component{
 				return clonedChecker
 			}
 		})
+		this.string=string
 		string.Type=<string/>
 		string.isRequired.Type=<string required={true}/>
+
+		this.bool=bool
 		bool.Type=<bool/>
 		bool.isRequired.Type=<bool required={true}/>
+		
+		this.number=number
 		number.Type=<number/>
 		number.isRequired.Type=<number required={true}/>
 
-		types.oneOf=(fn=>{
+
+		this.oneOf=types.oneOf=(fn=>{
 			return function(values,{$type,...props}={}){
 				let validator=fn(values)
 				validator.Type=React.createElement(asType($type,'oneOf'), {...props,values, })
@@ -59,7 +65,7 @@ export default class Base extends Component{
 			}
 		})(types.oneOf);
 
-		types.shape=(fn=>{
+		this.shape=types.shape=(fn=>{
 			return function(model,{$type,...props}={}){
 				let validator=fn(model)
 				validator.Type=React.createElement(asType($type,'shape'),{...props,schema:model,})
@@ -68,7 +74,7 @@ export default class Base extends Component{
 			}
 		})(types.shape);
 
-		types.oneOfType=(fn=>{
+		this.oneOfType=types.oneOfType=(fn=>{
 			return function(types,{$type,...props}={}){
 				let validator=fn(types)
 				validator.Type=React.createElement(asType($type,'oneOfType'),{...props,types,})
@@ -77,7 +83,7 @@ export default class Base extends Component{
 			}
 		})(types.oneOfType);
 
-		types.arrayOf=(fn=>{
+		this.arrayOf=types.arrayOf=(fn=>{
 			return function(type,{$type,...props}={}){
 				let validator=fn(type)
 				validator.Type=React.createElement(asType($type,'arrayOf'), {...props,type})
@@ -190,7 +196,7 @@ export default class Base extends Component{
 		},
 	})
 
-	static FontShape=PropTypes.string.$({$type:"FontShape"})
+	static FontShape=PropTypes.string.$({$type:"FontShape",isPrimitive:true})
 
 	static GradientStopShape=this.normalizeChecker(PropTypes.shape({
 		position: this.UnitShape,

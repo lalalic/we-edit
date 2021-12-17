@@ -1,9 +1,8 @@
 import React, {PureComponent} from "react"
 import PropTypes from "prop-types"
-import memoize from "memoize-one"
 import {fromJS} from "immutable"
 import PropTypesUI from "."
-import { LabelField } from "./wrappers"
+import { LabelField, Nest } from "./wrappers"
 
 
 export default class base extends PureComponent{
@@ -13,7 +12,6 @@ export default class base extends PureComponent{
         PropTypes: PropTypes.object,
         set: PropTypes.func,
         propTypesUITheme: PropTypes.object,
-        onItemClick: PropTypes.func,
         setting: PropTypes.func,
     }
 
@@ -128,26 +126,36 @@ export default class base extends PureComponent{
         if(!show) 
             return null 
             
-        if(React.isValidElement(show)){//to change type
-            const UIType=this.getUIType(show.type)
-            if(UIType){
-                const {theme:{[uiContext]:_, ...theme}={}, typedShape, ...props}=this.props
-                return <UIType {...{theme,...show.props,...props}}/>
-            }
-        }
-
         if(!(`render${uiContext}` in this)){
             return null
         }
 
-        const rendered=this[`render${uiContext}`]()
+        const rendered=(()=>{
+            //to change type
+            if(React.isValidElement(show)){
+                const UIType=this.getUIType(show.type)
+                if(UIType){
+                    const {theme:{[uiContext]:_, ...theme}={}, typedShape, ...props}=this.props
+                    return <UIType {...{theme,...show.props,...props}}/>
+                }
+            }
+    
+            return this[`render${uiContext}`]()
+        })();
+        
 
         let wrapper=this.$props.wrapper
         if(typeof(wrapper)=="undefined")
             wrapper=this.getDefaultWrapper()
+        
+        if(Array.isArray(wrapper)){
+            wrapper=<Nest wrappers={wrapper}/>
+        }
+
         if(wrapper){
             return React.cloneElement(wrapper, {children:rendered,host:this})
         }
+
         return rendered
     }
 
@@ -160,8 +168,6 @@ export default class base extends PureComponent{
             default:
         }
     }
-
-
 
     set(path, value){
         const {onChange}=this.props

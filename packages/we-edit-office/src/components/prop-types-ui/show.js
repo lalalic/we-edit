@@ -3,6 +3,7 @@ import PropTypes from "prop-types"
 import base from "./base"
 
 export default class show extends base{
+    static displayName="show"
     static contextTypes={
         setting:PropTypes.func,
         dialogManager: PropTypes.shape({get:PropTypes.func}),
@@ -11,7 +12,7 @@ export default class show extends base{
     static propTypes={
         ...super.propTypes,
 
-        dialog: PropTypes.string,
+        dialog: PropTypes.oneOfType([PropTypes.string,PropTypes.element])
     }
 
     constructor(){
@@ -23,7 +24,7 @@ export default class show extends base{
     render(){
         const {children=<button/>}=this.props
         if(typeof(children)=="function")
-            return children(this.context.setting)
+            return children(this.context.setting,this)
 
         const {dialog}=this.state
         return (
@@ -35,12 +36,14 @@ export default class show extends base{
     }
 
     show(){
-        const {dialog:type}=this.props
-        const dialog=this.context.dialogManager.get(type)
+        const {dialog:type, value}=this.props
+        const dialog=React.isValidElement(type) ? type : this.context.dialogManager.get(type)
         if(!dialog)//maybe panel
             return this.context.setting(type)
 
         this.setState({dialog: React.cloneElement(dialog,{
+            value,
+            host:this,
             onRequestClose:e=>{
                 this.setState({dialog:null})
             },

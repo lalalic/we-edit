@@ -39,8 +39,7 @@ export const RibbonInputField=({children, host:{$props:{name,label=name, style, 
     </span>
 )
 
-export class ShapeMenu extends React.Component{
-    static displayName="ShapeAsMenu"
+export class DropDownMenu extends React.Component{
     static childContextTypes={
         uiContext: PropTypes.string
     }
@@ -52,7 +51,7 @@ export class ShapeMenu extends React.Component{
     }
 
     render(){
-        const {children, host:{props:{name,label=name, icon, onClick}}}=this.props
+        const {children, host:{$props:{name,label=name, icon, onClick}}}=this.props
         return (
             <DropDownButton
                 onClick={onClick}
@@ -161,7 +160,8 @@ export class HorizontalOneOf extends Component{
 export class GridOneOf extends Component{
     render(){
         const {host:{$props:{grid:_=4}, uiContext}, children:menu, grid=_, style, selector=true, selectorStyle }=this.props
-        const {menuItems:[items, children]}=menu.props
+        debugger
+        const {menuItems:[items, children]=[]}=menu.props
         const gridItems=(
             <div key="grid" className="grid" style={{width:"100%",display:"grid", gridTemplateColumns:`repeat(${grid}, 1fr)`,...style}}>
                 {items}
@@ -175,15 +175,20 @@ export class GridOneOf extends Component{
             case "Tree":
             case "Dialog":{
                 if(!selector){
-                    return gridItems
+                    return (<Fragment>{gridItems}{children}</Fragment>)
                 }
                 
                 const {values, value}=this.props.host.$props
                 const i=values.indexOf(value)
-                return <Select value={items[i]} style={selectorStyle}>{gridItems}</Select>
+                return (
+                    <Select value={items[i]} style={selectorStyle}>
+                        {gridItems}
+                        {children}
+                    </Select>
+                )
             }
         }
     }
 }
 
-export const Nest=({host,children,wrappers})=>wrappers.reverse().reduce((nested,a)=>React.cloneElement(a,{host,children:nested}),children)
+export const Nest=({host,children,wrappers})=>[...wrappers].reverse().reduce((nested,a)=>React.cloneElement(a,{host,children:nested}),children)

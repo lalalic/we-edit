@@ -18,7 +18,6 @@ export default class oneOfType extends base{
         ...super.propTypes,
         i: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
         choices: PropTypes.oneOfType(PropTypes.arrayOf(PropTypes.string),PropTypes.bool),
-        spread: PropTypes.bool,//Ribbon only, render all types for choice
     }
 
     get types(){
@@ -45,27 +44,6 @@ export default class oneOfType extends base{
             return this.types.find(({Type:{props:{type:choice}}})=>choice==i)
         }
         return this.types[i]
-    }
-
-    renderRibbon(){
-        const {types:_, spread, ...props}=this.$props
-        if(!spread)
-            return this.renderTree()
-        
-        return this.types.map((a,i)=>{
-            const {type, props:{type:kind=`$type${i}`,...props0}}=(()=>{
-                if(props[kind]){
-                    a=props[kind]
-                    delete props[kind]
-                }
-
-                if(React.isValidElement(a))
-                    return a
-                return a.Type||{}
-            })();
-            const UIType=this.getUIType(type)
-            return UIType && <UIType key={i} {...props0} {...props}/>
-        })
     }
 
     iterate(){

@@ -159,10 +159,6 @@ describe("propTypes UI",()=>{
 
         })
 
-        it("uiContext[Ribbon][spread=true] render all types",()=>{
-
-        })
-
         it("can render for i=x",()=>{
 
         })

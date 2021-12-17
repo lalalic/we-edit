@@ -37,7 +37,6 @@ export default class oneOf extends base{
                 leftIcon: !checked ? (icons[i]||<span/>) : null,
                 checked,
                 onClick: e => {
-                    this.context.onItemClick?.(e)
                     this.set(this.path, a)
                 }
             })

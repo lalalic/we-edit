@@ -30,7 +30,7 @@ export default class ColorShape extends Base{
         return (
             <Fragment>
                 <MenuItem primaryText={`${label}...`} onClick={e=>this.setState({open:true})}/>
-                {this.state.open && <ColorSelector value={value} onChange={v=>{this.set(this.path,v);this.context.onItemClick()}}/>}
+                {this.state.open && <ColorSelector value={value} onChange={v=>{this.set(this.path,v)}}/>}
             </Fragment>
         )
     }

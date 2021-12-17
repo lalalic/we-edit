@@ -51,15 +51,18 @@ export default ({children})=>(
 	</SelectStyle>
 )
 
-export function FontSetting(props){
+export function FontSetting({value, onSubmit, ...props}){
 	return (
 		<SelectStyle getStyle={getTextStyle}>
 			{({style,dispatch})=>{
+				if(onSubmit==undefined){
+					onSubmit=text=>dispatch(ACTION.Selection.UPDATE({text}))
+				}
 				const refTextSetting=React.createRef()
 				return (
 					<Dialog 
 						title="Font Setting" 
-						onSubmit={e=>dispatch(ACTION.Selection.UPDATE({text:refTextSetting.current.value}))}
+						onSubmit={e=>onSubmit(refTextSetting.current.value,dispatch)}
 						moreActions={
 							<FlatButton
 								label="Set As Default..."
@@ -68,7 +71,11 @@ export function FontSetting(props){
 						}
 						{...props}
 					>
-						<PropTypesUI theme="Text" propTypes={dom.Text.propTypes} props={style} ref={refTextSetting}/>
+						<PropTypesUI theme="Text" 
+							propTypes={dom.Text.propTypes} 
+							props={value||style} 
+							ref={refTextSetting}
+							/>
 					</Dialog>
 				)
 			}}

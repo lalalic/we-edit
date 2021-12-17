@@ -1,5 +1,5 @@
 import React, {Fragment} from "react"
-import PropTypes from "prop-types"
+import PropTypes, { oneOf } from "prop-types"
 import {dom} from "we-edit"
 import { Tab, Tabs } from "material-ui"
 import Divider from 'material-ui/Divider'
@@ -47,9 +47,12 @@ import Tester from "../../../developer/tester"
 import Diff from "../../../developer/diff"
 import Show from "../show"
 import {MenuItem} from "../../menu"
+import FontList from "../../fonts"
+import Dialog from "../../dialog"
 
 
 import * as Wrappers from "../wrappers"
+import PropTypesUI from ".."
 
 let uuid=new Date().getTime()
 const WithSetting=Object.assign(({children},{setting})=>children(setting),{contextTypes:{setting:PropTypes.func}})
@@ -219,7 +222,7 @@ const Theme={
         choices:["no","color","gradient"],
         Ribbon:{
             '*':false,
-            wrapper:<Wrappers.ShapeMenu/>,
+            wrapper:<Wrappers.DropDownMenu/>,
             gradient:true,
             width:<oneOf label="Weight" values={LineWeights}
                 wrapper={<Wrappers.GridOneOf grid={1}/>}
@@ -253,7 +256,7 @@ const Theme={
         Dialog:{
             wrapper:<Wrappers.ShapeSummary/>,
             width:<oneOf label="Weight" values={LineWeights}
-                wrapper={<Wrappers.Nest wrappers={[<Wrappers.LabelField/>,<Wrappers.GridOneOf grid={1} selectorStyle={{height:20}}/>]}/>}
+                wrapper={[<Wrappers.LabelField/>,<Wrappers.GridOneOf grid={1} selectorStyle={{height:20}}/>]}
                 wrapper1={React.createElement(({value:a,onClick})=>
                     <span key={a} onClick={onClick} style={{width:40}}>
                         <i style={{fontSize:9}}>{a}pt</i>
@@ -261,7 +264,7 @@ const Theme={
                     </span>)}
                 />,
             dashArray:<oneOf label="Dashes" values={LineDashes}
-                wrapper={<Wrappers.Nest wrappers={[<Wrappers.LabelField/>,<Wrappers.GridOneOf grid={1}  selectorStyle={{height:20}}/>]}/>}
+                wrapper={[<Wrappers.LabelField/>,<Wrappers.GridOneOf grid={1}  selectorStyle={{height:20}}/>]}
                 wrapper1={React.createElement(({value:a,onClick})=>
                     <svg viewBox="0 0 30 10" onClick={onClick} style={{width:40}}>
                         <line {...{x1:0,x2:30,y1:5,y2:5,strokeDasharray:a,stroke:"black"}}/>
@@ -269,7 +272,7 @@ const Theme={
                     )}
                 />,
             sketched:<oneOf label="Sketch" values={LineSketches}
-                wrapper={<Wrappers.Nest wrappers={[<Wrappers.LabelField/>,<Wrappers.GridOneOf grid={1}  selectorStyle={{height:20}}/>]}/>}
+                wrapper={[<Wrappers.LabelField/>,<Wrappers.GridOneOf grid={1}  selectorStyle={{height:20}}/>]}
                 wrapper1={React.createElement(({value:a,onClick})=>
                     <svg viewBox="0 0 30 10" onClick={onClick} style={{width:40}}>
                         <path {...{stroke:"black",d}}/>
@@ -319,11 +322,10 @@ const Theme={
         },
         Dialog:{
             $presets:<oneOf values={FillGradients}
-                wrapper={<Wrappers.Nest wrappers={[<Wrappers.LabelField/>,<Wrappers.GridOneOf/>]}/>}
+                wrapper={[<Wrappers.LabelField/>,<Wrappers.GridOneOf/>]}
                 wrapper1={React.createElement(({value, onClick})=><Gradient value={value} onClick={onClick}/>)}
                 />,
             stops:{
-                activeFirst:false,
                 wrapper:React.createElement(({host,children})=>{
                     const [actions, ...others]=children.props.children
                     return React.cloneElement(
@@ -393,7 +395,7 @@ const Theme={
     FillShape:{
         choices:["no","color","gradient","picture","pattern"],
         Ribbon:{
-            wrapper:<Wrappers.ShapeMenu/>,
+            wrapper:<Wrappers.DropDownMenu/>,
             transparency:false,
             picture:{
                 $1:<oneOf label="Texture" 
@@ -427,6 +429,10 @@ const Theme={
         }
     },
 
+    TextStyleShape:{
+        $link:<Show dialog="font" children={<button style={{marginRight:5, width:100}}>Font...</button>}/>
+    },
+
     FontsShape:{
         style:{
             width:50,
@@ -441,7 +447,40 @@ const Theme={
             label:"..."
         }
     },
+    FontShape:{
+        Dialog:<Show children={(a,host)=><FontList value={host.$props.value} onChange={f=>host.set(host.path,f)}/>}/>,
+        Ribbon:<Show children={(a,host)=><FontList value={host.$props.value} onChange={f=>host.set(host.path,f)}/>}/>,
+        Tree:<Show children={(a,host)=><FontList value={host.$props.value} onChange={f=>host.set(host.path,f)}/>}/>,
+    },
 
+    BulletShape:{
+        Dialog:<Show dialog={React.createElement(({value,host,...props})=>{
+                const ui=React.createRef()
+                return (
+                    <Dialog title="Symbol" {...props} 
+                        onSubmit={({font,char})=>{
+                            const path=post.path.split(".")
+                            path.pop()
+                            host.set(path.join("."),{style:{fonts:font},label:char})
+                        }}>
+                        <PropTypesUI uiContext="Dialog"
+                            propTypes={{
+                                font:dom.Unknown.FontShape,
+                                char:dom.Unknown.string,
+                            }} 
+                            theme={{
+                                wrapper:<Wrappers.ShapeGrid grid={1}/>,
+                                char:<oneOf values={["a","b","c"]} 
+                                    wrapper1={React.createElement(({value,onClick})=><span onClick={onClick}>{value}</span>)}
+                                    wrapper={<Wrappers.GridOneOf grid={1} selector={false}/>}/>
+                            }}
+                            props={{}} ref={ui}
+                            />
+                    </Dialog>
+                    )
+                })} 
+            children={<button  style={{marginRight:5}} >Bullet...</button>}/>,
+    },
     BlobShape:{
         Dialog:{
             wrapper:React.createElement(({children:{props:{onClick}}})=><button onClick={onClick}>Select Picture...</button>)
@@ -453,23 +492,25 @@ const Theme={
             wrapper:React.createElement(({children:{props:{onClick}}})=><MenuItem primaryText="Picture..." onClick={onClick}/>)
         }
     },
+
     BulletListShape:{
-        Ribbon:<oneOf values={Bullets} label="bullet list" icon={<IconListBullet/>} 
-            check={({format="bullet"})=>format=="bullet"}
-            wrapper1={React.createElement(({value:{label,style:{fonts}}, leftIcon,...props})=><MenuItem {...props} primaryText={label}  style={{fontFamily:fonts}} />)}
+        id:false,
+        level:false,
+            
+        Ribbon:<oneOf label="Bullet Character" values={Bullets} icon={<IconListBullet/>}
+            wrapper1={React.createElement(({value:{label,style:{fonts}}})=><span style={{font:fonts,width:40,height:40,lineHeight:"40px",margin:4,border:"1px solid lightgray",textAlign:"center"}}>{label}</span>)}
+            wrapper={[<Wrappers.DropDownMenu/>,<Wrappers.GridOneOf selector={false} grid={4}/>]}
+            uiContext="Dialog"//to remove MenuItem, and use children directly
             children={
                 <Fragment>
                     <Divider/>
                     <Show children={setting=><MenuItem primaryText="Define New Bullet" onClick={e=>setting('bullet')}/>}/>
                 </Fragment>
-            }
-            />,
+            }/>,
 
         Dialog:{
-            id:false,
-            level:false,
             $presets:<oneOf label="Bullet Character"  values={Bullets}
-                wrapper1={React.createElement(({value:{label,style:{fonts}}, leftIcon,...props})=><span style={{font:fonts,width:40,height:40,lineHeight:"40px",margin:4,border:"1px solid lightgray",textAlign:"center"}}>{label}</span>)}
+                wrapper1={React.createElement(({value:{label,style:{fonts}}})=><span style={{font:fonts,width:40,height:40,lineHeight:"40px",margin:4,border:"1px solid lightgray",textAlign:"center"}}>{label}</span>)}
                 wrapper={<Wrappers.GridOneOf selector={false} style={{display:"auto"}}/>}
                 />,
             wrapper:<Wrappers.ShapeLayout layout={
@@ -487,6 +528,8 @@ const Theme={
                         <Wrappers.ShapeGrid role="others" label={null} style={{borderBottom:0}}/>
                     </div>
                     <div style={{width:200,border:"1px solid black",padding:10}}>
+                        <p> </p>
+                        <p> </p>
                         <ul>
                             <li/>
                             <li/>
@@ -494,6 +537,8 @@ const Theme={
                             <li/>
                             <li/>
                         </ul>
+                        <p> </p>
+                        <p> </p>
                     </div>
                 </div>
             }/>,
@@ -510,27 +555,36 @@ const Theme={
             }
         }
     },
-    BulletShape:{
-        Dialog:<button  style={{marginRight:5}}>Bullet...</button>,
-    },
     NumberListShape:{
-        Ribbon:<oneOf label="numbering list" icon={<IconListNumber/>} check={({format="bullet"})=>format!=="bullet"}
-            values={Numberings}
-            wrapper1={React.createElement(({value:{format, label}, leftIcon,...props})=><MenuItem {...props} primaryText={label.replace("%1",dom.Paragraph.numberings[format](0))}/>)}
+        id:false,
+        level:false,
+        Ribbon: <oneOf label="numbering list" values={Numberings} icon={<IconListNumber/>}
+            wrapper1={React.createElement(({value, onClick})=>(
+                <div style={{width:50,height:50,border:"1px solid lightgray",overflow:"hidden",fontSize:9}} 
+                    onClick={onClick}>
+                    <ol style={{paddingLeft:0}}>
+                        <Li {...value} i={1}/>
+                        <Li {...value} i={2}/>
+                        <Li {...value} i={3}/>
+                    </ol>
+                </div>
+            ))}
+            wrapper={[<Wrappers.DropDownMenu/>,<Wrappers.GridOneOf selector={false} grid={3} style={{gap:5,padding:5}}/>]}
+            uiContext="Dialog"
             children={<Fragment><Divider/><Show children={setting=><MenuItem primaryText="Define New Number List" onClick={e=>setting("numbering")}/>}/></Fragment>}
-            />  ,
+            />
+        ,
         Dialog:{
-            id:false,
-            level:false,
             wrapper:<Wrappers.ShapeLayout layout={
                 <div style={{display:"flex", gridColumn:"span 2", gap:5}}>
                     <div style={{flex:1}}>
-                        <h3>Number Format</h3>
-                        <div style={{display:"grid", gridTemplateColumns:"repeat(2,1fr)"}}>
-                            <a id="label"/><a id="style"/>
-                            <a id="format"/><a id="start"/>    
+                        <div>
+                            <h3>Number Format</h3>
+                            <div style={{display:"grid", gridTemplateColumns:"repeat(2,1fr)"}}>
+                                <a id="label"/><a id="style"/>
+                                <a id="format"/><a id="start"/>    
+                            </div>
                         </div>
-                        
                         <hr/>
                         <h3>Text Position</h3>
                         <div><a id="indent"/></div>
@@ -569,14 +623,37 @@ const Theme={
             }
         }
     },
-    OutlineListShape:{
-        Ribbon:<oneOf label="Outline list" icon={<IconListOutline/>} values={Numberings}
-            wrapper1={React.createElement(({value:{format, label}, leftIcon,...props})=><MenuItem {...props} primaryText={label.replace("%1",dom.Paragraph.numberings[format](0))}/>)}
-            children={<Fragment><Divider/><Show children={setting=><MenuItem primaryText="Define New Outline List" onClick={e=>setting("outline")}/>}/></Fragment>}
-            />,
-        
-    },
 
+    OutlineListShape:{
+        Ribbon:<oneOf label="Outline list" values={Outlines} icon={<IconListOutline/>}
+                wrapper1={React.createElement(({value:[l1,l2,l3],onClick})=>
+                    <div style={{width:50,height:50,border:"1px solid lightgray",overflow:"hidden",fontSize:9}} 
+                        onClick={onClick}>
+                        <ol style={{paddingLeft:0}}>
+                            <Li {...l1}/>
+                            <Li {...l2}/>
+                            <Li {...l3}/>
+                        </ol>
+                    </div>
+                )}
+                wrapper={[<Wrappers.DropDownMenu/>,<Wrappers.GridOneOf selector={false} grid={3} style={{gap:5,padding:5}}/>]}
+                uiContext="Dialog"
+                children={<Fragment><Divider/><Show children={setting=><MenuItem primaryText="Define New Outline List" onClick={e=>setting("outline")}/>}/></Fragment>}
+            />,
+        Dialog:{
+            collectionStyle:{width:"100%",height:"80%"},
+            wrapper1:React.createElement(({i,...props})=><option {...props}>{i}</option>),
+            wrapper:React.createElement(({host,children:{props:{children:[actions,collection,active]}}})=>(
+                <div style={{display:"flex",flexDirection:"row"}}>
+                    <div style={{width:50,marginRight:10}}>
+                        <h3>Level</h3>
+                        {collection}
+                    </div>
+                    <div style={{flex:"auto"}}>{active}</div>
+                </div>
+            ))
+        }
+    },
     Text:{
         size: {
             wrapper:null,
@@ -906,6 +983,12 @@ const Theme={
         },
         Dialog:{
             wrapper:null,
+            fill:{
+                i:1
+            },
+            outline:{
+                i:2
+            }
         },
         Tree:{
             fill:{
@@ -937,5 +1020,7 @@ const Pattern=({value, onClick, checked, id=`ptn_${uuid++}`})=>(
         <rect width="100%" height="100%" fill={`url(#${id})`}/>
     </svg>
 )
+
+const Li=({indent, hanging, format, style, label, i=1})=><li style={{}}></li>
 
 export default Theme

@@ -57,46 +57,59 @@ const Pilcrow=connect(state=>getUI(state))(({dispatch,pilcrow})=>(
 		/>
 ))
 
-export function ParagraphSetting(props){
-	const refSetting=React.createRef()
+export function ParagraphSetting({value, onSubmit, ...props}){
 	return (
 		<SelectStyle type="paragraph">
-			{({style,dispatch})=>(
-				<Dialog title="Paragraph Settings"
-					onSubmit={paragraph=>dispatch(ACTION.Selection.UPDATE({paragraph}))}
-					moreActions={[
-						<FlatButton
-							label="Set As Default..."
-							onClick={e=>dispatch(ACTION.Entity.UPDATE({document:{defaultParagraphStyle:refSetting.current.value}}))}
-						/>
-					]}
-					{...props}
-					>
-					<PropTypesUI theme="Paragraph" 
-						propTypes={{...dom.Paragraph.propTypes,numbering:null}} 
-						props={style} ref={refSetting}/>
-				</Dialog>
-			)}
+			{({style,dispatch})=>{
+				const refSetting=React.createRef()
+				if(onSubmit==undefined){
+					onSubmit=paragraph=>dispatch(ACTION.Selection.UPDATE({paragraph}))
+				}
+				
+				return (
+					<Dialog title="Paragraph Settings"
+						onSubmit={e=>onSubmit(refSetting.current.value,dispatch)}
+						moreActions={[
+							<FlatButton
+								label="Set As Default..."
+								onClick={e=>dispatch(ACTION.Entity.UPDATE({document:{defaultParagraphStyle:refSetting.current.value}}))}
+							/>
+						]}
+						{...props}
+						>
+						<PropTypesUI theme="Paragraph" 
+							propTypes={{...dom.Paragraph.propTypes,numbering:null}} 
+							props={value||style} ref={refSetting}/>
+					</Dialog>
+				)
+			}}
 		</SelectStyle>
 	)
 }
 
-export function ListSetting({shape=dom.Paragraph.propTypes.numbering, ...props}){
-	const refSetting=React.createRef()
+export function ListSetting({shape=dom.Paragraph.propTypes.numbering, value, onSubmit, ...props}){
 	return (
 		<SelectStyle type="paragraph">
-			{({style,dispatch})=>(
-				<Dialog 
-					onSubmit={()=>dispatch(ACTION.Selection.UPDATE({paragraph:{numbering:refSetting.current.value}}))}
-					{...props}
-					>
-					<PropTypesUI
-						propTypes={{numbering:shape}}
-						props={{numbering:style.numbering}}
-						ref={refSetting}
-						/>
-				</Dialog>
-			)}
+			{({style,dispatch})=>{
+				const refSetting=React.createRef()
+				if(onSubmit==undefined){
+					onSubmit=numbering=>dispatch(ACTION.Selection.UPDATE({paragraph:{numbering}}))
+				}
+				
+				return (
+					<Dialog 
+						onSubmit={e=>onSubmit(refSetting.current.value,dispatch)}
+						{...props}
+						>
+						<PropTypesUI
+							propTypes={{numbering:shape}}
+							props={{numbering:value||style.numbering}}
+							wrapper={null}
+							ref={refSetting}
+							/>
+					</Dialog>
+				)
+			}}
 		</SelectStyle>
 	)
 }
