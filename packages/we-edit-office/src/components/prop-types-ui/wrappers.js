@@ -39,29 +39,15 @@ export const RibbonInputField=({children, host:{$props:{name,label=name, style, 
     </span>
 )
 
-export class DropDownMenu extends React.Component{
-    static childContextTypes={
-        uiContext: PropTypes.string
-    }
 
-    getChildContext(){
-        return {
-            uiContext:"Menu"
-        }
-    }
-
-    render(){
-        const {children, host:{$props:{name,label=name, icon, onClick}}}=this.props
-        return (
-            <DropDownButton
-                onClick={onClick}
-                icon={icon}
-                hint={label}>
-                {children}
-            </DropDownButton>
-        )
-    }
-}
+export const DropDownMenu=({children, host:{$props:{name,label=name, icon, onClick}}})=>(
+    <DropDownButton
+        onClick={onClick}
+        icon={icon}
+        hint={label}>
+        {children}
+    </DropDownButton>
+)
 
 export const ShapeGrid=({host:{$props:{name,label:label1=name,grid:_=2}}, style, label=label1, children, grid=_})=>(
     <div style={{borderBottom:"1px solid lightgray", marginTop:5, ...style}}>
@@ -159,9 +145,9 @@ export class HorizontalOneOf extends Component{
 
 export class GridOneOf extends Component{
     render(){
-        const {host:{$props:{grid:_=4}, uiContext}, children:menu, grid=_, style, selector=true, selectorStyle }=this.props
-        debugger
-        const {menuItems:[items, children]=[]}=menu.props
+        const {host:{$props:{grid:_=4,selectorStyle:$1}, uiContext}, children:menu, grid=_, style, selector=true, selectorStyle=$1 }=this.props
+        
+        const [items, children]=menu.props[uiContext=="Ribbon" ? 'children' : 'menuItems']
         const gridItems=(
             <div key="grid" className="grid" style={{width:"100%",display:"grid", gridTemplateColumns:`repeat(${grid}, 1fr)`,...style}}>
                 {items}
@@ -169,9 +155,8 @@ export class GridOneOf extends Component{
         )
         
         switch(uiContext){
-            case "Menu":{
+            case "Menu":
                 return React.cloneElement(menu,{menuItems:[gridItems,children]})
-            }
             case "Tree":
             case "Dialog":{
                 if(!selector){
@@ -187,6 +172,8 @@ export class GridOneOf extends Component{
                     </Select>
                 )
             }
+            case 'Ribbon'://dropdown, children
+                return React.cloneElement(menu, {}, gridItems, children)
         }
     }
 }

@@ -13,7 +13,8 @@ export default class extends base{
     }
 
     renderTree(){
-        const {name, value, label=name,accept, icon, style, type, isPrimitive, ...props}=this.$props
+        const {name, value, label=name,accept, icon, style, type, isPrimitive, $presets, ...props}=this.$props
+        
         if(type=="file"){
             return <CheckIconButton {...props}
                         label={label} 
@@ -36,6 +37,6 @@ export default class extends base{
         if(type=="file"){
             return <MenuItem primaryText={label} onClick={e=>selectFile(accept).then(url=>this.set(this.path,url))}/>
         }
-        return null
+        return this.renderTree()
     }
 }

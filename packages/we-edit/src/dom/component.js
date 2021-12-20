@@ -450,7 +450,7 @@ export default class Base extends Component{
 			gradient: this.GradientShape,
 			pattern: this.PatternShape,
 		},{$type:"FillShape"}),
-	]),{
+	],{$type:"FillShapeTypes"}),{
 		normalize:(value)=>{
 			if(typeof(value)=="object"){
 				const {color, pattern, picture,gradient, ...normalized}=value
@@ -561,7 +561,7 @@ export default class Base extends Component{
 			top:this.LineShape,
 			bottom:this.LineShape,
 		},{$type:"BorderShape"}),
-	]),{
+	],{$type:"BorderShapeTypes"}),{
 		default:{
 			left:this.LineShape.default,
 			right:this.LineShape.default,

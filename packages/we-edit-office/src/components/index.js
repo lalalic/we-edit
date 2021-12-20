@@ -7,5 +7,4 @@ export {default as ObjectTree} from "./object-tree"
 
 export {default as PropTypesUI} from "./prop-types-ui"
 export {default as FileSelect} from "./file-select"
-export {default as ColorButton} from "./color-button"
 export {default as Tree} from "./tree"

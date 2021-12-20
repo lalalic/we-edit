@@ -2,6 +2,7 @@ import React from "react"
 import PropTypes from "prop-types"
 import base from "./base"
 import Shape from "./shape"
+import {fromJS} from "immutable"
 
 /**
  * oneOfType has 2 scenarios
@@ -12,6 +13,7 @@ import Shape from "./shape"
  * or on-demand
  * or choices
  */
+const clean=base.clean
 export default class oneOfType extends base{
     static displayName="oneOfType"
     static propTypes={
@@ -46,22 +48,37 @@ export default class oneOfType extends base{
         return this.types[i]
     }
 
-    iterate(){
-        const {types, i , ...props}=this.$props
+    iterate(i,$choice=`$${i}`){
+        const $props=this.$props
         return this.types.map((a,i)=>{
-            const {type, props:{...props0}}=(()=>{
-                if(props[`$${i}`]){
-                    a=props[`$${i}`]
-                    delete props[`$${i}`]
-                }
-
+            const possibleSpecifiedChoice=[`$${a.Type.props.type}`,`$${i}`]
+            if(arguments.length!=0 && !possibleSpecifiedChoice.includes($choice)){
+                return 
+            }
+            let theme=clean(this.theme,["i","types",'*',...possibleSpecifiedChoice])
+            
+            const {type, props:props0={}}=(()=>{
                 if(React.isValidElement(a))
                     return a
+                
+                const choice=$props[possibleSpecifiedChoice.find(a=>a in $props)]
+                if(choice){
+                    if(React.isValidElement(choice)){
+                        return choice
+                    }else if(typeof(choice)=="object"){
+                        theme=fromJS(theme,this.constructor.reviver).mergeDeep(fromJS(choice,this.constructor.reviver)).toJS()
+                    }
+                }
+
                 return a.Type||{}
             })();
-            const UIType=this.getUIType(type)
 
-            return <UIType key={i} {...props0} {...props}/>
+            const UIType=this.getUIType(type)
+            return <UIType key={i} 
+                {...clean(props0,Object.keys(theme))} 
+                {...clean(this.props,["theme","i","types","typedShape",...possibleSpecifiedChoice])} 
+                theme={theme}
+                />
         })
     }
 
@@ -80,16 +97,13 @@ export default class oneOfType extends base{
     }
 
     renderTree(){
-        const {types:_, value, ...props}=this.$props
         const choices=this.choices
         if(!choices){
             let {i}=this.$props
             if(i==undefined){
                 i=({"Dialog":this.types.length-1}[this.uiContext])||0
             }
-            const {type, props:{...props0}}=this.getType(i).Type
-            const UIType=this.getUIType(type)
-            return <UIType key={i} {...props0} value={value} {...props}/>
+            return this.iterate(i).filter(a=>!!a)[0]||null
         }
 
         if(choices===true)

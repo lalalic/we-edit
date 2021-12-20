@@ -3,6 +3,7 @@ import PropTypes from "prop-types"
 import base from "./base"
 import { ShapeGrid, ShapeTree } from "./wrappers"
 
+const clean=base.clean
 export default class shape extends base{
     static displayName="shape"
     static propTypes={
@@ -42,6 +43,7 @@ export default class shape extends base{
                     keyTheme=null
                     return theme[key]
                 }
+
                 return schema[key]?.Type||{}
             })();
 
@@ -50,11 +52,12 @@ export default class shape extends base{
             if(!UIType)
                 return null
             
+            
             if(!keyTheme || Object.keys(keyTheme).length==0){
                 keyTheme=undefined
             }
 
-            return <UIType {...{theme:keyTheme,...props, value, key, name:key, path:`${this.makePath(key)}`}}/>
+            return <UIType {...{theme:keyTheme,...clean(props,Object.keys(keyTheme||[])), value, key, name:key, path:`${this.makePath(key)}`}}/>
         }).filter(a=>!!a)
 
         if(children){
@@ -70,7 +73,7 @@ export default class shape extends base{
         if($presets){
             const {value,name}=this.$props
             const UIType=this.getUIType($presets.type)
-            content.unshift(React.createElement(UIType, {value,name,path:this.path,label:`Preset ${name}s`, isPresets:true,...$presets.props}))
+            content.unshift(React.createElement(UIType, {value,name,path:this.path,label:`Preset ${name}s`,key:"$presets", isPresets:true,...$presets.props}))
         }
 
         return content

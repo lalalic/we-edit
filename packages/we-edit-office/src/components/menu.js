@@ -18,6 +18,7 @@ export class Menu extends Component{
     }
     static childContextTypes={
         ...this.contextTypes,
+        uiContext: PropTypes.string,
         notifyMenuItemOver:PropTypes.func,
     }
 
@@ -31,7 +32,8 @@ export class Menu extends Component{
     getChildContext(){
         return {
             notifyMenuItemClick: this.context.notifyMenuItemClick || this.notifyMenuItemClick,
-            notifyMenuItemOver: this.notifyMenuItemOver.bind(this)
+            notifyMenuItemOver: this.notifyMenuItemOver.bind(this),
+            uiContext:"Menu",
         }
     }
 
@@ -59,7 +61,7 @@ export class MenuItem extends Component{
     }
     getChildContext(){
         return {
-            notifyMenuItemOver:null
+            notifyMenuItemOver:null,
         }
     }
     render(){

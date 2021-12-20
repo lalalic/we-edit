@@ -4,7 +4,15 @@ import {fromJS} from "immutable"
 import PropTypesUI from "."
 import { LabelField, Nest } from "./wrappers"
 
-
+function clean(ob, keys=[]){
+    const cloned={...ob}
+    Object.keys(cloned).forEach(k=>{
+        if(typeof(cloned[k])=="undefined" || keys.includes(k)){
+            delete cloned[k]
+        }
+    })
+    return cloned
+}
 export default class base extends PureComponent{
     static displayName="any"
     static contextTypes={
@@ -22,6 +30,8 @@ export default class base extends PureComponent{
         name: PropTypes.string,
         label: PropTypes.string
     }
+
+    static clean=clean
 
     get Types(){
         return {...PropTypesUI.Types,...this.Theme.$Types}
@@ -122,12 +132,13 @@ export default class base extends PureComponent{
     }
 
     render(){
-        const {uiContext, theme:{[uiContext]:show=true}}=this
+        const {uiContext, theme:{[uiContext]:show=true}, $props:{$link,typedShape, $presets, isPrimitive}}=this
         if(!show) 
             return null 
             
-        if(!(`render${uiContext}` in this)){
-            return null
+        if($link && this.Theme[typedShape]?.Link){
+            const {typedShape,...props}=this.props
+            return React.cloneElement(this.Theme[typedShape]?.Link,...props)
         }
 
         const rendered=(()=>{
@@ -136,8 +147,19 @@ export default class base extends PureComponent{
                 const UIType=this.getUIType(show.type)
                 if(UIType){
                     const {theme:{[uiContext]:_, ...theme}={}, typedShape, ...props}=this.props
-                    return <UIType {...{theme,...show.props,...props}}/>
+                    return <UIType {...{theme,...clean(show.props),...clean(props)}}/>
                 }
+            }
+
+            if(isPrimitive && $presets){
+                const {$presets:_2,style,...theme}=this.theme
+                const {theme:_1, typedShape,$presets:_,...props}=this.props
+                const UIType=this.getUIType($presets.type)
+                return <UIType {...{...clean($presets.props,Object.keys(theme)),...props,theme}}/>
+            }
+    
+            if(!(`render${uiContext}` in this)){
+                return null
             }
     
             return this[`render${uiContext}`]()

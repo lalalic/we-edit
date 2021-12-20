@@ -116,12 +116,12 @@ export default class Workspace extends PureComponent{
 			register(el){
 				return dialogs[el.props.name]=el
 			},
-			show(type){
+			show(type,props){
 				let dialog=dialogs[type]
 				if(dialog.props.portalContainer){
 					dialog=createPortal(React.cloneElement(dialog,{portalContainer:undefined}), dialog.props.portalContainer)
 				}
-				me.dispatch(weACTION.UI({dialog}))
+				me.dispatch(weACTION.UI({dialog:React.cloneElement(dialog,props)}))
 			},
 			get(type){
 				return dialogs[type]
@@ -143,9 +143,9 @@ export default class Workspace extends PureComponent{
 			dialogManager:this.dialogManager,
 			propTypesUITheme,
 			dispatch: action=>this.dispatch(action),
-			setting:type=>{
+			setting:(type,props)=>{
 				if(this.dialogManager.get(type)){
-					this.dialogManager.show(type)
+					this.dialogManager.show(type,props)
 				}else{
 					const panel=propTypesUITheme.$settingPanels[type]
 					if(panel){
