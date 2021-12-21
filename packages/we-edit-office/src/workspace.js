@@ -1,6 +1,6 @@
 import React, {PureComponent, Component, Children, Fragment} from "react"
 import { createPortal } from "react-dom"
-import {connect, ACTION as weACTION} from "we-edit"
+import {connect, getUI, ACTION as weACTION} from "we-edit"
 import PropTypes from "prop-types"
 import {pure}  from "recompose"
 import EventEmitter from "events"
@@ -163,6 +163,7 @@ export default class Workspace extends PureComponent{
 		return (
 			<doc.Store ref={this.store}>
 				{this.state.inited ? <Channels {...props}/> : null}
+				<UIDialog/>
 			</doc.Store>
 		)
 	}
@@ -275,7 +276,6 @@ export default class Workspace extends PureComponent{
 				panels.push(el)
 				this.setState({panels:[...panels],active:el.props.title})
 			}
-			
 		}
 	}
 }
@@ -339,6 +339,25 @@ const Channels=connect((state,props)=>({channel:getOffice(state).channel||props.
 		}
 	}
 )
+
+const UIDialog=connect(state=>{
+	const {dialog}=getUI(state)
+	return {dialog}
+})(({dialog, dispatch})=>{
+	if(!dialog){
+		return null
+	}
+
+	if(!dialog.type)
+		return dialog
+	
+	return React.cloneElement(dialog,{
+		onRequestClose:e=>{
+			dispatch(weACTION.UI({dialog:null}))
+			dialog.props.onRequestClose?.(e)
+		}
+	})
+})
 
 class Resizer extends PureComponent{
 	state={}

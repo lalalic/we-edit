@@ -12,8 +12,7 @@ export default Object.assign(({},{setting})=>(
 	<ContextMenu.Support menus={[
 			<MenuItem primaryText="Insert"/>,
 		]}>
-			{/*
-		
+	
 		<Design/>
 		<SelectStyle type="table">
 			{({style,dispatch})=>
@@ -33,7 +32,7 @@ export default Object.assign(({},{setting})=>(
 					/>
 			}
 		</SelectStyle>
-		*/}
+
 		<SelectStyle type="cell">
 			{({style,dispatch})=>
 				<PropTypesUI theme="Cell" 

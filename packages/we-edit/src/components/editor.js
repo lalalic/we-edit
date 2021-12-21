@@ -92,7 +92,6 @@ export class Editor extends PureComponent{
 							})
 						)
 				}
-				<UIDialog/>
 				<ContextMenu contextMenu={contextMenu}/>
 			</Fragment>
 		)
@@ -223,24 +222,6 @@ export class WeDocumentStub extends Component{
 		return this.getDoc()
 	}
 }
-
-const UIDialog=connect(state=>{
-	const {dialog}=getUI(state)
-	return {dialog}
-})(({dialog, dispatch})=>{
-	if(!dialog){
-		return null
-	}
-
-	if(!dialog.type)
-		return dialog
-	
-	return React.cloneElement(dialog,{onRequestClose:e=>{
-		dispatch(ACTION.UI({dialog:null}))
-		dialog.props.onRequestClose?.(e)
-	}})
-	
-})
 
 
 const Root=connect(state=>{
