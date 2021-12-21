@@ -8,7 +8,7 @@ import {fromJS} from "immutable"
 import MuiThemeProvider from 'material-ui/styles/MuiThemeProvider'
 jest.mock("material-ui/internal/Tooltip",()=>props=><span/>)
 jest.mock("material-ui/MenuItem/MenuItem",()=>props=><span/>)
-jest.mock("../src/components/prop-types-ui/theme/textures",()=>()=>[])
+jest.mock("../src/components/prop-types-ui/theme/textures",()=>[])
 jest.mock("../src/developer/diff",()=>class{static Setting=props=>null})
             
 
@@ -30,21 +30,19 @@ describe("propTypes UI",()=>{
         expect(fromJS1(json).mergeDeep(fromJS1(element)).toJS().a.b).toBe(undefined)
     })
 
-    fit("uiContext as react element",()=>{
+    it("uiContext as react element",()=>{
         const TestShape=PropTypes.shape({
             a:PropTypes.string,
             b:PropTypes.bool,
         },{$type:"TestShape"})
         PropTypesUI.Theme.TestShape={
-            Dialog:<div/>,
+            Dialog:<div id="test"/>,
             wrapper:null,
         }
 
         const renderer=TestRenderer.create(<PropTypesUI propTypes={{tr:TestShape}} props={{tr:{a:'1',b:true}}} uiContext="Dialog"/>)
-        const shapes=renderer.root.findAllByProps({name:"tr"})
-        expect(shapes.length).toBe(2)
-        expect(shapes[0].instance.theme.Dialog).toMatchObject(<div/>)
-        expect(shapes[1].type).toBe("div")
+        expect(()=>renderer.root.findByProps({name:"a"})).toThrow()
+        expect(()=>renderer.root.findByProps({id:"test"})).not.toThrow()
     })
 
     it("should create for {name:string}",()=>{
@@ -209,26 +207,6 @@ describe("propTypes UI",()=>{
         it("schema {name,path} should not overwrite props{name,path}",()=>{
             const renderer=TestRenderer.create(React.cloneElement(el,{schema:{name:PropTypes.string},theme:{name:<div good={true}/>}}))
             expect(renderer.root.findAllByProps({good:true}).length).toBe(1)
-        })
-    })
-
-    describe("arrayOf",()=>{
-        it("arrayOf(string)",()=>{
-            const onChange=jest.fn()
-            const el=<PropTypesUI propTypes={{
-                        accounts: PropTypes.arrayOf(PropTypes.string),
-                        age:PropTypes.number,
-                    }} 
-                    props={{
-                        age:11,
-                        accounts:["1","2"]
-                    }} 
-                    onChange={onChange}/>
-            const testRenderer=TestRenderer.create(el)
-            const accountsInstance=testRenderer.root.findByType(PropTypesUI.string)
-            expect(accountsInstance.props).toMatchObject({path:"accounts"})
-            accountsInstance.findByType("input").props.onChange({target:{value:"5,4"}})
-            expect(onChange).toHaveBeenCalledWith({accounts:["5","4"]},{age:11,accounts:["5","4"]})
         })
     })
 

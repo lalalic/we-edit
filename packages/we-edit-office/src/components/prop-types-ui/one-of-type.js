@@ -19,7 +19,7 @@ export default class oneOfType extends base{
     static propTypes={
         ...super.propTypes,
         i: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
-        choices: PropTypes.oneOfType(PropTypes.arrayOf(PropTypes.string),PropTypes.bool),
+        choices: PropTypes.oneOfType([PropTypes.arrayOf(PropTypes.string),PropTypes.bool]),
     }
 
     get types(){
@@ -109,12 +109,10 @@ export default class oneOfType extends base{
         if(choices===true)
             return this.iterate()
 
+        const {value}=this.props
         const schema=choices.reduce((s,k)=>(s[k]=this.getType(k),s),{})
-        return <Shape schema={schema} 
-            choices={choices} 
-            choice={value?.type} 
-            value={value} 
-            {...props}
+        return <Shape schema={schema} choices={choices} choice={value?.type}
+            {...clean(this.props,["choice","choices","typedShape"])}
             theme={choices.reduce((s,k)=>(s[k]={type:false},s),{})}
             />
     }

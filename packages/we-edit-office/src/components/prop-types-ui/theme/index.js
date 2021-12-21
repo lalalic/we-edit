@@ -43,9 +43,6 @@ import IconShadding from "material-ui/svg-icons/editor/format-color-fill"
 import IconColor from "material-ui/svg-icons/editor/format-color-fill"
 import IconDropDown from 'material-ui/svg-icons/navigation/arrow-drop-down'
 
-
-
-
 import textures from "./textures"
 import { IconColumn, Column, IconTextBorder, IconSubscript, IconSuperscript, IconSize, IconOrientation, IconMargin } from "./icons"
 import {FontSetting} from "../../../text"
@@ -66,7 +63,6 @@ import * as Wrappers from "../wrappers"
 import PropTypesUI from "../index"
 import OneOf from "../one-of"
 import SizableIconButton from "../../size-icon-button"
-
 
 let uuid=new Date().getTime()
 

@@ -55,19 +55,26 @@ describe("record react component prop types",()=>{
     })
 
     it("type=>checker(shape)",()=>{
-        expect(dom.Unknown.LineShape.Type.type).toMatch("oneOfType(LineShape)")
+        expect(dom.Unknown.string.$({$type:"Test"}).Type.type).toMatch("string(Test)")
+        expect(dom.Unknown.bool.$({$type:"Test"}).Type.type).toMatch("bool(Test)")
+        expect(dom.Unknown.number.$({$type:"Test"}).Type.type).toMatch("number(Test)")
+        expect(dom.Unknown.oneOf([],{$type:"Test"}).Type.type).toMatch("oneOf(Test)")
     })
 
     it("primitive checker type not changed",()=>{
-        expect(dom.Unknown.normalizeChecker(PropTypes.string,{},{$type:"Hello"}).Type.type).toMatch("string(Hello)")
+        expect(PropTypes.string.$({$type:"Hello"}).Type.type).toMatch("string(Hello)")
         expect(PropTypes.string.Type).toMatchObject(<string/>)
+
+        expect(PropTypes.bool.$({$type:"Hello"}).Type.type).toMatch("bool(Hello)")
         expect(PropTypes.bool.Type).toMatchObject(<bool/>)
+        
+        expect(PropTypes.number.$({$type:"Hello"}).Type.type).toMatch("number(Hello)")
         expect(PropTypes.number.Type).toMatchObject(<number/>)
     })
 
     it("MarginShape.toType('') would not change MarginShape",()=>{
-        expect(dom.Unknown.MarginShape.Type.type).toMatch("oneOfType(MarginShape)")
-        expect(dom.Unknown.MarginShape.toType("BorderShape").Type.type).toMatch("oneOfType(BorderShape)")
-        expect(dom.Unknown.MarginShape.Type.type).toMatch("oneOfType(MarginShape)")
+        expect(dom.Unknown.MarginShape.Type.type).toMatch("oneOfType")
+        expect(dom.Unknown.MarginShape.$({$type:"BorderShape"}).Type.type).toMatch("oneOfType(BorderShape)")
+        expect(dom.Unknown.MarginShape.Type.type).toMatch("oneOfType")
     })
 })
