@@ -39,13 +39,13 @@ export default (
                         <TOC/>
                         <ToolbarSeparator/>
                         <TOA/>
-                        <Ribbon.Shape 
+                        <Ribbon.Shape.Create 
                             anchor={anchor}
                             shapes={shapes}
                             defaultShape={defaultShape}
                             >
                             {textbox}
-                        </Ribbon.Shape>
+                        </Ribbon.Shape.Create>
 
                       {/*  
                       <ToolbarGroup>

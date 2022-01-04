@@ -3,6 +3,9 @@ import simplify from "simplify-path"
 import contours from "svg-path-contours"
 
 class Shape extends Path{
+	get isGeometry(){
+		return true
+	}
 	toJSON(){
 		return this.toString()
 	}

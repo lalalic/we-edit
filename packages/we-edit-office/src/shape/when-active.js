@@ -16,7 +16,7 @@ import {MenuItem} from "../components/menu"
 export default Object.assign(({children},{setting})=>{
 	return (
 		<ContextMenu.Support menus={[
-			<MenuItem primaryText={`Format Shape...`} onClick={e =>setting("shape")} />,
+			<MenuItem primaryText={`Format Shape...`} onClick={e =>setting("format")} />,
 		]}>
 			<Create/>
 			<ToolbarSeparator/>
@@ -41,7 +41,7 @@ export default Object.assign(({children},{setting})=>{
 			
 			{children}
 			<ToolbarSeparator/>
-			<SizableIconButton hint="Format Shape..." icon={<IconFormat/>} onClick={e=>setting("shape")}/>
+			<SizableIconButton hint="Format Shape..." icon={<IconFormat/>} onClick={e=>setting("format")}/>
 		</ContextMenu.Support>
 	)
 },{

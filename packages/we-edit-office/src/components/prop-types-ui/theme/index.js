@@ -1,6 +1,6 @@
 import React, {Fragment} from "react"
 import {dom} from "we-edit"
-import { Tab, Tabs ,Divider, SvgIcon, Popover} from "material-ui"
+import { Tab, Tabs ,Divider, SvgIcon} from "material-ui"
 
 import IconBold from "material-ui/svg-icons/editor/format-bold"
 import IconItalic from "material-ui/svg-icons/editor/format-italic"
@@ -63,6 +63,7 @@ import * as Wrappers from "../wrappers"
 import PropTypesUI from "../index"
 import OneOf from "../one-of"
 import SizableIconButton from "../../size-icon-button"
+import FormatPanel from "../../format-panel"
 
 let uuid=new Date().getTime()
 
@@ -147,8 +148,7 @@ function createTheme(){
             color: <ColorSelector/>
         },
         $settingPanels:{
-            shape: <ShapeSetting title="Shape Format"/>,
-            picture: <PictureSetting title="Picture Format"/>,
+            format:<FormatPanel children={[<ShapeSetting key="shape" title="Format Shape"/>,<PictureSetting key="picture" title="Format Picture"/>]}/>,
             documentTree: <DocumentTree title="Document Tree" toNodeProps={({ id, type }) => ({ name: `${type}(${id.split("{")[0]})` })} />,
             tester: <Tester title="Test" />,
         },
@@ -162,7 +162,8 @@ function createTheme(){
                     border:"none",
                     background:"transparent",
                     outline:"none",
-                    width:30
+                    width:"auto",
+                    fontSize:"smaller"
                 }
             },
         },
@@ -179,7 +180,8 @@ function createTheme(){
                     border:"none",
                     background:"transparent",
                     outline:"none",
-                    width:30
+                    width:30,
+                    fontSize:"smaller"
                 }
             },
         },
@@ -217,6 +219,7 @@ function createTheme(){
                     background:"transparent",
                     outline:"none",
                     width:30,
+                    fontSize:"smaller"
                 }
             },
         },
@@ -290,13 +293,13 @@ function createTheme(){
                 '*':false,
                 wrapper:<Wrappers.DropDownMenu/>,
                 width:{
-                    children:[<Divider key="d"/>,<Link dialog="shape" key="more" label="More Lines..."/>]
+                    children:[<Divider key="d"/>,<Link dialog="format" key="more" label="More Lines..."/>]
                 },
                 dashArray:{
-                    children:[<Divider key="d"/>,<Link dialog="shape" key="more" label="More Lines..."/>]
+                    children:[<Divider key="d"/>,<Link dialog="format" key="more" label="More Lines..."/>]
                 },
                 sketched:{
-                    children:[<Divider key="d"/>,<Link dialog="shape" key="more" label="More Lines..."/>]
+                    children:[<Divider key="d"/>,<Link dialog="format" key="more" label="More Lines..."/>]
                 },
             },
             Dialog:{
@@ -384,7 +387,7 @@ function createTheme(){
                 children={
                     <Fragment>
                         <Divider/>
-                        <Link dialog="shape" label="More Gradients..."/>
+                        <Link dialog="format" label="More Gradients..."/>
                     </Fragment>
                 }
                 />,
@@ -396,7 +399,7 @@ function createTheme(){
                 children={
                     <Fragment>
                         <Divider/>
-                        <Link dialog="shape" label="More Patterns..."/>
+                        <Link dialog="format" label="More Patterns..."/>
                     </Fragment>
                 }
                 />,
@@ -433,7 +436,7 @@ function createTheme(){
                         values={FillTextures.map(url=>({url,texture:true}))}
                         wrapper={<Wrappers.GridOneOf/>}
                         wrapper1={React.createElement(({value,onClick})=><img src={value.url} onClick={onClick} style={{width:45,height:45}}/>)}
-                        children={[<Divider key="-"/>,<Link key="more" label="More Textures..." dialog="shape"/>]}
+                        children={[<Divider key="-"/>,<Link key="more" label="More Textures..." dialog="format"/>]}
                         />
                 },
             },
@@ -457,6 +460,11 @@ function createTheme(){
                 picture:{
                     i:1
                 }
+            }
+        },
+        PathGeometryPath:{
+            Tree:{
+                style:{width:"auto",fontSize:"smaller"}
             }
         },
         FillShapeTypes:{
@@ -723,6 +731,9 @@ function createTheme(){
             
             Ribbon:{
                 '*':false,
+                fonts:{
+
+                },
                 size: {
                     wrapper:null,
                 },
@@ -996,7 +1007,7 @@ function createTheme(){
                     values={[90,-90,"-"]} 
                     onClick={false} 
                     icon={<IconRotate/>} 
-                    children={<Link label="More Rotation Options..." dialog="shape"/>}
+                    children={<Link label="More Rotation Options..." dialog="format"/>}
                     />,
                 scale: {
                     style:{

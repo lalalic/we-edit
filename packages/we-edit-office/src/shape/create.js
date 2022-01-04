@@ -82,7 +82,7 @@ export default compose(
     }
 
     render() {
-        const { props: { children, defaultShape, color = "black" }, state: { shapeIcons } } = this;
+        const { props: { children, defaultShape }, state: { shapeIcons } } = this;
         return (
             <Fragment>
                 <DropDownButton
@@ -93,7 +93,7 @@ export default compose(
                     onClick={defaultShape ? e => this.send(defaultShape) : null}>
                     {shapeIcons}
                 </DropDownButton>
-                {[textbox, ...React.Children.toArray(children)].map((a, key) => {
+                {React.Children.toArray(children).map((a, key) => {
                     return React.cloneElement(a, { key, onClick: e => this.send(a.props.create), create: undefined });
                 })}
             </Fragment>

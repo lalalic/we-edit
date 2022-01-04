@@ -87,7 +87,7 @@ export class ShapeTree extends Component{
                         <span>
                             <input type="radio" name={`${name}_choice`} 
                                 style={{margin:0,position:"relative",top:3}}
-                                checked={a==host.choice}
+                                checked={name==host.choice}
                                 onClick={e=>host.set(path,true)}/>
                             {name}
                         </span>

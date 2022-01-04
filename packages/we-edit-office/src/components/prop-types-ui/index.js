@@ -1,5 +1,6 @@
 import React, {PureComponent} from "react"
 import PropTypes from "prop-types"
+import {dom} from "we-edit"
 import {Map, fromJS, Iterable} from "immutable"
 
 import any from "./base"
@@ -16,7 +17,6 @@ import FontsShape from "./fonts-shape"
 
 import BaseTheme from "./theme"
 
-
 /**
  * <PropTypesUI component={this}/>
  */
@@ -24,8 +24,11 @@ export default class PropTypesUI extends PureComponent{
     static reviver=function(key,value){
         if(React.isValidElement(this[key])){
             return this[key]
-         }
-         return Iterable.isKeyed(value) ? value.toMap() : value.toList()
+        }
+        if(this[key].isGeometry){
+            return this[key]
+        }
+        return Iterable.isKeyed(value) ? value.toMap() : value.toList()
     }
     static Theme=BaseTheme
 
@@ -55,6 +58,7 @@ export default class PropTypesUI extends PureComponent{
         props: PropTypes.object,//->shape.value
 
     }
+    
     get Types(){
         return {...PropTypesUI.Types,...this.Theme.$Types}
     }

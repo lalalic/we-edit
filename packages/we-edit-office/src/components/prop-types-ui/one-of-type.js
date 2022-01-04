@@ -12,6 +12,7 @@ import {fromJS} from "immutable"
  * dialog select last,
  * or on-demand
  * or choices
+ * if there's value, props.which should be called to get choice
  */
 const clean=base.clean
 export default class oneOfType extends base{
@@ -111,8 +112,9 @@ export default class oneOfType extends base{
 
         const {value}=this.props
         const schema=choices.reduce((s,k)=>(s[k]=this.getType(k),s),{})
-        return <Shape schema={schema} choices={choices} choice={value?.type}
-            {...clean(this.props,["choice","choices","typedShape"])}
+        return <Shape
+            {...clean(this.props,["choice","typedShape","types"])}
+            schema={schema} choices={choices} value={{[value?.type]:value}}
             theme={choices.reduce((s,k)=>(s[k]={type:false},s),{})}
             />
     }

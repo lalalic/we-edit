@@ -56,14 +56,14 @@ const RCSize=compose(
 	whenSelectionChangeDiscardable(),
 	mapProps(({onAction,selection,dispatch})=>({
 		create(rows, col){
-			let layoutWidth=(()=>{
+			const layoutWidth=(()=>{
 				let {column=0,cols}=selection.props("page")
 				return cols[column].width
 			})();
 
-			let cols=new Array(col-1).fill(parseInt(layoutWidth/col))
+			const cols=new Array(col-1).fill(parseInt(layoutWidth/col))
 			cols.push(layoutWidth-cols.reduce((sum,a)=>sum+=a,0))
-			let element={type:"table", rows, cols}
+			const element={type:"table", rows, cols}
 			dispatch(ACTION.Entity.CREATE(element))
 			onAction()
 		}

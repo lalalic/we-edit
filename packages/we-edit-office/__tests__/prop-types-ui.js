@@ -255,18 +255,6 @@ describe("propTypes UI",()=>{
             const theme={first:true,x:true}
             expect(test(<PropTypesUI.any theme={theme}/>).theme).toMatchObject(theme)
         })
-
-        it("UnitShape should get theme from globalTheme",()=>{
-            
-        })
-
-        it("uiContext theme",()=>{
-
-        })
-
-        it("React element",()=>{
-
-        })
     })
 
     describe("every dom can create PropTypesUI",()=>{

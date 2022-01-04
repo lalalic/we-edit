@@ -119,9 +119,11 @@ export default class Workspace extends PureComponent{
 			show(type,props){
 				let dialog=dialogs[type]
 				if(dialog.props.portalContainer){
-					dialog=createPortal(React.cloneElement(dialog,{portalContainer:undefined}), dialog.props.portalContainer)
+					dialog=createPortal(React.cloneElement(dialog,{portalContainer:undefined,...props}), dialog.props.portalContainer)
+					me.dispatch(weACTION.UI({dialog}))
+				}else{
+					me.dispatch(weACTION.UI({dialog:React.cloneElement(dialog,props)}))
 				}
-				me.dispatch(weACTION.UI({dialog:React.cloneElement(dialog,props)}))
 			},
 			get(type){
 				return dialogs[type]
@@ -343,20 +345,37 @@ const Channels=connect((state,props)=>({channel:getOffice(state).channel||props.
 const UIDialog=connect(state=>{
 	const {dialog}=getUI(state)
 	return {dialog}
-})(({dialog, dispatch})=>{
-	if(!dialog){
-		return null
+})(class extends PureComponent{
+	static getDerivedStateFromError(error){
+		return {error}
 	}
 
-	if(!dialog.type)
-		return dialog
-	
-	return React.cloneElement(dialog,{
-		onRequestClose:e=>{
-			dispatch(weACTION.UI({dialog:null}))
-			dialog.props.onRequestClose?.(e)
+	constructor(){
+		super(...arguments)
+		this.state={}
+	}
+
+	render(){
+		const {dialog, dispatch}=this.props
+		if(!dialog){
+			return null
 		}
-	})
+
+		if(!dialog.type)//portal
+			return dialog
+		
+		return React.cloneElement(dialog,{
+			onRequestClose:e=>{
+				dispatch(weACTION.UI({dialog:null}))
+				dialog.props.onRequestClose?.(e)
+			}
+		})
+	}
+
+	componentDidCatch(error){
+		console.error(error)
+		dispatch(weACTION.UI({dialog:null}))
+	}
 })
 
 class Resizer extends PureComponent{
