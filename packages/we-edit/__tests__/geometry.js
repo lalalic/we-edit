@@ -17,11 +17,6 @@ describe("geometry",()=>{
                 .toMatchObject({type:"rect",props:{width:20,height:10,x:1,y:1,rx:2,ry:4}})
         })
     
-        it("should create circle from {type:circle,r, cx,cy}",()=>{
-            expect(Geometry.create({type:"ciRcle",cx:1,cy:1,r:2}))
-                .toMatchObject({type:"circle",props:{cx:1,cy:1,r:2}})
-        })
-    
         it("should create ellipse from {type:ellipse, cx,cy, rx, ry}",()=>{
             expect(Geometry.create({type:"elLipse",cx:1,cy:1,rx:2, ry:4}))
                 .toMatchObject({type:"ellipse",props:{cx:1,cy:1,rx:2, ry:4}})
@@ -70,18 +65,6 @@ describe("geometry",()=>{
                 expect(geometry.intersects({x1:0,y1:5,x2:20,y2:5}).length).toBe(0)
                 if(target=="rect")
                     expect(geometry.intersects({x1:0,y1:15,x2:20,y2:15})).toMatchObject([{x:1,y:15},{x:11,y:15}])
-            })
-        })
-
-        describe("circle",()=>{
-            let geometry
-            beforeEach(()=>geometry=Geometry.create({type:"circle",r:10}))
-            
-            it("bounds",()=>{
-                expect(geometry.bounds()).toMatchObject({left:-10,right:10,top:-10,bottom:10})
-                expect(geometry.clone().translate(1,2).bounds()).toMatchObject({left:-9,right:11,top:-8,bottom:12})
-                expect(geometry.clone().translate(1,2).translate(-1,-2).bounds()).toMatchObject({left:-10,right:10,top:-10,bottom:10})
-                expect(geometry.clone().rotate(10).bounds(0)).toMatchObject({left:-10,right:10,top:-10,bottom:10})
             })
         })
 

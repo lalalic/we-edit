@@ -14,7 +14,7 @@ export default Object.assign(({},{setting})=>(
 		]}>
 	
 		<Design/>
-		<SelectStyle type="table">
+		<SelectStyle target="table">
 			{({style,dispatch})=>
 				<PropTypesUI theme="Table" 
 					propTypes={dom.Table.propTypes}
@@ -23,7 +23,7 @@ export default Object.assign(({},{setting})=>(
 					/>
 			}
 		</SelectStyle>
-		<SelectStyle type="row">
+		<SelectStyle target="row">
 			{({style,dispatch})=>
 				<PropTypesUI theme="Row" 
 					propTypes={dom.Row.propTypes}
@@ -33,7 +33,7 @@ export default Object.assign(({},{setting})=>(
 			}
 		</SelectStyle>
 
-		<SelectStyle type="cell">
+		<SelectStyle target="cell">
 			{({style,dispatch})=>
 				<PropTypesUI theme="Cell" 
 					propTypes={dom.Cell.propTypes}

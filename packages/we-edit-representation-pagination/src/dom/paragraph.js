@@ -354,7 +354,7 @@ class Paragraph extends HasParentAndChild(dom.Paragraph){
 	 * @param {*} last 
 	 */
 	createComposed2Parent(line,bLastLine){
-		const {height,width, anchor, dyBlock, topOffset}=line
+		const {height,width, anchor, dyBlock, dyLine, topOffset}=line
 		const {
 			numbering,
 			indent:{left=0,right=0, firstLine: firstLineIndent=0},
@@ -380,7 +380,7 @@ class Paragraph extends HasParentAndChild(dom.Paragraph){
 				}} 
 				anchor={anchor}
 				_inspector={{
-					content:{width,height,dx:nonNumberingFirstLineIndent,dy:topOffset},
+					content:{width,height,dx:nonNumberingFirstLineIndent,dy:topOffset+dyLine},
 					line:{
 						bFirstLine,bLastLine,
 						...line._layoutReason,
@@ -395,7 +395,7 @@ class Paragraph extends HasParentAndChild(dom.Paragraph){
 				>
 				<Group 
 					x={left+nonNumberingFirstLineIndent} 
-					y={topOffset} 
+					y={topOffset+dyLine} 
 					width={width} 
 					height={height}>
 					{line.render(bLastLine)}

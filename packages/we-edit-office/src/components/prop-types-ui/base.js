@@ -45,6 +45,12 @@ export default class base extends PureComponent{
         const {path=""}=this.props
         return path
     }
+
+    get parentPath(){
+        const keys=this.path.split(".")
+        keys.pop()
+        return keys.join(".")
+    }
     
     get theme(){
         return this.getShapeTheme(this.props.theme)
@@ -192,9 +198,9 @@ export default class base extends PureComponent{
     }
 
     set(path, value){
-        const {onChange}=this.props
+        const {onChange}=this.$props
         if(onChange){
-            onChange(value)
+            onChange(value,this)
         }else{
             this.context.set(path,value)
         }

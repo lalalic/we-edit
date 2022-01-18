@@ -21,7 +21,7 @@ export const Paragraph=({children})=>{
     const {indent,spacing}=dom.Paragraph.propTypes
     return (
         <Fragment>
-            <SelectStyle type="paragraph">
+            <SelectStyle target="paragraph">
                 {({dispatch,style})=>(
                     <Fragment>
                         <PropTypesUI {...{
@@ -102,7 +102,7 @@ export const Page=({children})=>{
 export const Shape=({children, theme:{Shape,Anchor}={}})=>{
     return (
         <Fragment>
-            <SelectStyle type="shape">
+            <SelectStyle target="shape">
                 {({style,dispatch})=>(
                     <Fragment>
                         <PropTypesUI 
@@ -115,7 +115,7 @@ export const Shape=({children, theme:{Shape,Anchor}={}})=>{
                     </Fragment>
                 )}
             </SelectStyle>
-            <SelectStyle type="anchor">
+            <SelectStyle target="anchor">
                 {({style,dispatch})=>(
                     <Fragment>
                         <PropTypesUI 

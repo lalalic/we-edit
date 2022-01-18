@@ -530,13 +530,6 @@ export default class Base extends Component{
 			cx: this.UnitShape,
 			cy: this.UnitShape,
 		},{$type:"EllipseGeometryShape",type:"ellipse"}),
-
-		PropTypes.shape({
-			type: PropTypes.string,//circle
-			r: this.UnitShape.isRequired,
-			cx: this.UnitShape,
-			cy: this.UnitShape,
-		},{$type:"CircleGeometryShape",type:"circle"})
 	],{$type:"GeometryShape"}),{
 		normalize:value=>Geometry.create(value),
 		denormalize:(value,normalized)=>{
@@ -545,7 +538,7 @@ export default class Base extends Component{
 			}
 
 			const props={...normalized.props}
-			'width,height,r,rx,ry,cx,cy,x,y'.split(",").forEach(a=>{
+			'width,height,rx,ry,cx,cy,x,y'.split(",").forEach(a=>{
 				if(props[a]!=undefined && value[a]!=undefined)
 					props[a]=this.UnitShape.denormalize(value[a],props[a])
 			})

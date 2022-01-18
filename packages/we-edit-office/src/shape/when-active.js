@@ -30,7 +30,7 @@ export default Object.assign(({children},{setting})=>{
 
 			</Shape>
 			
-			<SelectStyle type="frame">
+			<SelectStyle target="frame">
 				{({style,dispatch})=>(
 					<Fragment>
 						<PropTypesUI propTypes={dom.Frame.propTypes} props={style} theme="Frame"  onChange={frame=>dispatch(ACTION.Entity.UPDATE({frame}))}/>

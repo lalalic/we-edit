@@ -1,6 +1,5 @@
 import React, {PureComponent} from "react"
 import PropTypes from "prop-types"
-import {dom} from "we-edit"
 import {Map, fromJS, Iterable} from "immutable"
 
 import any from "./base"

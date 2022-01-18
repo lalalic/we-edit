@@ -76,7 +76,13 @@ export default ({Shape, Frame, Template})=>class __$1 extends Component{
     getGeometry(geometry,size){
         if(-1!=geometry.trim().indexOf(" "))
             return geometry
-        return Shape.Geometry.create(size).toString()
+        const {width,height}=size
+        switch(geometry){
+            case "ellipse":
+                return {type:"ellipse",rx:width/2, ry:height/2,cx:width/2,cy:height/2}
+            default:
+                return {type:"rect",...size}
+        }
     }
 
     shapeLine({cap, miter, bevel, round, }){

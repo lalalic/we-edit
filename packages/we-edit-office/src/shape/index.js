@@ -9,7 +9,7 @@ import PropTypesUI from "../components/prop-types-ui"
 export default Object.assign(Active,{Create})
 
 export const Setting=({})=>(
-    <SelectStyle type="shape">
+    <SelectStyle target="shape">
         {({style,dispatch})=>(
             <PropTypesUI theme="Shape" uiContext="Dialog" props={style} 
                 propTypes={(({fill,outline})=>({fill,outline}))(dom.Shape.propTypes)} 

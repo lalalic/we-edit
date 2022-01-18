@@ -9,13 +9,18 @@ export default class UnitShape extends base{
     
     constructor({value}){
         super(...arguments)
-        this.state={value}
+        this.state={value: this.normalize(value)}
         this.stepDown=this.stepDown.bind(this)
         this.stepUp=this.stepUp.bind(this)
     }
 
+    normalize(value){
+        const {normalize=a=>a}=this.$props
+        return normalize(value)
+    }
+
     UNSAFE_componentWillReceiveProps({value}){
-        this.setState({value})
+        this.setState({value:this.normalize(value)})
     }
 
     renderTree(){
@@ -23,7 +28,7 @@ export default class UnitShape extends base{
             $props:{
                 min,max,step,onChange,name,label=name,types,path,required,style=this.theme.style,
                 uiContext,theme,
-                defaultValue, isPrimitive,
+                defaultValue, isPrimitive,normalize,
                 ...props
             }, 
             state:{value=""}
@@ -40,7 +45,7 @@ export default class UnitShape extends base{
                         }
                     }}
                     />
-                <svg style={{width:8,position:"absolute",right:2}} viewBox="0 0 8 24">
+                <svg style={{width:8,position:"absolute",right:4}} viewBox="0 0 8 24">
                     <path d="M1 8L4 4L7 8Z" stroke="black" onClick={this.stepUp}/>
                     <path d="M1 12L4 16L7 12Z" stroke="black" onClick={this.stepDown}/>
                 </svg>

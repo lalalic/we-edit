@@ -205,9 +205,10 @@ function createTheme(){
             Ribbon:{
                 wrapper:<Wrappers.RibbonField/>,
                 style:{
-                    width:50,
+                    width:30,
                     marginLeft:2,
                     marginRight:2,
+                    fontSize:"smaller"
                 }
             },
             Dialog:{
@@ -464,7 +465,12 @@ function createTheme(){
         },
         PathGeometryPath:{
             Tree:{
-                style:{width:"auto",fontSize:"smaller"}
+                style:{width:"auto"}
+            }
+        },
+        GeometryShape:{
+            Ribbon:{
+                
             }
         },
         FillShapeTypes:{
@@ -989,11 +995,19 @@ function createTheme(){
                 '*':false,
                 geometry:{
                     i:0,
-                    type:false,
-                    x:false,
-                    y:false,
-                    rx:false,
-                    ry:false,
+                    $0:{
+                        '*':false,
+                        width:{
+                            onChange(width,host){
+                                host.context.set("size",{width})
+                            }
+                        },
+                        height:{
+                            onChange(height,host){
+                                host.context.set("size",{height})
+                            }
+                        }
+                    }
                 },
                 outline:{
                     i:2,

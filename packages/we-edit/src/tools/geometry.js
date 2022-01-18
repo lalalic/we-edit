@@ -93,6 +93,14 @@ class Shape extends Path{
 	get height(){
 		return this.size().height
 	}
+
+	changeWidth(w){
+
+	}
+
+	changeHeight(h){
+
+	}
 }
 
 export default class path extends Shape{
@@ -170,49 +178,13 @@ class rect extends Shape{
 		}
 		return super.intersects(...arguments)
 	}
-}
 
-class circle extends Shape{
-	get type(){
-		return "circle"
+	changeWidth(width){
+		return new this.constructor({...this.props,width}) 
 	}
 
-	constructor({cx=0,cy=0,r}){
-		super(
-			`M ${cx} ${cy}
-			m -${r}, 0
-			a ${r},${r} 0 1,1 ${r * 2},0
-			a ${r},${r} 0 1,1 -${r * 2},0
-			`
-		)
-	}
-
-	get props(){
-		this.__evaluateStack()
-		const [,cx=0,cy=0]=this.segments[0]
-		const [,r]=this.segments[2]
-		return {cx,cy,r}
-	}
-
-	toString(){
-		const {cx,cy,r}=this.props
-		return `circle:${cx||""},${cy||""},${r||""}`
-	}
-
-	clone(){
-		return new this.constructor(this.props)
-	}
-
-	bounds(){
-		const {cx,cy,r}=this.props
-		return {left:cx-r,right:cx+r,top:cy-r,bottom:cy+r}
-	}
-
-	rotate(r,cx=0,cy=0){debugger
-		const a=this.props
-		if(cx==a.cx && cy==a.cy)
-			return this
-		return super.rotate(...arguments)
+	changeHeight(){
+		return new this.constructor({...this.props,height}) 
 	}
 }
 
@@ -238,12 +210,7 @@ class ellipse extends Shape{
 		return xAxisRotation==90 ? {cx,cy,rx:ry,ry:rx} : {cx,cy,rx,ry}
 	}
 
-	toString(){
-		const {cx,cy,rx,ry}=this.props
-		return `ellipse:${cx||""},${cy||""},${rx||""},${ry||""}`
-	}
-
-	bounds(){debugger
+	bounds(){
 		const {cx,cy,rx,ry}=this.props
 		return {left:cx-rx,right:cx+rx, top:cy-ry, bottom:cy+ry}
 	}
@@ -251,9 +218,17 @@ class ellipse extends Shape{
 	clone(){
 		return new this.constructor(this.props)
 	}
+
+	changeWidth(w){
+		return new this.constructor({...this.props, rx:w/2})
+	}
+
+	changeHeight(w){
+		return new this.constructor({...this.props, ry:w/2})
+	}
 }
 
-const Shapes={ellipse, rect, circle}
+const Shapes={ellipse, rect}
 
 const between=(a,b1,b2)=>((a >= b1) && (a <= b2))||((a >= b2) && (a <= b1))
 function line_line_intersect(line1, line2) {

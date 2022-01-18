@@ -34,7 +34,7 @@ export default Object.assign(({children},{setting})=>{
 					return null
 				}}
 			</SelectStyle>
-			<SelectStyle type="anchor">
+			<SelectStyle target="anchor">
 			{({style,dispatch})=>{
 				return <PropTypesUI propTypes={dom.Anchor.propTypes} props={style} theme="Anchor" 
 					onChange={change=>{

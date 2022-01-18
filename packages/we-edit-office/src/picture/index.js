@@ -49,7 +49,7 @@ const Create=compose(
 export default Object.assign(Active,{Create})
 
 export const Setting = ({})=>(
-	<SelectStyle type="image">
+	<SelectStyle target="image">
 		{({style,dispatch})=>(
 			<PropTypesUI theme="Image" uiContext="Dialog"
 				propTypes={(({fill,outline})=>({fill,outline}))(dom.Image.propTypes)} 

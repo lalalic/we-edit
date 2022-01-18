@@ -34,7 +34,7 @@ export default compose(
     })
 )(class extends Component {
     render() {
-        const { value, style, order=["id", "type", "content", "layout", "computed"], filter=["hash", "End","children",a=>a[0]==="_"]} = this.props;
+        const { value, style, order=["id", "type", "content", "layout", "computed"], filter=["hash", "composedUUID","End","children",a=>a[0]==="_"]} = this.props;
         return (
             <div style={style}>
                 {value?.id && <ObjectTree {...{value,order,filter}}/>}

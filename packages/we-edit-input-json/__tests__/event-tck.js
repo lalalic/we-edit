@@ -111,10 +111,6 @@ tck(JSXDocument, `${__dirname}/doc.wejsx`, true, getEditor=>{
             editor.update({type:"shape", geometry:path})
             expect($shape.toJS()).toMatchObject({type:"shape", props:props={...props,geometry:{type:"rect",width:100,height:100}}})
 
-            path=Geometry.create({type:"circle",r:10})
-            editor.update({type:"shape", geometry:path})
-            expect($shape.toJS()).toMatchObject({type:"shape", props:props={...props,geometry:{type:"circle",r:10}}})
-
             editor.update({type:"shape", anchor:{...anchor,wrap:"square"}, shape:{scale:0.5}})
             expect($anchor.toJS()).toMatchObject({type:"anchor",props:{wrap:"square"}})
             

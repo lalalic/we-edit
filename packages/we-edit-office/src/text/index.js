@@ -1,4 +1,4 @@
-import React,{Component, Fragment} from "react"
+import React,{Fragment} from "react"
 import {ACTION, dom} from "we-edit"
 import {ToolbarSeparator,FlatButton} from "material-ui"
 
@@ -12,16 +12,8 @@ import IconClear from "material-ui/svg-icons/editor/format-clear"
 import IconMore from "material-ui/svg-icons/navigation/more-horiz"
 import Dialog from "../components/dialog"
 
-function getTextStyle(selection){
-	const style=selection?.props("text",false)
-	if(style?.size){
-		style.size=dom.Unknown.UnitShape.normalize(style.size,"pt","px")+"pt"
-	}
-	return style
-}
-
 export default ({children})=>(
-	<SelectStyle getStyle={getTextStyle}>
+	<SelectStyle target="text">
 		{({style,dispatch,setting})=>{
 			return (
 				<ContextMenu.Support menus={
@@ -53,7 +45,7 @@ export default ({children})=>(
 
 export function FontSetting({value, onSubmit, ...props}){
 	return (
-		<SelectStyle getStyle={getTextStyle}>
+		<SelectStyle target="text">
 			{({style,dispatch})=>{
 				if(onSubmit==undefined){
 					onSubmit=text=>dispatch(ACTION.Selection.UPDATE({text}))

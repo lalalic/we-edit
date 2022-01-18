@@ -13,7 +13,7 @@ import PropTypesUI from "../components/prop-types-ui"
 import SelectStyle from "../components/select-style"
 
 export default ({children})=>(
-	<SelectStyle type="paragraph">
+	<SelectStyle target="paragraph">
 		{({style,dispatch,setting})=>(
 			<ContextMenu.Support menus={[
 				<MenuItem key="paragraph" primaryText="Paragraph..." onClick={e=>setting('paragraph')}/>,
@@ -59,7 +59,7 @@ const Pilcrow=connect(state=>getUI(state))(({dispatch,pilcrow})=>(
 
 export function ParagraphSetting({value, onSubmit, ...props}){
 	return (
-		<SelectStyle type="paragraph">
+		<SelectStyle target="paragraph">
 			{({style,dispatch})=>{
 				const refSetting=React.createRef()
 				if(onSubmit==undefined){
@@ -89,7 +89,7 @@ export function ParagraphSetting({value, onSubmit, ...props}){
 
 export function ListSetting({shape=dom.Paragraph.propTypes.numbering, value, onSubmit, ...props}){
 	return (
-		<SelectStyle type="paragraph">
+		<SelectStyle target="paragraph">
 			{({style,dispatch})=>{
 				const refSetting=React.createRef()
 				if(onSubmit==undefined){
