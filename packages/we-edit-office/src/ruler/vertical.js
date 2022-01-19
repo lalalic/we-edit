@@ -2,13 +2,13 @@ import React from "react"
 import {onlyUpdateForKeys} from "recompose"
 
 export default onlyUpdateForKeys(['height','footer',"header",'scale','topMargin','bottomMargin',])(
-	({height=0, footer=0, header=0, scale=1,
+	({height=0, footer=0, header=0, scale=1, scaleWidth:width=20,
 	topMargin=3, bottomMargin=3,
 	setTopMargin, setBottomMargin,
 	children,
 	})=>(
 	<div className="ruler vertical">
-		<Scale {...{height:height*scale,from:topMargin*scale, cm:scale*96/2.54, children}}/>
+		<Scale {...{height:height*scale,width,from:topMargin*scale, cm:scale*96/2.54, children}}/>
 		{!!height && <Margin style={{position:"absolute",top:0, left:0, height:topMargin*scale}} onMove={setTopMargin}/>}
 		{!!height && <Margin style={{position:"absolute", bottom:0, left:0, height:bottomMargin*scale}} onMove={setBottomMargin}/>}
 	</div>
@@ -23,7 +23,7 @@ const Margin=({style, onMove, at=AT(style)})=>(
 	</div>
 )
 
-const Scale=({width=20,height,from,cm=96/2.54, children})=>(
+const Scale=({width,height,from,cm=96/2.54, children})=>(
 	<svg style={{width,height,backgroundColor:"white"}}
 		viewBox={`0 0 ${width} ${height}`} >
 		<g transform={`translate(0 ${from})`}>

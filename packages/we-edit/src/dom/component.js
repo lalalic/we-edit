@@ -4,10 +4,6 @@ import units from "../tools/units"
 import Geometry from "../tools/geometry"
 import numberings from "../tools/numbering"
 
-const isPrimitiveChecker=checker=>{
-	return "array,bool,string,func,number,object,symbol".split(",").map(a=>PropTypes[a]).includes(checker)
-}
-
 const asType=($type,base)=>{
 	if(typeof($type)=="string")
 		return `${base}(${$type})`
@@ -70,6 +66,24 @@ export default class Base extends Component{
 				let validator=fn(model)
 				validator.Type=React.createElement(asType($type,'shape'),{...props,schema:model,})
 				validator.isRequired.Type=React.cloneElement(validator.Type, {required:true})
+				validator.normalize=function(value){
+					return Object.keys(value).reduce((normalized,key)=>{
+						if(model[key]?.normalize){
+							normalized[key]=model[key].normalize(value[key])
+						}
+						return normalized
+					},{...value})
+				}
+
+				validator.denormalize=function(value, normalized){
+					Object.keys(value).forEach(key=>{
+						if(model[key]?.denormalize){
+							normalized[key]=model[key].denormalize(value[key],normalized[key])
+						}
+						return normalized
+					})
+					return normalized
+				}
 				return validator
 			}
 		})(types.shape);
@@ -79,6 +93,11 @@ export default class Base extends Component{
 				let validator=fn(types)
 				validator.Type=React.createElement(asType($type,'oneOfType'),{...props,types,})
 				validator.isRequired.Type=React.cloneElement(validator.Type, {required:true})
+				validator.isRequired.types=validator.types=new Proxy(types,{
+					get(o,key){
+						return types.find(({Type:{type}})=>type.indexOf(key)!=-1)
+					}
+				})
 				return validator
 			}
 		})(types.oneOfType);
@@ -88,6 +107,12 @@ export default class Base extends Component{
 				let validator=fn(type)
 				validator.Type=React.createElement(asType($type,'arrayOf'), {...props,type})
 				validator.isRequired.Type=React.cloneElement(validator.Type, {required:true})
+				if(type.normalize){
+					validator.isRequired.normalize=validator.normalize=value=>value.map(a=>type.normalize(a))
+				}
+				if(type.denormalize){
+					validator.isRequired.denormalize=validator.denormalize=(value,normalized)=>normalized.map(a=>type.denormalize(value[0],a))
+				}
 				return validator
 			}
 		})(types.arrayOf);
@@ -95,16 +120,27 @@ export default class Base extends Component{
 	}
 
 	static normalizeChecker=(checker,extend)=>{
-		const isRequired=checker.isRequired
-		const $=({$type:newType, ...props})=>{
+		const {isRequired}=checker
+		const $=({$type:newType, ...props},_extend)=>{
 			const cloned=(...args)=>checker(...args)
 			cloned.isRequired=(...args)=>isRequired(...args)
-			const type=checker.Type.type,i=type.indexOf("(")
-			const changedType= i!=-1 ? `${type.substring(0,i)}(${newType})` : `${type}(${newType})`
+
+			const type=checker.Type.type
+			const i=type.indexOf("(")
+			const baseType=i!=-1 ? type.substring(0,i) : type
+			const changedType= newType ? `${baseType}(${newType})` : baseType
+
 			cloned.Type=React.createElement(changedType,{...checker.Type.props, ...props})
-			cloned.isRequired.Type=React.cloneElement(cloned.Type,{required:true})
-			Object.assign(cloned,{...extend,$})
-			Object.assign(cloned.isRequired,extend)
+			cloned.isRequired.Type=React.cloneElement(cloned.Type,{required:true});
+			//inherit
+			["normalize","denormalize","types"/*oneOfType*/,"shape"/*shape*/].forEach(a=>{
+				if(a in checker){
+					cloned[a]=cloned.isRequired[a]=checker[a]
+				}
+			})
+
+			Object.assign(cloned,{...extend,$,..._extend})
+			Object.assign(cloned.isRequired,{...extend,..._extend})
 			return cloned
 		}
 
@@ -127,14 +163,18 @@ export default class Base extends Component{
 		PropTypes.number,
 		PropTypes.string,
 	],{$type:"UnitShape"}),{
-		normalize:(value,toUnit="px",missUnit=toUnit)=>{
+		normalize:(value,toUnit="px",missUnit)=>{
 			switch(typeof(value)){
-				case "number":
-					return value
+				case "number":{
+					if(!missUnit)
+						return value
+					else
+						value=value+missUnit
+				}
 				case "string":{
 					if(value.indexOf('%')!=-1)
 						return value
-					const val=parseFloat(value), unit=value.replace(/[\s\d\.\+-]/g,"")||missUnit
+					const val=parseFloat(value), unit=value.replace(/[\s\d\.\+-]/g,"")||missUnit||'px'
 					if(toUnit==unit)
 						return val
 					const fn=`${unit}2${toUnit}`
@@ -162,14 +202,18 @@ export default class Base extends Component{
 				}
 			}
 			return normalized
-		}
+		},
+		deprecision(value,precision=1){
+			return value/precision
+		},
+		is:value=>!isNaN(parseFloat(value))
 	})
 
 	//CSS valid values, keyword/hsl()/hsla()/rgb()/rgba()/#hex rgb
 	static ColorShape=this.normalizeChecker(PropTypes.string.$({$type:"ColorShape"}),{
 		normalize:value=>value,
 		denormalize:(value,normalized)=>normalized,
-		is:value=>true,
+		is:value=>typeof(value)=="string",
 	})
 
 	static URLShape=this.normalizeChecker(PropTypes.string.$({$type:"URLShape"}),{
@@ -198,47 +242,52 @@ export default class Base extends Component{
 
 	static FontShape=PropTypes.string.$({$type:"FontShape",isPrimitive:true})
 
+	static MarginShape=this.normalizeChecker(PropTypes.oneOfType([
+		this.UnitShape,//all is same
+		PropTypes.shape({
+			left: this.UnitShape,
+			right: this.UnitShape,
+			top: this.UnitShape,
+			bottom: this.UnitShape
+		},{$type:"MarginShape"}),
+	]),{
+		default:{left:0,right:0,top:0,bottom:0},
+		normalize:(value)=>{
+			if(this.UnitShape.is(value)){
+				value=this.UnitShape.normalize(value)
+				return {left:value, right:value, top:value, bottom:value}
+			}
+			if(typeof(value)=="object"){
+				return this.MarginShape.types.MarginShape.normalize(value)
+			}
+
+			return value
+		},
+		denormalize:(value,normalized)=>{
+			if(typeof(value)=="object"){
+				return this.MarginShape.types.MarginShape.denormalize(value, normalized)
+			}else if(this.MarginShape.canShorten(normalized)){
+				return this.UnitShape.denormalize(value, normalized.left)
+			}
+			return normalized
+		},
+		canShorten:({left,right,top,bottom})=>{
+			return new Set([left,right,top,bottom]).size==1
+		}
+	})
+
 	static GradientStopShape=this.normalizeChecker(PropTypes.shape({
 		position: this.UnitShape,
 		color: this.ColorShape,
 		transparency: PropTypes.number,
 		brightness: PropTypes.number,
-	},{$type:"GradientStopShape"}),{
-		normalize:({color,position, ...stop	})=>{
-			if(color!=undefined)
-				stop.color=this.ColorShape.normalize(color)
-			if(position!=undefined)
-				stop.position=this.UnitShape.normalize(position)
-			return stop
-		},
-		denormalize:(value, normalized)=>{
-			const {color,offset}=value
-			if(color!=undefined)
-				normalized.color=this.ColorShape.denormalize(normalized.color)
-			if(offset!=undefined)
-				normalized.offset=this.UnitShape.denormalize(normalized.offset)
-			return normalized
-		}
-	})
+	},{$type:"GradientStopShape"}))
 
 	static GradientShape=this.normalizeChecker(PropTypes.shape({
 		type:PropTypes.string,
-		angle: this.UnitShape,
+		angle: this.UnitShape.$({},{normalize:a=>this.UnitShape.normalize(a,"deg")}),
 		stops:PropTypes.arrayOf(this.GradientStopShape),
 	},{$type:"GradientShape"}),{
-		normalize:({angle,stops,...gradient})=>{
-			if(angle!=undefined)
-				gradient.angle=this.UnitShape.normalize(angle,"deg")
-			if(stops!=undefined)
-				gradient.stops=stops.map(a=>this.GradientStopShape.normalize(a))
-			return gradient
-		},
-		denormalize:(value, normalized)=>{
-			const {angle}=value
-			if(angle!=undefined)
-				normalized.angle=this.UnitShape.denormalize(angle,normalized.angle)
-			return normalized
-		},
 		is:value=>value?.stops?.length>0
 	})
 
@@ -252,28 +301,7 @@ export default class Base extends Component{
 		foreground: this.ColorShape,
 		background: this.ColorShape,
 	},{$type:"PatternShape"}),{
-		is:value=>!!value?.pattern,
-		normalize:({pattern,...props})=>{
-			if(pattern!=undefined){
-				pattern={...pattern}
-				if(pattern.width!=undefined)
-					pattern.width=this.UnitShape.normalize(pattern.width)
-				if(pattern.height!=undefined)
-					pattern.height=this.UnitShape.normalize(pattern.height)
-				props.pattern=pattern
-			}
-			return props
-		},
-		denormalize:(value,normalized)=>{
-			const {pattern}=value
-			if(pattern!=undefined){
-				if(pattern.width!=undefined && normalized.pattern.width!=undefined)
-					normalized.pattern.width=this.UnitShape.denormalize(pattern.width, normalized.pattern.width)
-				if(pattern.height!=undefined && normalized.pattern.height!=undefined)
-					normalized.pattern.height=this.UnitShape.denormalize(pattern.height, normalized.pattern.height)
-			}
-			return normalized
-		}
+		is:value=>!!value?.pattern
 	})
 
 	/**
@@ -337,31 +365,16 @@ export default class Base extends Component{
 	]),{
 		default:{width:1,color:"black"},
 		normalize:(value)=>{
-			switch(typeof(value)){
-				case "object":{
-					const {gradient, color, width, ...line}=value
-					if(gradient!=undefined)
-						line.gradient=this.GradientShape.normalize(gradient)
-					if(color!=undefined)
-						line.color=this.ColorShape.normalize(color)
-					if(width!=undefined)
-						line.width=this.UnitShape.normalize(width)
-					return line
-				}
-				default:
-					return {width:this.UnitShape.normalize(value)}
+			if(this.UnitShape.is(value)){
+				return {width:this.UnitShape.normalize(value)}
+			}else if(typeof(value)=="string"){
+				return value
 			}
-			
+			return this.LineShape.types.LineShape.normalize(value)
 		},
 		denormalize:(value, normalized)=>{
 			if(typeof(value)=="object"){
-				const {gradient, color, width, ...line}=value
-				if(gradient!=undefined)
-					normalized.gradient=this.GradientShape.denormalize(gradient, normalized.gradient)
-				if(color!=undefined)
-					normalized.color=this.ColorShape.denormalize(color,normalized.color)
-				if(width!=undefined)
-					normalized.width=this.UnitShape.denormalize(width, normalized.width)
+				return this.LineShape.types.LineShape.denormalize(value,normalized)
 			}else if(this.LineShape.canShorten(normalized)){
 				return this.UnitShape.denormalize(value,normalized.width)
 			}
@@ -402,36 +415,14 @@ export default class Base extends Component{
 		},{$type:"FillPictureShape"})
 	]),{
 		normalize:(value)=>{
-			if(typeof(value)=="string"){
+			if(this.BlobShape.is(value)){
 				return {url:value}
-			}else{
-				const {margin, tile, ...normalized}=value
-				if(margin!=undefined)
-					normalized.margin=this.MarginShape.normalize(margin)
-				if(tile!=undefined){
-					const {x,y,...nomalizedTile}=tile
-					if(x!=undefined)
-						nomalizedTile.x=this.UnitShape.normalize(x)
-					if(y!=undefined)
-						normalizedTile.y=this.UnitShape.normalize(y)
-					normalized.tile=normalizedTile
-				}
-				return normalized
 			}
+			return this.FillPictureShape.types.FillPictureShape.normalize(value)
 		},
 		denormalize:(value, normalized)=>{
 			if(typeof(value)=="object"){
-				const {margin, tile, ...denormalized}=normalized
-				if(margin!=undefined && value.margin!=undefined)
-					denormalized.margin=this.MarginShape.denormalize(value.margin, margin)
-				if(tile!=undefined && value.tile!=undefined){
-					const {x,y}=tile
-					if(x!=undefined && value.tile.x!=undefined)
-						denormalized.tile.x=this.UnitShape.denormalize(value.tile.x,x)
-					if(y!=undefined && value.tile.y!=undefined)
-						denormalized.tile.y=this.UnitShape.denormalize(value.tile.y,y)
-				}
-				return denormalized
+				return this.FillPictureShape.types.FillPictureShape.denormalize(value, normalized)
 			}else if(this.canShorten(normalized)){
 				return normalized.url
 			}
@@ -451,43 +442,20 @@ export default class Base extends Component{
 			pattern: this.PatternShape,
 		},{$type:"FillShape"}),
 	],{$type:"FillShapeTypes"}),{
-		normalize:(value)=>{
-			if(typeof(value)=="object"){
-				const {color, pattern, picture,gradient, ...normalized}=value
-				if(color!=undefined){
-					normalized.color=this.ColorShape.normalize(color)
-				}
-				if(pattern!=undefined){
-					normalized.pattern=this.PatternShape.normalize(pattern)
-				}
-				if(picture!=undefined){
-					normalized.picture=this.FillPictureShape.normalize(picture)
-				}
-				if(gradient!=undefined){
-					normalized.gradient=this.GradientShape.normalize(gradient)
-				}
-				
-				return normalized
+		normalize:value=>{
+			if(this.ColorShape.is(value)){
+				return {color:this.ColorShape.normalize(value)}
 			}
-			return {color:this.ColorShape.normalize(value)}
+
+			if(typeof(value)=="object"){
+				return this.FillShape.types.FillShape.normalize(value)	
+			}
+
+			return value
 		},
 		denormalize:(value, normalized)=>{
 			if(typeof(value)=="object"){
-				const {color, pattern, picture, gradient}=normalized
-				const denormalized={...normalized}
-				if(pattern!=undefined && value.pattern!=undefined){
-					denormalized.pattern=this.PatternShape.denormalize(value.pattern,pattern)
-				}
-				if(picture!=undefined && value.picture!=undefined){
-					denormalized.picture=this.FillPictureShape.denormalize(value.picture, picture)
-				}
-				if(color!=undefined && value.color!=undefined){
-					denormalized.color=this.ColorShape.denormalize(value.color,color)
-				}
-				if(gradient!=undefined && value.gradient!=undefined){
-					denormalized.gradient=this.GradientShape.denormalize(value.gradient,gradient)
-				}
-				return denormalized
+				return this.FillShape.types.FillShape.denormalize(value, normalized)
 			}else if(this.FillShape.canShorten(normalized)){
 				return this.ColorShape.denormalize(value, normalized.color)
 			}
@@ -562,22 +530,15 @@ export default class Base extends Component{
 			bottom: this.LineShape.default,
 		},
 		normalize:value=>{
-			if(typeof(value)=="object"){
-				return Object.keys(value).reduce((normalized,key)=>{
-					normalized[key]=this.LineShape.normalize(value[key])
-					return normalized
-				},{...value})
-			}else{
-				value=this.LineShape.normalize(value)
-				return {left:value, right:value, top:value, bottom:value}
+			if(value?.left||value?.right||value?.top||value?.bottom){
+				return this.BorderShape.types.BorderShape.normalize(value)
 			}
+			value=this.LineShape.normalize(value)
+			return {left:value, right:value, top:value, bottom:value}
 		},
 		denormalize:(value,normalized)=>{
-			if(typeof(value)=="object"){
-				return Object.keys(value).reduce((normalized,key)=>{
-					normalized[key]=this.LineShape.denormalize(value[key],normalized[key])
-					return normalized
-				},normalized)
+			if(value?.left||value?.right||value?.top||value?.bottom){
+				return this.BorderShape.types.BorderShape.denormalize(value,normalized)
 			}else if(this.BorderShape.canShorten(normalized)){
 				return this.LineShape.denormalize(value, normalized.left)
 			}
@@ -586,43 +547,6 @@ export default class Base extends Component{
 		canShorten:({left,right,top,bottom})=>{
 			return ![left,right,top,bottom].find(a=>!this.LineShape.canShorten(a))
 				&& new Set([left,right,top,bottom].map(a=>a.width)).size==1
-		}
-	})
-	
-	static MarginShape=this.normalizeChecker(PropTypes.oneOfType([
-		PropTypes.shape({
-			left: this.UnitShape,
-			right: this.UnitShape,
-			top: this.UnitShape,
-			bottom: this.UnitShape
-		},{$type:"MarginShape"}),
-		this.UnitShape//all is same
-	]),{
-		default:{left:0,right:0,top:0,bottom:0},
-		normalize:(value)=>{
-			switch(typeof(value)){
-				case "object":
-					return this.UnitShape.normalizeAll(value)
-				default:{
-					value=this.UnitShape.normalize(value)
-					return {left:value, right:value, top:value, bottom:value}
-				}
-
-			}
-		},
-		denormalize:(value,normalized)=>{
-			if(typeof(value)=="object"){
-				return Object.keys(value).reduce((normalized,key)=>{
-					normalized[key]=this.UnitShape.denormalize(value[key],normalized[key])
-					return normalized
-				},normalized)
-			}else if(this.MarginShape.canShorten(normalized)){
-				return this.UnitShape.denormalize(value, normalized.left)
-			}
-			return normalized
-		},
-		canShorten:({left,right,top,bottom})=>{
-			return new Set([left,right,top,bottom]).size==1
 		}
 	})
 
@@ -638,18 +562,7 @@ export default class Base extends Component{
 		size:this.UnitShape,
 		bold: PropTypes.bool,
 		italic: PropTypes.bool,
-	},{$type:"TextStyleShape"}),{
-		normalize:({size,...style})=>{
-			if(size!=undefined)
-				style.size=this.UnitShape.normalize(size)
-			return style
-		},
-		denormalize:(value,normalized)=>{
-			if(value.size!=undefined && normalized.size)
-				normalized.size=this.UnitShape.denormalize(value.size, normalized.size)
-			return normalized
-		}
-	})
+	},{$type:"TextStyleShape"}))
 	
 	static CommonListShape={
 		id: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
@@ -684,57 +597,6 @@ export default class Base extends Component{
 		this.NumberListShape,
 		this.OutlineListShape,
 	]))
-
-	static NumberingShape=this.normalizeChecker(PropTypes.shape({
-		id: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
-		level: PropTypes.number,
-		indent: this.UnitShape,
-		
-		format: PropTypes.string,
-		start: PropTypes.number,
-
-		hanging: this.UnitShape,
-		align: this.AlignShape,
-		
-		style: this.TextStyleShape,
-		label: PropTypes.oneOfType([
-			PropTypes.string,
-			PropTypes.shape({
-				url: this.BlobShape,
-			})
-		])
-	},{$type:"NumberingShape"}),{
-		normalize:({indent, hanging,style,...values})=>{
-			if(indent!=undefined)
-				values.indent=this.UnitShape.normalize(indent)
-			if(hanging!=undefined)
-				values.hanging=this.UnitShape.normalize(hanging)
-			if(style!=null)
-				values.style=this.TextStyleShape.normalize(style)
-			return values
-		},
-		denormalize:(value, normalized)=>{
-			if(indent!=undefined && normalized.indent!=undefined)
-				normalized.indent=this.UnitShape.denormalize(indent, normalized.indent)
-			if(hanging!=undefined && normalized.hanging!=undefined)
-				normalized.hanging=this.UnitShape.denormalize(hanging, normalized.hanging)
-			if(style!=null && normalized.style!=undefined)
-				values.style=this.TextStyleShape.denormalize(style,normalized.style)
-			return normalized
-		},
-		meet:(current,next)=>{
-			const currentNormalized=this.NumberingShape.normalize(current)
-			const nextNormalized=this.NumberingShape.normalize(next)
-			return (next.indent===undefined || nextNormalized.indent==currentNormalized.indent)
-				&& (next.hanging===undefined || nextNormalized.hanging==currentNormalized.hanging)
-				&& (next.format===undefined || nextNormalized.format==currentNormalized.format)
-				&& (next.start===undefined || nextNormalized.start==currentNormalized.start)
-				&& (next.label===undefined || nextNormalized.label==currentNormalized.label)
-				&& (next.style===undefined || (
-					nextNormalized.style?.fonts==currentNormalized.style?.fonts 
-					&& nextNormalized.style?.size==currentNormalized.style?.size ))
-		}
-	})
 
 	static WrapModeShape=PropTypes.oneOf(["square", "tight", "clear","no"],{$type:"WrapModeShape"})
     static WrapSideShape=PropTypes.oneOf(["both","left","right","largest"],{$type:"WrapSideShape"})
@@ -807,6 +669,18 @@ export default class Base extends Component{
 			}
 			return normalized
 		},{...props, __unnormalized})
+	}
+
+	static deprecision(props, precision=1){
+		const checks=this.propTypes
+		return Object.keys(props).reduce((deprecisioned,key)=>{
+			if(props[key] && checks[key]?.deprecision){
+				deprecisioned[key]=checks[key].deprecision(props[key],precision)
+			}else{
+				deprecisioned[key]=props[key]
+			}
+			return deprecisioned
+		},{})
 	}
 
 	render(){

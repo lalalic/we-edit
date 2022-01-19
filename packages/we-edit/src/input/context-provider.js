@@ -15,6 +15,7 @@ export default class ContextProvider extends PureComponent{
 	static childContextTypes={
 		doc: PropTypes.object,
 		transformer: PropTypes.func,
+		precision: PropTypes.number,
 	}
 
 	constructor({doc}){
@@ -36,7 +37,7 @@ export default class ContextProvider extends PureComponent{
 
 	getChildContext(){
 		const {doc, transformer}=this.props
-		return {doc, transformer}
+		return {doc, transformer, precision: doc.doc.precision||1}
 	}
 
 	render(){

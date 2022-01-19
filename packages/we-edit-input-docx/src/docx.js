@@ -12,7 +12,7 @@ export default class Document extends docx4js{
 
 	constructor(){
 		super(...arguments)
-		this.precision=1
+		this.precision=100
 	}
 
 	createObjectURL(data,type){

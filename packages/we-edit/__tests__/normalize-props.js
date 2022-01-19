@@ -1,8 +1,13 @@
 import React from "react"
+import PropTypes from "prop-types"
 import dom from "../src/dom"
 
 describe("normalize props",()=>{
-    const {UnitShape:{normalize:unit, denormalize:deunit}, Geometry}=dom.Unknown    
+    const {UnitShape:{normalize:unit, denormalize:deunit}, Geometry}=dom.Unknown   
+    it("PropTypes is memorized",()=>{
+        expect(PropTypes.shape({}).Type).toBeDefined()
+    })
+
     it("page size should be normalized to {height,width}",()=>{
         expect((<dom.Page size="A4"/>).props)
             .toMatchObject({width:dom.Page.Size.A4[0], height:dom.Page.Size.A4[1]})
@@ -38,6 +43,14 @@ describe("normalize props",()=>{
 
     it("15% unit should not be normalized",()=>{
         expect(unit("15%")).toBe("15%")
+    })
+
+    it("shape has default normalize and denormalize",()=>{
+        expect(PropTypes.shape({a:PropTypes.number}).normalize).toBeDefined()
+    })
+
+    it("any shape can be extended",()=>{
+        expect(unit).not.toBe(dom.Unknown.UnitShape.$({},{normalize:a=>this.UnitShape.normalize(a,"deg")}))
     })
 
     it("subclass should be normalized",()=>{

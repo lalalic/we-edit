@@ -5,7 +5,8 @@ import {SvgIcon} from "material-ui"
 import Movable from "../components/movable"
 
 export default onlyUpdateForKeys("width,scale,leftMargin,rightMargin,firstLine,leftIndent,cm,step,cols,column".split(","))((
-	{width=0,scale=1,cols=[], column,
+	{precision=100,scale=1,
+	width=0,cols=[], column,scaleHeight:height=20, 
 	leftMargin=3, rightMargin=3, setLeftMargin, setRightMargin,
 	firstLine=0, leftIndent=0, rightIndent=0, setFirstLine, setLeftIndent, setRightIndent,
 	cm=scale*96/2.54, step=cm/8, trim=(x,dx)=>Math[dx>0 ? 'ceil' : 'floor']((x+dx)/step)*step,
@@ -13,8 +14,8 @@ export default onlyUpdateForKeys("width,scale,leftMargin,rightMargin,firstLine,l
 	})=>{
 		let fl=null
 		return (
-			<div className="ruler horizontal" style={{width:width*scale,position:"relative"}}>
-				<Scale {...{width:width*scale,from:leftMargin*scale,cm, children}}>
+			<div className="ruler horizontal" style={{width:width*scale/precision,position:"relative"}}>
+				<Scale {...{width:width*scale,height,from:leftMargin*scale,cm, children, style:{width:width/precision,height}}}>
 					{cols && (()=>{
 							const all=cols.map(({x,width},i)=>[<ColStart x={x} key={i+"0"}/>,<ColEnd x={x+width} key={i+"1"}/>]).flat()
 							all.pop(), all.shift()
@@ -22,7 +23,7 @@ export default onlyUpdateForKeys("width,scale,leftMargin,rightMargin,firstLine,l
 								if(i%2==0) {
 									const b=all[i+1]
 									return [
-										<rect {...{key:i+"2",y:0,height:20,x:a.props.x-2,width:b.props.x-a.props.x+4,fill:"lightgray"}}/>,
+										<rect {...{key:i+"2",y:0,height,x:a.props.x-2,width:b.props.x-a.props.x+4,fill:"lightgray"}}/>,
 										a
 									]
 								}
@@ -31,9 +32,9 @@ export default onlyUpdateForKeys("width,scale,leftMargin,rightMargin,firstLine,l
 							
 						})()
 					}
-					<Margin {...{y:0,x:0,width:leftMargin*scale,height:20,fillOpacity:0.6}} onMove={setLeftMargin}/>
+					<Margin {...{y:0,x:0,width:leftMargin*scale,height,fillOpacity:0.6}} onMove={setLeftMargin}/>
 
-					<Margin {...{y:0,x:(width-rightMargin)*scale,width:rightMargin*scale,height:20,fillOpacity:0.6}} onMove={setRightMargin}/>
+					<Margin {...{y:0,x:(width-rightMargin)*scale,width:rightMargin*scale,height,fillOpacity:0.6}} onMove={setRightMargin}/>
 				</Scale>
 				{
 					((leftMargin, rightMargin, col=cols[column])=>{
@@ -101,8 +102,9 @@ const Marker=({direction="top",degs={bottom:180}, ...props})=>(
 	</SvgIcon>
 )
 
-const Scale=({width,height=20,from,cm, children})=>(
-	<svg style={{width:width,height,backgroundColor:"white"}}
+const Scale=({width,height,from,cm, children, style})=>(
+	<svg style={{width,height,backgroundColor:"white", ...style}}
+		preserveAspectRatio="none"
 		viewBox={`0 0 ${width} ${height}`} >
 		<symbol id="marker" viewBox="0 0 60 60">
 			<path d="M11.5 0 L23 11.5 L23 23 L0 23 L0 11.5Z" fill="white" strokeWidth="1" stroke="gray"/>
