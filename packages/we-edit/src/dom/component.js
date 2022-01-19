@@ -66,7 +66,7 @@ export default class Base extends Component{
 				let validator=fn(model)
 				validator.Type=React.createElement(asType($type,'shape'),{...props,schema:model,})
 				validator.isRequired.Type=React.cloneElement(validator.Type, {required:true})
-				validator.normalize=function(value){
+				validator.isRequired.normalize=validator.normalize=function(value){
 					return Object.keys(value).reduce((normalized,key)=>{
 						if(model[key]?.normalize){
 							normalized[key]=model[key].normalize(value[key])
@@ -75,7 +75,7 @@ export default class Base extends Component{
 					},{...value})
 				}
 
-				validator.denormalize=function(value, normalized){
+				validator.isRequired.denormalize=validator.denormalize=function(value, normalized){
 					Object.keys(value).forEach(key=>{
 						if(model[key]?.denormalize){
 							normalized[key]=model[key].denormalize(value[key],normalized[key])
@@ -84,20 +84,32 @@ export default class Base extends Component{
 					})
 					return normalized
 				}
+
+				if(Object.keys(model).find(k=>model[k].deprecision)){
+					validator.isRequired.deprecision=validator.deprecision=function(value,precision){
+						return Object.keys(model).reduce((resolved,k)=>{
+							if(model[k].deprecision){
+								resolved[k]=model[k].deprecision(value[k],precision)
+							}
+							return resolved
+						},{...value})
+					}
+				}
 				return validator
 			}
 		})(types.shape);
 
 		this.oneOfType=types.oneOfType=(fn=>{
-			return function(types,{$type,...props}={}){
+			return function(types,{$type,$shape,...props}={}){
 				let validator=fn(types)
 				validator.Type=React.createElement(asType($type,'oneOfType'),{...props,types,})
 				validator.isRequired.Type=React.cloneElement(validator.Type, {required:true})
-				validator.isRequired.types=validator.types=new Proxy(types,{
-					get(o,key){
-						return types.find(({Type:{type}})=>type.indexOf(key)!=-1)
+				if($shape!=undefined){
+					validator.isRequired.$shape=validator.$shape=types[$shape]
+					if(validator.$shape.deprecision){
+						validator.isRequired.deprecision=validator.deprecision=validator.$shape.deprecision
 					}
-				})
+				}
 				return validator
 			}
 		})(types.oneOfType);
@@ -112,6 +124,9 @@ export default class Base extends Component{
 				}
 				if(type.denormalize){
 					validator.isRequired.denormalize=validator.denormalize=(value,normalized)=>normalized.map(a=>type.denormalize(value[0],a))
+				}
+				if(type.deprecision){
+					validator.isRequired.deprecision=validator.deprecision=(value, precision)=>value.map(a=>type.deprecision(a, precision))
 				}
 				return validator
 			}
@@ -133,7 +148,7 @@ export default class Base extends Component{
 			cloned.Type=React.createElement(changedType,{...checker.Type.props, ...props})
 			cloned.isRequired.Type=React.cloneElement(cloned.Type,{required:true});
 			//inherit
-			["normalize","denormalize","types"/*oneOfType*/,"shape"/*shape*/].forEach(a=>{
+			["normalize","denormalize","$shape"/*oneOfType*/,"deprecision"].forEach(a=>{
 				if(a in checker){
 					cloned[a]=cloned.isRequired[a]=checker[a]
 				}
@@ -250,7 +265,7 @@ export default class Base extends Component{
 			top: this.UnitShape,
 			bottom: this.UnitShape
 		},{$type:"MarginShape"}),
-	]),{
+	],{$shape:1}),{
 		default:{left:0,right:0,top:0,bottom:0},
 		normalize:(value)=>{
 			if(this.UnitShape.is(value)){
@@ -258,14 +273,14 @@ export default class Base extends Component{
 				return {left:value, right:value, top:value, bottom:value}
 			}
 			if(typeof(value)=="object"){
-				return this.MarginShape.types.MarginShape.normalize(value)
+				return this.MarginShape.$shape.normalize(value)
 			}
 
 			return value
 		},
 		denormalize:(value,normalized)=>{
 			if(typeof(value)=="object"){
-				return this.MarginShape.types.MarginShape.denormalize(value, normalized)
+				return this.MarginShape.$shape.denormalize(value, normalized)
 			}else if(this.MarginShape.canShorten(normalized)){
 				return this.UnitShape.denormalize(value, normalized.left)
 			}
@@ -362,7 +377,7 @@ export default class Base extends Component{
 			sketched: PropTypes.string.$({$type:"LineSketchedShape"}),
 			compound: PropTypes.string,
 		},{$type:"LineShape"}),
-	]),{
+	],{$shape:2}),{
 		default:{width:1,color:"black"},
 		normalize:(value)=>{
 			if(this.UnitShape.is(value)){
@@ -370,11 +385,11 @@ export default class Base extends Component{
 			}else if(typeof(value)=="string"){
 				return value
 			}
-			return this.LineShape.types.LineShape.normalize(value)
+			return this.LineShape.$shape.normalize(value)
 		},
 		denormalize:(value, normalized)=>{
 			if(typeof(value)=="object"){
-				return this.LineShape.types.LineShape.denormalize(value,normalized)
+				return this.LineShape.$shape.denormalize(value,normalized)
 			}else if(this.LineShape.canShorten(normalized)){
 				return this.UnitShape.denormalize(value,normalized.width)
 			}
@@ -413,16 +428,16 @@ export default class Base extends Component{
 			}),
 			margin:this.MarginShape,
 		},{$type:"FillPictureShape"})
-	]),{
+	],{$shape:1}),{
 		normalize:(value)=>{
 			if(this.BlobShape.is(value)){
 				return {url:value}
 			}
-			return this.FillPictureShape.types.FillPictureShape.normalize(value)
+			return this.FillPictureShape.$shape.normalize(value)
 		},
 		denormalize:(value, normalized)=>{
 			if(typeof(value)=="object"){
-				return this.FillPictureShape.types.FillPictureShape.denormalize(value, normalized)
+				return this.FillPictureShape.$shape.denormalize(value, normalized)
 			}else if(this.canShorten(normalized)){
 				return normalized.url
 			}
@@ -441,21 +456,21 @@ export default class Base extends Component{
 			gradient: this.GradientShape,
 			pattern: this.PatternShape,
 		},{$type:"FillShape"}),
-	],{$type:"FillShapeTypes"}),{
+	],{$type:"FillShapeTypes",$shape:1}),{
 		normalize:value=>{
 			if(this.ColorShape.is(value)){
 				return {color:this.ColorShape.normalize(value)}
 			}
 
 			if(typeof(value)=="object"){
-				return this.FillShape.types.FillShape.normalize(value)	
+				return this.FillShape.$shape.normalize(value)	
 			}
 
 			return value
 		},
 		denormalize:(value, normalized)=>{
 			if(typeof(value)=="object"){
-				return this.FillShape.types.FillShape.denormalize(value, normalized)
+				return this.FillShape.$shape.denormalize(value, normalized)
 			}else if(this.FillShape.canShorten(normalized)){
 				return this.ColorShape.denormalize(value, normalized.color)
 			}
@@ -522,7 +537,7 @@ export default class Base extends Component{
 			top:this.LineShape,
 			bottom:this.LineShape,
 		},{$type:"BorderShape"}),
-	],{$type:"BorderShapeTypes"}),{
+	],{$type:"BorderShapeTypes",$shape:1}),{
 		default:{
 			left:this.LineShape.default,
 			right:this.LineShape.default,
@@ -531,14 +546,14 @@ export default class Base extends Component{
 		},
 		normalize:value=>{
 			if(value?.left||value?.right||value?.top||value?.bottom){
-				return this.BorderShape.types.BorderShape.normalize(value)
+				return this.BorderShape.$shape.normalize(value)
 			}
 			value=this.LineShape.normalize(value)
 			return {left:value, right:value, top:value, bottom:value}
 		},
 		denormalize:(value,normalized)=>{
 			if(value?.left||value?.right||value?.top||value?.bottom){
-				return this.BorderShape.types.BorderShape.denormalize(value,normalized)
+				return this.BorderShape.$shape.denormalize(value,normalized)
 			}else if(this.BorderShape.canShorten(normalized)){
 				return this.LineShape.denormalize(value, normalized.left)
 			}
@@ -606,20 +621,7 @@ export default class Base extends Component{
 		y:this.UnitShape,
 		width:this.UnitShape.isRequired,
 		height:this.UnitShape,
-	},{$type:"ColumnShape"}),{
-		normalize:value=>{
-			return Object.keys(value).reduce((normalized,key)=>{
-				normalized[key]=this.UnitShape.normalize(value[key])
-				return normalized
-			},{...value})
-		},
-		unnormalize:(value,normalized)=>{
-			return Object.keys(normalized).reduce((unnormalize,key)=>{
-				unnormalize[key]=this.UnitShape.unnormalize(value[key], normalized[key])
-				return unnormalize
-			},{...normalized})
-		}
-	})
+	},{$type:"ColumnShape"}))
 
 	static as=function (type,defaultProps={}){
 		const displayName=this.displayName.split("-")
@@ -671,16 +673,13 @@ export default class Base extends Component{
 		},{...props, __unnormalized})
 	}
 
-	static deprecision(props, precision=1){
-		const checks=this.propTypes
+	static deprecision(props, precision=1, checks=this.propTypes){
 		return Object.keys(props).reduce((deprecisioned,key)=>{
 			if(props[key] && checks[key]?.deprecision){
 				deprecisioned[key]=checks[key].deprecision(props[key],precision)
-			}else{
-				deprecisioned[key]=props[key]
 			}
 			return deprecisioned
-		},{})
+		},props)
 	}
 
 	render(){
