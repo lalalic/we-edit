@@ -53,7 +53,24 @@ export class Text extends Base{
 	}
 
 	fonts(fonts){
-		this.got("w:rFonts").attr("w:ascii",fonts)
+		if(typeof(fonts)=='string')
+			fonts={ascii:fonts} 
+		const {ascii, ea, hint,cs,hansi}=fonts
+		if(ascii){
+			this.got("w:rFonts").attr("w:ascii",ascii)
+		}
+		if(ea){
+			this.got("w:rFonts").attr("w:eastAsian",ea)
+		}
+		if(hint){
+			this.got("w:rFonts").attr("w:hint",hint)
+		}
+		if(cs){
+			this.got("w:rFonts").attr("w:cs",cs)
+		}
+		if(hansi){
+			this.got("w:rFonts").attr("w:hAnsi",hansi)
+		}
 	}
 
 	size(size){

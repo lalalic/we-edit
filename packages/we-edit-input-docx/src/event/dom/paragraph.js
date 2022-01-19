@@ -193,7 +193,6 @@ export default class Paragraph extends Editor{
 				node.attr("w:firstLine",null)
 			}
 		}
-
 	}
 
 	makeStyleReady(){
@@ -225,7 +224,12 @@ export default class Paragraph extends Editor{
 		const $=this.file.doc.officeDocument.settings
 		$('defaultTabStop').attr('w:val',this.file.px2dxa(v))
 		this.reducer.$('#root').attr('defaultTab',v)
-	}	
+	}
+	
+	spacing({top,bottom}){
+		top && this.got("w:spacing").attr('w:before', this.file.px2dxa(top));
+		bottom && this.got("w:spacing").attr('w:after', this.file.px2dxa(bottom));
+	}
 }
 
 const STYLE_NoList=`

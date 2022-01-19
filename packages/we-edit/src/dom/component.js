@@ -85,6 +85,18 @@ export default class Base extends Component{
 					return normalized
 				}
 
+				validator.isRequired.equal=validator.equal=function(a,b){
+					if(a && b){
+						a=this.normalize(a)
+						b=this.normalize(b)
+						return !!!Object.keys(model).find(k=>{
+							const {equal=(a,b)=>a===b}=model[k]
+							return !equal.call(model[k], a[k],b[k])
+						})
+					}
+					return false
+				}
+
 				if(Object.keys(model).find(k=>model[k].deprecision)){
 					validator.isRequired.deprecision=validator.deprecision=function(props,precision){
 						return Object.keys(props).reduce((deprecisioned,key)=>{
@@ -108,6 +120,11 @@ export default class Base extends Component{
 					validator.isRequired.$shape=validator.$shape=types[$shape]
 					if(validator.$shape.deprecision){
 						validator.isRequired.deprecision=validator.deprecision=validator.$shape.deprecision
+					}
+					validator.isRequired.equal=validator.equal=function(a,b){
+						a=this.normalize(a)
+						b=this.normalize(b)
+						return types[$shape].equal?.(a,b)
 					}
 				}
 				return validator
@@ -148,7 +165,7 @@ export default class Base extends Component{
 			cloned.Type=React.createElement(changedType,{...checker.Type.props, ...props})
 			cloned.isRequired.Type=React.cloneElement(cloned.Type,{required:true});
 			//inherit
-			["normalize","denormalize","$shape"/*oneOfType*/,"deprecision"].forEach(a=>{
+			["normalize","denormalize","$shape"/*oneOfType*/,"deprecision","equal"].forEach(a=>{
 				if(a in checker){
 					cloned[a]=cloned.isRequired[a]=checker[a]
 				}
@@ -221,7 +238,10 @@ export default class Base extends Component{
 		deprecision(value,precision=1){
 			return value/precision
 		},
-		is:value=>!isNaN(parseFloat(value))
+		is:value=>!isNaN(parseFloat(value)),
+		equal(a,b){
+			return parseInt(this.normalize(a)*1000)===parseInt(this.normalize(b)*1000)
+		}
 	})
 
 	//CSS valid values, keyword/hsl()/hsla()/rgb()/rgba()/#hex rgb

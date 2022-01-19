@@ -29,7 +29,7 @@ export default class oneOf extends base{
         return values.map((a, i) => {
             if (a === "-")
                 return <Divider key={i} />
-            const checked=this.equal(a, value)
+            const checked=this.equal(a, value, i, values)
             return React.cloneElement(wrapper1, {
                 key: i,
                 value: a,
@@ -46,13 +46,14 @@ export default class oneOf extends base{
     renderRibbon(){
         const {
             values, defaultValue,value=defaultValue,style, icons=[],
+            name, label=name, icon,children,
             onClick=()=>this.set(this.path, values[0]), 
-            check=a=>typeof(a)!='undefined', name, label=name, icon,children
+            status=values.find((a,i)=>this.equal(a,value,i,values)) ? "checked":"unchecked",
         }=this.$props
         
         return (
             <DropDownButton 
-                status={value && check(value) ? "checked":"unchecked"} 
+                status={status} 
                 {...{onClick, icon:icons[values.indexOf(value)]||icon, hint:label,style}}>
                 {this.iterate()}
                 {children}
@@ -66,7 +67,7 @@ export default class oneOf extends base{
             return this.renderMenu()
         }
         return (
-            <select onChange={a=>this.set(host.path,a)} value={value} style={style}>
+            <select onChange={e=>this.set(this.path,e.target.value)} value={value} style={style}>
                 {!isRequired && <option/>}
                 {values.map((a,i)=><option key={a} value={a}>{labels[i]||a}</option>)}
             </select>
@@ -88,6 +89,9 @@ export default class oneOf extends base{
     }
 
     equal(a,b){
+        const {equal}=this.$props
+        if(equal)
+            return equal(...arguments)
         return a===b || (!!a && !!b && typeof(a)=="object" && typeof(b)=="object" && fromJS(a).equals(fromJS(b)))
     }
 }

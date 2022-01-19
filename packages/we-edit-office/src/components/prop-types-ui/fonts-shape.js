@@ -1,6 +1,7 @@
 import React, { Fragment } from "react"
 import base from "./base"
 import FontList from "../fonts"
+import Shape from "./shape"
 import { LabelField } from "./wrappers"
 
 export default class FontsShape extends base{
@@ -25,6 +26,6 @@ export default class FontsShape extends base{
 
     renderTree(){
         const {value, name, label=name, style}=this.$props
-        return <FontList value={value?.current} onChange={font=>this.set(this.path,font)} placeholder={label} title={label} style={style}/>
+        return <FontList value={value?.current||value?.ascii} onChange={font=>this.set(this.path,font)} placeholder={label} title={label} style={style}/>
     }
 }

@@ -141,7 +141,11 @@ export default ({Section,Group, Container})=>class __$1 extends Component{
 			const {HeaderFooterContainer}=WordSection
 			const {pgSz:{width,height},  pgMar, cols, type, headers, footers, ...props}=this.props
 			const {left=0,right=0, hfWidth=width-left-right}=pgMar||{}
-			props.createLayout=this.factoryOfCreateLayout(width,height,pgMar,this.getCols(width,pgMar,cols),type)
+			const columns=this.getCols(width,pgMar,cols)
+			props.layout=(({header,footer,...margin})=>{
+				return {margin, header,footer, width, height, cols:columns}
+			})(pgMar)
+			props.createLayout=this.factoryOfCreateLayout(width,height,pgMar,columns,type)
 			return(
 				<Fragment>
 					<HeaderFooterContainer id={headerFooterID(this.props.id)}> 

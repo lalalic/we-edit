@@ -1,8 +1,13 @@
+import {dom} from "we-edit"
 import Base from "./base"
 
 export class Section extends Base{
 	got(nodeName){
 		return this.node.children(nodeName.replace(":", "\\:"))
+	}
+
+	layout(layout){
+		this.apply(layout)
 	}
 
 	cols(cols){
@@ -40,12 +45,13 @@ export class Section extends Base{
 		this.got("w:pgSz").attr('w:w',this.file.cm2dxa(width)).attr('w:h',this.file.cm2dxa(height))
 	}
 
-	margin([top,right=top,bottom=top,left=right]){
+	margin(margin){
+		const {top,right,bottom,left}=dom.Unknown.MarginShape.normalize(margin)
 		this.got("w:pgMar")
-			.attr('w:top',this.file.cm2dxa(top))
-			.attr('w:right',this.file.cm2dxa(right))
-			.attr('w:bottom',this.file.cm2dxa(bottom))
-			.attr('w:left',this.file.cm2dxa(left))
+			.attr('w:top',this.file.px2dxa(top))
+			.attr('w:right',this.file.px2dxa(right))
+			.attr('w:bottom',this.file.px2dxa(bottom))
+			.attr('w:left',this.file.px2dxa(left))
 	}
 
 	orientation(o){

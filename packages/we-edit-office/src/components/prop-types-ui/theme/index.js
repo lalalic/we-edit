@@ -815,18 +815,26 @@ function createTheme(){
                 width:false,
                 height:false,
                 size:<OneOf 
-                    values={["A4","A5","A6","Letter"]} 
+                    values={Object.keys(dom.Page.Size).sort()}
+                    equal={(a,b)=>a && b && a.toLowerCase()==b.toLowerCase()}
                     onClick={false} 
                     icon={<IconSize/>}
                     />,
                 orientation:{
                     onClick:false,
+                    equal:(a="portrait",b="portrait")=>a&&b&&a.toLowerCase()==b.toLowerCase(),
                     icon: <IconOrientation/>,
                 },
                 margin:<OneOf 
-                    values={["2.54cm","1.27cm",{top:"2.54cm",bottom:"2.54",left:"1.91cm",right:"1.91cm"},{top:"2.54cm",bottom:"2.54",left:"5.08cm",right:"5.08cm"},{top:"2.54cm",bottom:"2.54",left:"3.18cm",right:"2.54cm"},"-"]}
+                    values={[
+                        "2.54cm","1.27cm",
+                        {top:"2.54cm",bottom:"2.54cm",left:"1.91cm",right:"1.91cm"},
+                        {top:"2.54cm",bottom:"2.54cm",left:"5.08cm",right:"5.08cm"},
+                        {top:"2.54cm",bottom:"2.54cm",left:"3.18cm",right:"2.54cm"},
+                        "-"]}
                     labels={["Normal","Narrow","Moderate","Wide","Mirrored"]} 
                     onClick={false} 
+                    equal={(a,b)=>dom.Unknown.MarginShape.equal(a,b)}
                     icon={<IconMargin/>}
                     children={<Fragment><Divider/><Link label="Custom Margins..." dialog="page"/></Fragment>}
                     />,
@@ -834,6 +842,21 @@ function createTheme(){
                     onClick={false}
                     values={[[1],[2],[3],[1,2],[2,1]]}
                     labels={["One", "Two", "Three", "Left", "Right"]}
+                    equal={(_,value=[],a)=>{
+                        return a==(()=>{
+                            switch(value.length){
+                                case 2:{
+                                    const r=value[0].width/value[1].width
+                                    if(r==0.5)
+                                        return 3
+                                    if(r==2)
+                                        return 4
+                                }
+                                default:
+                                    return value.length-1
+                            }
+                        })();
+                    }}
                     icons={[
                         <IconColumn>
                             <Column key={++uuid} d="M12 6.5v12" strokeWidth="12"/>
