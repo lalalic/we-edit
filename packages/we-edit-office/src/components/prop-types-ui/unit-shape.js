@@ -9,7 +9,6 @@ export default class UnitShape extends base{
     }
     static contextTypes={
         ...super.contextTypes,
-        precision: PropTypes.number,
     }
     
     constructor({value}){
@@ -22,17 +21,6 @@ export default class UnitShape extends base{
     normalize(value){
         const {normalize=a=>a}=this.$props
         return normalize(value)
-    }
-
-    deprecision(value){
-        const {precision=1}=this.context
-        switch(typeof(value)){
-            case "string":
-                return value.replace(/(\d+)/,a=>parseFloat(a)/precision)
-            case "number":
-                return value/precision
-        }
-        return value
     }
 
     UNSAFE_componentWillReceiveProps({value}){
@@ -51,7 +39,7 @@ export default class UnitShape extends base{
         }=this
         return (
             <span style={{position:"relative", display:"inline-block"}} className="unit-shape">
-                <input {...{...props,title:label,style,value:this.deprecision(value), type:"text"}} 
+                <input {...{...props,title:label,style,value, type:"text"}} 
                     onFocus={e=>e.target.select()}
                     onChange={e=>this.setState({value:e.target.value})}
                     onBlur={a=>this.set(this.path, value)}

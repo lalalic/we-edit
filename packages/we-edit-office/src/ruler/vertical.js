@@ -1,13 +1,13 @@
 import React from "react"
 import {onlyUpdateForKeys} from "recompose"
 
-export default onlyUpdateForKeys(['height','footer',"header",'scale','topMargin','bottomMargin',])(
-	({height=0, footer=0, header=0, scale=1, scaleWidth:width=20,
+export default onlyUpdateForKeys(['height','scale','topMargin','bottomMargin',])(
+	({height=0, scale=1, scaleWidth:width=20,
 	topMargin=3, bottomMargin=3,
 	setTopMargin, setBottomMargin,
 	children,
 	})=>(
-	<div className="ruler vertical">
+	<div className="ruler vertical" style={{height:height*scale}}>
 		<Scale {...{height:height*scale,width,from:topMargin*scale, cm:scale*96/2.54, children}}/>
 		{!!height && <Margin style={{position:"absolute",top:0, left:0, height:topMargin*scale}} onMove={setTopMargin}/>}
 		{!!height && <Margin style={{position:"absolute", bottom:0, left:0, height:bottomMargin*scale}} onMove={setBottomMargin}/>}

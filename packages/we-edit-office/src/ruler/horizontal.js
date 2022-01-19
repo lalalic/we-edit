@@ -5,7 +5,7 @@ import {SvgIcon} from "material-ui"
 import Movable from "../components/movable"
 
 export default onlyUpdateForKeys("width,scale,leftMargin,rightMargin,firstLine,leftIndent,cm,step,cols,column".split(","))((
-	{precision=100,scale=1,
+	{scale=1,
 	width=0,cols=[], column,scaleHeight:height=20, 
 	leftMargin=3, rightMargin=3, setLeftMargin, setRightMargin,
 	firstLine=0, leftIndent=0, rightIndent=0, setFirstLine, setLeftIndent, setRightIndent,
@@ -14,8 +14,8 @@ export default onlyUpdateForKeys("width,scale,leftMargin,rightMargin,firstLine,l
 	})=>{
 		let fl=null
 		return (
-			<div className="ruler horizontal" style={{width:width*scale/precision,position:"relative"}}>
-				<Scale {...{width:width*scale,height,from:leftMargin*scale,cm, children, style:{width:width/precision,height}}}>
+			<div className="ruler horizontal" style={{width:width*scale,position:"relative"}}>
+				<Scale {...{width:width*scale,height,from:leftMargin*scale,cm, children}}>
 					{cols && (()=>{
 							const all=cols.map(({x,width},i)=>[<ColStart x={x} key={i+"0"}/>,<ColEnd x={x+width} key={i+"1"}/>]).flat()
 							all.pop(), all.shift()

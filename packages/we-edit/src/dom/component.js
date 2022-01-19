@@ -86,13 +86,13 @@ export default class Base extends Component{
 				}
 
 				if(Object.keys(model).find(k=>model[k].deprecision)){
-					validator.isRequired.deprecision=validator.deprecision=function(value,precision){
-						return Object.keys(model).reduce((resolved,k)=>{
-							if(model[k].deprecision){
-								resolved[k]=model[k].deprecision(value[k],precision)
+					validator.isRequired.deprecision=validator.deprecision=function(props,precision){
+						return Object.keys(props).reduce((deprecisioned,key)=>{
+							if(props[key] && model[key]?.deprecision){
+								deprecisioned[key]=model[key].deprecision(props[key],precision)
 							}
-							return resolved
-						},{...value})
+							return deprecisioned
+						},{...props})
 					}
 				}
 				return validator
@@ -679,7 +679,7 @@ export default class Base extends Component{
 				deprecisioned[key]=checks[key].deprecision(props[key],precision)
 			}
 			return deprecisioned
-		},props)
+		},{...props})
 	}
 
 	render(){

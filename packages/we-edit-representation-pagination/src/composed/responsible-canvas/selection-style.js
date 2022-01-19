@@ -1,4 +1,4 @@
-import {SelectionStyle} from "we-edit"
+import {SelectionStyle, dom} from "we-edit"
 import memoize from "memoize-one"
 import Test from "./test"
 
@@ -21,6 +21,10 @@ export default class PaginationSelectionStyle extends SelectionStyle{
         const target=positioning.getComposer(start.id)
         this.isFocusable=start.id==end.id && target && target.focusable
         this.isRange=!this.isCursor && !this.isFocusable
+    }
+
+    get precision(){
+        return this.positioning.precision
     }
 
     isSelectionChanged(b){
@@ -62,7 +66,8 @@ export default class PaginationSelectionStyle extends SelectionStyle{
             return null;
         }
         
-        return page.layoutOf(this.position)
+        const layout=page.layoutOf(this.position)
+        return dom.Frame.deprecision(layout, this.precision, page.constructor.propTypes)
     })
 
     _textProps=memoize((type,getFromContent)=>{
@@ -94,7 +99,8 @@ export default class PaginationSelectionStyle extends SelectionStyle{
         const composer=this.positioning.responsible.getComposer(cellProps.id)
         if(!composer)
             return cellProps
-        const props=composer.computed.composed[0].props
+        let props=composer.computed.composed[0].props
+        props=dom.Frame.deprecision(props,this.precision, composer.constructor.propTypes)
         return {...cellProps, ...props}
     })
 
@@ -109,11 +115,13 @@ export default class PaginationSelectionStyle extends SelectionStyle{
         if (!page) {
             return null;
         }
-        const pageY = () => this.positioning.pageXY(this.position.page).y;
+        const precision=this.precision
+        const deprecision=(props,types=page.constructor.propTypes)=>dom.Frame.deprecision(props,this.precision, types);
+        const pageY = () => this.positioning.pageXY(this.position.page).y/precision;
         const line = () => this.position.line
-        const column = () => page.columnIndexOf(line(),this.position);
-        const cols = () => [...page.cols];
-        const { margin, width, height } = page.props;
+        const column = () => deprecision(page.columnIndexOf(line(),this.position),dom.Frame.ColumnShape);
+        const cols = () => [...deprecision(page.cols,page.constructor.propTypes.cols)];
+        const { margin, width, height } = deprecision({...page.props});
         return {
             ...this.position,
             get pageY() {
@@ -129,7 +137,7 @@ export default class PaginationSelectionStyle extends SelectionStyle{
                 return cols();
             },
             get size() {
-                return { width, height };
+                return { width, height};
             },
             get margin() {
                 return margin;

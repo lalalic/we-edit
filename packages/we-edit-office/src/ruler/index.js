@@ -38,13 +38,10 @@ export default compose(
 		const {scale=1}=getUI(state)
 		return {scale}
 	}),
-	withProps(({selection,scale})=>{
+	withProps(({selection})=>{
 		const {
 				width,height,
-				margin:{
-					left:leftMargin,top:topMargin,right:rightMargin,bottom:bottomMargin,
-					header,footer,
-				}={},
+				margin:{left:leftMargin,top:topMargin,right:rightMargin,bottom:bottomMargin}={},
 				cols=[],
 			}=(selection?.props("layout")||{})
 
@@ -54,13 +51,12 @@ export default compose(
 		return {
 			width,height,leftMargin,topMargin,bottomMargin,rightMargin,leftIndent,rightIndent,firstLine,
 			cols,column,
-			header,footer,
-			pageY:scale*pageY,
+			pageY,
 		}
 	}),
 )(({direction, pageY, ...props})=>(	
 	direction=="vertical" ? 
-		<div style={{position:"relative",top:pageY}}><VerticalRuler {...props}/></div> :
+		<div style={{position:"relative",top:pageY*props.scale}}><VerticalRuler {...props}/></div> :
 		<HorizontalRuler {...props}/>
 		
 ))

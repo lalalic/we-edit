@@ -26,7 +26,7 @@ export default class Canvas extends Component{
 				<div style={{flex:"1 100%", display:"flex", flexDirection:"column",width:"100%"}}>
 					<div style={{flex:"1 100%",textAlign:"center"}}>
 						{ruler && (
-							<div style={{position:"sticky",top:0}}>
+							<div style={{position:"sticky",top:0,height:horizontalRulerHeight}}>
 								<Ruler direction="horizontal" {...ruler.horizontal}/>
 							</div>
 						)}
