@@ -12,6 +12,7 @@ export default class bool extends base{
         const {name, value, label=name,icon, path, uiContext, isPrimitive,type,theme, ...props}=this.$props
         return <CheckIconButton {...props}
             label={label} 
+            disabled={this.context.disabled}
             status={value ? "checked" : "unchecked"} 
             onClick={e=>this.set(this.path, !!!value)}
             children={icon}
@@ -20,11 +21,11 @@ export default class bool extends base{
 
     renderTree(){
         const {value}=this.$props
-        return (<input type="checkbox" checked={!!value} onChange={e=>this.set(this.path,!!!value)}/>)
+        return (<input type="checkbox" checked={!!value} disabled={this.context.disabled} onChange={e=>!this.context.disabled&&this.set(this.path,!!!value)}/>)
     }
 
     renderMenu(){
         const {name, value, label=name, icon,}=this.$props
-        return <MenuItem primaryText={label} checked={!!value} onClick={e.this.set(this.path,!!!value)} leftIcon={icon}/>
+        return <MenuItem primaryText={label} checked={!!value} onClick={e=>!this.context.disabled && this.set(this.path,!!!value)} leftIcon={icon}/>
     }
 }

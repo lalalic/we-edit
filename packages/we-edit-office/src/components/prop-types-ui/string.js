@@ -16,7 +16,7 @@ export default class extends base{
         const {name, value, label=name,accept, icon, style, type, isPrimitive, $presets, ...props}=this.$props
         
         if(type=="file"){
-            return <CheckIconButton {...props}
+            return <CheckIconButton {...props} disabled={this.context.disabled}
                         label={label} 
                         status={value ? "checked" : "unchecked"} 
                         onClick={e=>selectFile(accept).then(url=>this.set(this.path,url))}
@@ -28,6 +28,7 @@ export default class extends base{
             title:label,
             value, 
             style,
+            disabled:this.context.disabled,
             onChange:e=>this.set(this.path, e.target.value)
         }}/>
     }   
@@ -35,7 +36,7 @@ export default class extends base{
     renderMenu(){
         const {name, label=name, accept,type}=this.$props
         if(type=="file"){
-            return <MenuItem primaryText={label} onClick={e=>selectFile(accept).then(url=>this.set(this.path,url))}/>
+            return <MenuItem primaryText={label} onClick={e=>!this.context.disabled && selectFile(accept).then(url=>this.set(this.path,url))}/>
         }
         return this.renderTree()
     }

@@ -1,14 +1,10 @@
 import React from "react"
-import PropTypes from "prop-types"
 import base from "./string"
 
 export default class UnitShape extends base{
     static displayName="UnitShape"
     static defaultProps={
         isPrimitive:true,
-    }
-    static contextTypes={
-        ...super.contextTypes,
     }
     
     constructor({value}){
@@ -37,9 +33,11 @@ export default class UnitShape extends base{
             }, 
             state:{value=""}
         }=this
+        if(this.context.disabled)
+            props.disabled=true
         return (
             <span style={{position:"relative", display:"inline-block"}} className="unit-shape">
-                <input {...{...props,title:label,style,value, type:"text"}} 
+                <input {...{...props,title:label,style,value, type:"text",}} 
                     onFocus={e=>e.target.select()}
                     onChange={e=>this.setState({value:e.target.value})}
                     onBlur={a=>this.set(this.path, value)}
@@ -58,6 +56,8 @@ export default class UnitShape extends base{
     }
 
     stepUp(){
+        if(this.context.disabled)
+            return 
         const {$props:{step=1, min=Number.MIN_SAFE_INTEGER,max=Number.MAX_SAFE_INTEGER}, state:{value:display}}=this
         const unit=(display+"").replace(/[\d\.\+-]/g,"")
         const value=parseFloat(display)||0
@@ -67,6 +67,9 @@ export default class UnitShape extends base{
     }
 
     stepDown(){
+        if(this.context.disabled)
+            return 
+        
         const {$props:{step=1, min=Number.MIN_SAFE_INTEGER,max=Number.MAX_SAFE_INTEGER}, state:{value:display=""}}=this
         const unit=(display+"").replace(/[\d\.\+-]/g,"")
         const value=parseFloat(display)||0

@@ -1,10 +1,15 @@
 import React, {Component, Fragment} from "react"
+import PropTypes from "prop-types"
 import Popover from "material-ui/Popover"
 import SizeIconButton from "../components/size-icon-button"
 import IconMore from 'material-ui/svg-icons/navigation/arrow-drop-down'
 import {Menu} from '../components/menu'
 
 export default class DropdownButton extends Component{
+	static contextTypes={
+		disabled:PropTypes.bool,
+	}
+
 	constructor(){
 		super(...arguments)
 		this.state={open:false}
@@ -17,7 +22,7 @@ export default class DropdownButton extends Component{
 			children, labelStyle={fontSize:"xx-small"},menuStyle={},
 			status, onClick=toggle, ...props}=this.props
 		
-		const menus=open && (
+		const menus=!this.context.disabled && open && (
 			<Popover 
 				open={true} 
 				anchorEl={anchor}

@@ -21,6 +21,7 @@ export default class base extends PureComponent{
         set: PropTypes.func,
         propTypesUITheme: PropTypes.object,
         setting: PropTypes.func,
+        disabled: PropTypes.bool,
     }
 
     static propTypes={
