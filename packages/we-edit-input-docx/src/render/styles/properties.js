@@ -29,7 +29,8 @@ export class Properties{
 	pgSz(x){
 		return{
 			width:this.docx.dxa2Px(x.attribs['w:w']),
-			height:this.docx.dxa2Px(x.attribs['w:h'])
+			height:this.docx.dxa2Px(x.attribs['w:h']),
+			orientation: x.attribs['w:orient'],
 		}
 	}
 	pgMar(x){

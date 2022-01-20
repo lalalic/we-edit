@@ -43,7 +43,6 @@
 	}
 
 	&.horizontal{
-		margin: 0px auto 0px auto;
 		.margin{
 			height:@rulerHeight;
 			background-color:black;
@@ -63,39 +62,6 @@
 			&.left .mover{
 				float:right;
 				right: -2px;
-			}
-		}
-
-		.marker{
-			height:8px;
-			width:8px;
-			svg{
-				width:100%!important;
-				height:100%!important;
-				display:block!important;
-				position:relative;
-				top:12px;
-			}
-		}
-
-		.indent{
-			.marker();
-
-			&.left svg{
-				left:-4px;
-			}
-
-			&.right svg{
-				right:-4px;
-			}
-		}
-
-		.first-line{
-			.marker();
-
-			&.left svg{
-				top:0px;
-				left:-4px;
 			}
 		}
 	}

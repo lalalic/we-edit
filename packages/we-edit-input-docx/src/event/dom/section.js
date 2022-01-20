@@ -47,11 +47,11 @@ export class Section extends Base{
 
 	margin(margin){
 		const {top,right,bottom,left}=dom.Unknown.MarginShape.normalize(margin)
-		this.got("w:pgMar")
-			.attr('w:top',this.file.px2dxa(top))
-			.attr('w:right',this.file.px2dxa(right))
-			.attr('w:bottom',this.file.px2dxa(bottom))
-			.attr('w:left',this.file.px2dxa(left))
+		const pgMar=this.got("w:pgMar")
+		top!=undefined && pgMar.attr('w:top',this.file.px2dxa(top))
+		right!=undefined && pgMar.attr('w:right',this.file.px2dxa(right))
+		bottom!=undefined && pgMar.attr('w:bottom',this.file.px2dxa(bottom))
+		left!=undefined && pgMar.attr('w:left',this.file.px2dxa(left))
 	}
 
 	orientation(o){

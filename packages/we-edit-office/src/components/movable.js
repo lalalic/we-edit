@@ -4,13 +4,13 @@ export default class Movable extends Component{
 	state={move:false}
 	changing={}
 	render(){
-		const {move, x0,y0,x,y}=this.state
+		const {move}=this.state
 		const {changing}=this
-		let {onMove=a=>null, children}=this.props
+		let {children, cursor}=this.props
 		
 		let overlay=null
 		if(move){
-			overlay=<Overlay onMouseUp={e=>this.onEndMove(e)} onMouseMove={e=>this.move(e)}/>
+			overlay=<Overlay onMouseUp={e=>this.onEndMove(e)} onMouseMove={e=>this.move(e)} cursor={cursor}/>
 			children=React.cloneElement(children, {...changing, onMouseUp:e=>this.onEndMove(e)})
 		}else{
 			children=React.cloneElement(children, {
@@ -52,4 +52,4 @@ export default class Movable extends Component{
 	}
 }
 
-const Overlay=props=><div {...props} style={{position:"fixed", left:0, top:0, width:"100%",height:"100%",cursor:"default"}}/>
+const Overlay=({cursor,...props})=><div {...props} style={{position:"fixed", zIndex:Number.MAX_SAFE_INTEGER, left:0, top:0, width:"100%",height:"100%",cursor:cursor||"default"}}/>

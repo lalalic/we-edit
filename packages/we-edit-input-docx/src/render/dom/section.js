@@ -139,11 +139,11 @@ export default ({Section,Group, Container})=>class __$1 extends Component{
 		if(Section.support('pageable')){
 			const WordSection=this.constructor.Section(Section)
 			const {HeaderFooterContainer}=WordSection
-			const {pgSz:{width,height},  pgMar, cols, type, headers, footers, ...props}=this.props
+			const {pgSz:{width,height, orientation},  pgMar, cols, type, headers, footers, ...props}=this.props
 			const {left=0,right=0, hfWidth=width-left-right}=pgMar||{}
 			const columns=this.getCols(width,pgMar,cols)
 			props.layout=(({header,footer,...margin})=>{
-				return {margin, header,footer, width, height, cols:columns}
+				return {margin, header,footer, width, height, cols:columns, orientation}
 			})(pgMar)
 			props.createLayout=this.factoryOfCreateLayout(width,height,pgMar,columns,type)
 			return(

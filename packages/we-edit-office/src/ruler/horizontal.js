@@ -6,7 +6,7 @@ import Movable from "../components/movable"
 
 export default onlyUpdateForKeys("width,scale,leftMargin,rightMargin,firstLine,leftIndent,cm,step,cols,column".split(","))((
 	{scale=1,
-	width=0,cols=[], column,scaleHeight:height=20, 
+	width=0,cols=[], column,scaleHeight:height=20, markerSize=8,
 	leftMargin=3, rightMargin=3, setLeftMargin, setRightMargin,
 	firstLine=0, leftIndent=0, rightIndent=0, setFirstLine, setLeftIndent, setRightIndent,
 	cm=scale*96/2.54, step=cm/8, trim=(x,dx)=>Math[dx>0 ? 'ceil' : 'floor']((x+dx)/step)*step,
@@ -14,7 +14,7 @@ export default onlyUpdateForKeys("width,scale,leftMargin,rightMargin,firstLine,l
 	})=>{
 		let fl=null
 		return (
-			<div className="ruler horizontal" style={{width:width*scale,position:"relative"}}>
+			<div className="ruler horizontal" style={{width:width*scale,position:"relative",height,margin: "0px auto 0px auto"}}>
 				<Scale {...{width:width*scale,height,from:leftMargin*scale,cm, children}}>
 					{cols && (()=>{
 							const all=cols.map(({x,width},i)=>[<ColStart x={x} key={i+"0"}/>,<ColEnd x={x+width} key={i+"1"}/>]).flat()
@@ -32,9 +32,6 @@ export default onlyUpdateForKeys("width,scale,leftMargin,rightMargin,firstLine,l
 							
 						})()
 					}
-					<Margin {...{y:0,x:0,width:leftMargin*scale,height,fillOpacity:0.6}} onMove={setLeftMargin}/>
-
-					<Margin {...{y:0,x:(width-rightMargin)*scale,width:rightMargin*scale,height,fillOpacity:0.6}} onMove={setRightMargin}/>
 				</Scale>
 				{
 					((leftMargin, rightMargin, col=cols[column])=>{
@@ -44,12 +41,41 @@ export default onlyUpdateForKeys("width,scale,leftMargin,rightMargin,firstLine,l
 							leftMargin=col.x
 							rightMargin=width-col.x-col.width
 						}
+						const indentStyle={position:"absolute",width:markerSize,height:markerSize}
+						const halfMarkerSize=markerSize/2
 						return [
+							<Movable key="leftMargin" cursor="ew-resize"
+								onAccept={dx=>setLeftMargin(trim(leftMargin*scale,dx)/scale)}
+								onMove={dx=>({width:trim(leftMargin*scale,dx)})}
+								>
+								{
+									React.createElement(({width,moverWidth=3,style,...props})=>(
+										<div style={{...style,width:moverWidth,left:width-moverWidth,cursor:"ew-resize",top:0,opacity:0.6}} {...props}>
+											<div style={{...style,width:width-moverWidth,right:moverWidth,cursor:"default"}}/>
+										</div>	
+									),{width:leftMargin*scale,style:{position:"absolute",height,background:"black",}})
+								}
+							</Movable>,
+							<Movable key="rightMargin" cursor="ew-resize"
+								onAccept={dx=>setRightMargin(trim(rightMargin*scale,-dx)/scale)}
+								onMove={dx=>({width:trim(rightMargin*scale,-dx)})}
+								>
+								{
+									React.createElement(({width,moverWidth=3,style,...props})=>(
+										<div style={{...style,width:moverWidth,right:width-moverWidth,cursor:"ew-resize",top:0,opacity:0.6}} {...props}>
+											<div style={{...style,width:width-moverWidth,left:moverWidth,cursor:"default"}}/>
+										</div>	
+									),{width:rightMargin*scale,style:{position:"absolute",height,background:"black",}})
+								}
+							</Movable>,
+
 							<Movable ref={a=>fl=a} key="first"
 								onAccept={dx=>setFirstLine((trim((leftIndent+firstLine)*scale,dx)-leftIndent*scale)/scale)}
-								onMove={dx=>({style:{position:"absolute", top:0,left:leftMargin*scale+trim((leftIndent+firstLine)*scale,dx)}})}
+								onMove={dx=>({style:{...indentStyle, top:0,left:leftMargin*scale+trim((leftIndent+firstLine)*scale,dx)-halfMarkerSize}})}
 								>
-								<FirstLine style={{position:"absolute", top:0,left:(leftMargin+leftIndent+firstLine)*scale}}/>
+								<div title="First Line Indent" style={{...indentStyle, top:0,left:(leftMargin+leftIndent+firstLine)*scale-halfMarkerSize}}>
+									<Marker direction="bottom"/>
+								</div>
 							</Movable>,
 							<Movable key="left"
 								onAccept={dx=>{
@@ -58,17 +84,21 @@ export default onlyUpdateForKeys("width,scale,leftMargin,rightMargin,firstLine,l
 								}}
 								onMove={dx=>{
 									fl.setState({move:true,x0:0,y0:0,x:dx,y:0})
-									return {style:{position:"absolute", top:0,left:leftMargin*scale+trim(leftIndent*scale,dx)}}
+									return {style:{...indentStyle, bottom:0,left:leftMargin*scale+trim(leftIndent*scale,dx)-halfMarkerSize}}
 								}}
 								>
-								<Indent style={{position:"absolute", top:0,left:(leftMargin+leftIndent)*scale}}/>
+								<div title="Left Indent" style={{...indentStyle, bottom:0,left:(leftMargin+leftIndent)*scale-halfMarkerSize}}>
+									<Marker/>
+								</div>
 							</Movable>,
 							
 							<Movable key="right"
 								onAccept={dx=>setRightIndent(trim(rightIndent*scale,-dx)/scale)}
-								onMove={dx=>({style:{position:"absolute", top:0,right:rightMargin*scale+trim(rightIndent*scale,-dx)}})}
+								onMove={dx=>({style:{...indentStyle,bottom:0,right:rightMargin*scale+trim(rightIndent*scale,-dx)-halfMarkerSize}})}
 								>
-								<Indent style={{position:"absolute", top:0,right:(rightMargin+rightIndent)*scale}}/>
+								<div title="Right Indent" style={{...indentStyle,bottom:0,right:(rightMargin+rightIndent)*scale-halfMarkerSize}}>
+									<Marker/>
+								</div>
 							</Movable>
 						]
 					})(leftMargin,rightMargin)
@@ -77,26 +107,14 @@ export default onlyUpdateForKeys("width,scale,leftMargin,rightMargin,firstLine,l
 		)
 })
 
-const AT=(style,keys=Object.keys(style))=>"left,right".split(",").find(a=>keys.includes(a))
-
-const Margin=({onMove,...props})=>(
-	<rect {...props}/>
-)
-
-const Indent=({style,at=AT(style), ...props})=>(
-	<div className={`indent ${at}`} style={style} title={`${at} Indent`} {...props}>
-		<Marker/>
+const Margin=({width,height,side, style, ...props})=>(
+	<div style={{position:"absolute",top:0,width:2,cursor:"ew-resize",[side]:width,height}} {...props}>
+		<div style={{position:"absolute",width:width-2,background:"black",cursor:"default",opacity:0.6,height:"100%",...style}}/>
 	</div>
 )
 
-const FirstLine=props=>(
-	<div className="first-line left" {...props} title="First Line Indent">
-		<Marker direction="bottom"/>
-	</div>
-)
-
-const Marker=({direction="top",degs={bottom:180}, ...props})=>(
-	<SvgIcon {...props}>
+const Marker=({direction="top",degs={bottom:180}, style, ...props})=>(
+	<SvgIcon {...props} style={{...style,width:"100%",height:"100%",display:"block"}}>
 		<path transform={`rotate(${degs[direction]||0} 12 12)`}
 			d="M11.5 0 L23 11.5 L23 23 L0 23 L0 11.5Z" fill="white" strokeWidth="1" stroke="gray"/>
 	</SvgIcon>
