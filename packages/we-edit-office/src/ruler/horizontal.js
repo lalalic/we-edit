@@ -15,24 +15,7 @@ export default onlyUpdateForKeys("width,scale,leftMargin,rightMargin,firstLine,l
 		let fl=null
 		return (
 			<div className="ruler horizontal" style={{width:width*scale,position:"relative",height,margin: "0px auto 0px auto"}}>
-				<Scale {...{width:width*scale,height,from:leftMargin*scale,cm, children}}>
-					{cols && (()=>{
-							const all=cols.map(({x,width},i)=>[<ColStart x={x} key={i+"0"}/>,<ColEnd x={x+width} key={i+"1"}/>]).flat()
-							all.pop(), all.shift()
-							return all.map((a,i)=>{
-								if(i%2==0) {
-									const b=all[i+1]
-									return [
-										<rect {...{key:i+"2",y:0,height,x:a.props.x-2,width:b.props.x-a.props.x+4,fill:"lightgray"}}/>,
-										a
-									]
-								}
-								return a
-							}).flat()
-							
-						})()
-					}
-				</Scale>
+				<Scale {...{width:width*scale,height,from:leftMargin*scale,cm, children}}/>
 				{
 					((leftMargin, rightMargin, col=cols[column])=>{
 						if(!width)
@@ -103,15 +86,53 @@ export default onlyUpdateForKeys("width,scale,leftMargin,rightMargin,firstLine,l
 						]
 					})(leftMargin,rightMargin)
 				}
+				{(()=>{
+					return cols.reduce((segs,{x,width},i)=>{
+						i+1<cols.length && segs.push([x+width,cols[i+1].x])
+						return segs
+					},[]).map(([x,x2],i)=><Col {...{x,width:x2-x,scale,height,i}}/>)
+				})()}
 			</div>
 		)
 })
 
-const Margin=({width,height,side, style, ...props})=>(
-	<div style={{position:"absolute",top:0,width:2,cursor:"ew-resize",[side]:width,height}} {...props}>
-		<div style={{position:"absolute",width:width-2,background:"black",cursor:"default",opacity:0.6,height:"100%",...style}}/>
-	</div>
-)
+
+
+
+class Col extends React.Component{
+	constructor({x,width}){
+		super(...arguments)
+		this.state={x,width}
+	}
+	render(){
+		const style={position:"absolute",cursor:"ew-resize",top:0,height,width:3,background:"red"}
+		const {i,x:x0,width:w,scale,height, setCol}=this.props
+		const {x,width}=this.state
+		return (
+			<div style={{position:"absolute",top:0,left:x*scale,width:width*scale,height,background:"black",opacity:0.4}}>
+				<Movable cursor="ew-resize"
+					onMove={dx=>(this.setState({x:x0+dx,width:w-2*dx}),false)}
+					onAccept={dx=>setCol(i,width)}
+					>
+					<div style={{...style,left:0}}/>
+				</Movable>
+				<Movable cursor="ew-resize"
+					onMove={dx=>(this.setState({x:x0-dx,width:w+2*dx}),false)}
+					onAccept={dx=>0}
+					>
+					<div style={{...style,right:0}}/>
+				</Movable>
+			</div>
+		)
+	}
+
+	componentDidUpdate({x:x0,width:w}){
+		const {x,width}=this.props
+		if(x!=x0 || width!=w){
+			this.setState({x,width})
+		}
+	}
+}
 
 const Marker=({direction="top",degs={bottom:180}, style, ...props})=>(
 	<SvgIcon {...props} style={{...style,width:"100%",height:"100%",display:"block"}}>
@@ -143,14 +164,12 @@ const Scale=({width,height,from,cm, children, style})=>(
 	</svg>
 )
 
-
-
 const CM=({i,cm,nth=Math.abs(i+1)})=>(
 	<g transform={`translate(${i*cm} 0)`}>
 		<line x1={1*cm/4} y1={8} x2={1*cm/4} y2={12} stroke="lightgray" strokeWidth={1}/>
 		<line x1={2*cm/4} y1={6} x2={2*cm/4} y2={14} stroke="lightgray" strokeWidth={1} />
 		<line x1={3*cm/4} y1={8} x2={3*cm/4} y2={12} stroke="lightgray" strokeWidth={1} />
-		{nth!=0 ? <text x={cm} y={13} textAnchor="middle">{nth}</text> : null}
+		{nth!=0 ? <text x={cm} y={13} textAnchor="middle" fontSize={10}>{nth}</text> : null}
 	</g>
 )
 

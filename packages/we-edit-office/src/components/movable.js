@@ -2,10 +2,8 @@ import React, {Component, Fragment} from "react"
 
 export default class Movable extends Component{
 	state={move:false}
-	changing={}
 	render(){
-		const {move}=this.state
-		const {changing}=this
+		const {move, x0,y0,x,y,...changing}=this.state
 		let {children, cursor}=this.props
 		
 		let overlay=null
@@ -40,16 +38,11 @@ export default class Movable extends Component{
     }
 
     move(e){
-		this.setState({x:e.clientX, y:e.clientY})
+		const {onMove=a=>({})}=this.props
+		const {clientX:x,clientY:y}=e
+		this.setState(state=>({x,y,...onMove(x-state.x0,y-state.y0,{state,x,y})}))
 		e.stopPropagation()
     }
-	
-	shouldComponentUpdate({onMove},{move,x0,x, y0, y}){
-		if(move && onMove){
-			this.changing=onMove(x-x0,y-y0)
-		}
-		return this.props!=arguments[0] || this.state!=arguments[1]
-	}
 }
 
 const Overlay=({cursor,...props})=><div {...props} style={{position:"fixed", zIndex:Number.MAX_SAFE_INTEGER, left:0, top:0, width:"100%",height:"100%",cursor:cursor||"default"}}/>

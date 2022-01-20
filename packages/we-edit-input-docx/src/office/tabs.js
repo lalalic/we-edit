@@ -90,7 +90,7 @@ export const Indicator=compose(
                     scrollParent=scrollParent.parentElement
                 }
                 const verticalRuler=scrollParent.querySelector('.vertical')
-                verticalRuler.addEventListener('dblclick',setDocumentLayout)
+                verticalRuler?.addEventListener('dblclick',setDocumentLayout)
             })
         }
     }

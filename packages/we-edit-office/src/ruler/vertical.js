@@ -1,27 +1,38 @@
 import React from "react"
 import {onlyUpdateForKeys} from "recompose"
+import Movable from "../components/movable"
 
 export default onlyUpdateForKeys(['height','scale','topMargin','bottomMargin',])(
-	({height=0, scale=1, scaleWidth:width=20,
-	topMargin=3, bottomMargin=3,
-	setTopMargin, setBottomMargin,
-	children,
+	({height=0, scale=1, scaleWidth:width=20,children, 
+	topMargin=3, bottomMargin=3,setTopMargin, setBottomMargin,
+	cm=scale*96/2.54, step=cm/8, trim=(y,dy)=>Math[dy>0 ? 'ceil' : 'floor']((y+dy)/step)*step,
 	})=>(
-	<div className="ruler vertical" style={{height:height*scale}}>
-		<Scale {...{height:height*scale,width,from:topMargin*scale, cm:scale*96/2.54, children}}/>
-		{!!height && <Margin style={{position:"absolute",top:0, left:0, height:topMargin*scale}} onMove={setTopMargin}/>}
-		{!!height && <Margin style={{position:"absolute", bottom:0, left:0, height:bottomMargin*scale}} onMove={setBottomMargin}/>}
+	<div className="ruler vertical" style={{height:height*scale,position:"relative"}}>
+		<Scale {...{height:height*scale,width,from:topMargin*scale, cm, children}}/>
+
+		<Movable key="topMargin" 
+			onAccept={(dx,dy)=>setTopMargin(trim(topMargin*scale,dy)/scale)}
+			onMove={(dx,dy)=>({height:trim(topMargin*scale,dy)})}
+			>
+			{React.createElement(({height, moverWidth=3,style, ...props})=>(
+				<div style={{...style,height:moverWidth,top:height-moverWidth,cursor:"ns-resize",left:0,opacity:0.6}} {...props}>
+					<div style={{...style,height:height-moverWidth,bottom:moverWidth,cursor:"default"}}/>
+				</div>
+			),{height:topMargin*scale,style:{position:"absolute",width,background:"black"}})}
+		</Movable>
+
+		<Movable key="bottomMargin" 
+			onAccept={(dx,dy)=>setBottomMargin(trim(bottomMargin*scale,-dy)/scale)}
+			onMove={(dx,dy)=>({height:trim(bottomMargin*scale,-dy)})}
+			>
+			{React.createElement(({height, moverWidth=3, style, ...props})=>(
+				<div style={{...style,height:moverWidth,bottom:height-moverWidth,cursor:"ns-resize",left:0,opacity:0.6}} {...props}>
+					<div style={{...style,height:height-moverWidth,top:moverWidth,cursor:"default"}}/>
+				</div>
+			),{height:bottomMargin*scale,style:{position:"absolute",width,background:"black"},})}
+		</Movable>
 	</div>
 ))
-
-
-const AT=(style,keys=Object.keys(style))=>"top,bottom".split(",").find(a=>keys.includes(a))
-
-const Margin=({style, onMove, at=AT(style)})=>(
-	<div className={`margin ${at}`} style={style} title={`${at} Margin`}>
-		<div className="mover"/>
-	</div>
-)
 
 const Scale=({width,height,from,cm=96/2.54, children})=>(
 	<svg style={{width,height,backgroundColor:"white"}}
@@ -49,6 +60,6 @@ const CM=({i,cm,nth=Math.abs(i+1)})=>(
 		<line y1={1*cm/4} x1={8} y2={1*cm/4} x2={12} stroke="lightgray" strokeWidth={1}/>
 		<line y1={2*cm/4} x1={6} y2={2*cm/4} x2={14} stroke="lightgray" strokeWidth={1} />
 		<line y1={3*cm/4} x1={8} y2={3*cm/4} x2={12} stroke="lightgray" strokeWidth={1} />
-		{nth!=0 ? <text y={cm} x={13} textAnchor="middle">{nth}</text> : null}
+		{nth!=0 ? <text y={cm} x={13} textAnchor="middle" fontSize={10}>{nth}</text> : null}
 	</g>
 )

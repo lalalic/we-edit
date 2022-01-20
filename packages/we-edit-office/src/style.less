@@ -17,62 +17,6 @@
     .vendor(box-orient,@orient)
 }
 
-.ruler{
-	&.vertical{
-		position:relative;
-		.margin{
-			width:@rulerHeight;
-			background-color:black;
-			opacity:0.4;
-
-			.mover{
-				position:relative;
-				height:4px;
-				width:100%;
-				cursor:ns-resize;
-			}
-
-			&.top{
-				display:flex;
-				flex-flow:wrap-reverse;
-				.mover{
-					bottom: -2px;
-				}
-			}
-		}
-	}
-
-	&.horizontal{
-		.margin{
-			height:@rulerHeight;
-			background-color:black;
-			opacity:0.4;
-
-			.mover{
-				position:relative;
-				width:4px;
-				height:100%;
-				cursor:ew-resize;
-			}
-
-			&.right .mover{
-				right: 2px;
-			}
-
-			&.left .mover{
-				float:right;
-				right: -2px;
-			}
-		}
-	}
-
-	>svg{
-		text{
-			font-size: 10px;
-		}
-	}
-}
-
 details{
 	margin-bottom:4px;
 
