@@ -50,6 +50,9 @@ export default compose(
 			setRightIndent(right){
 				dispatch(ACTION.Selection.UPDATE({paragraph:{indent:{right}}}))
 			},
+			setColGap(colGap){
+				dispatch(ACTION.Selection.UPDATE(isSection ? {section:{layout:{col: colGap}}} : {page:{col: colGap}}))
+			}
 		}
 	}),
 )(({direction, pageY, ...props})=>(	

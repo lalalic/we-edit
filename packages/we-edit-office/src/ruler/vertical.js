@@ -3,30 +3,36 @@ import {onlyUpdateForKeys} from "recompose"
 import Movable from "../components/movable"
 
 export default onlyUpdateForKeys(['height','scale','topMargin','bottomMargin',])(
-	({height=0, scale=1, scaleWidth:width=20,children, 
+	({height=0, scale=1, scaleWidth:width=20,children, cursor="ns-resize",
 	topMargin=3, bottomMargin=3,setTopMargin, setBottomMargin,
 	cm=scale*96/2.54, step=cm/8, trim=(y,dy)=>Math[dy>0 ? 'ceil' : 'floor']((y+dy)/step)*step,
 	})=>(
 	<div className="ruler vertical" style={{height:height*scale,position:"relative"}}>
 		<Scale {...{height:height*scale,width,from:topMargin*scale, cm, children}}/>
 
-		<Movable key="topMargin" 
-			onAccept={(dx,dy)=>setTopMargin(trim(topMargin*scale,dy)/scale)}
-			onMove={(dx,dy)=>({height:trim(topMargin*scale,dy)})}
+		<Movable key="topMargin" cursor={cursor}
+			onMove={(dx,dy,{y})=>{
+				const height=trim(topMargin*scale,dy)
+				setTopMargin(height)
+				return {y0:y,height}
+			}}
 			>
 			{React.createElement(({height, moverWidth=3,style, ...props})=>(
-				<div style={{...style,height:moverWidth,top:height-moverWidth,cursor:"ns-resize",left:0,opacity:0.6}} {...props}>
+				<div style={{...style,height:moverWidth,top:height-moverWidth,cursor,left:0,opacity:0.6}} {...props}>
 					<div style={{...style,height:height-moverWidth,bottom:moverWidth,cursor:"default"}}/>
 				</div>
 			),{height:topMargin*scale,style:{position:"absolute",width,background:"black"}})}
 		</Movable>
 
-		<Movable key="bottomMargin" 
-			onAccept={(dx,dy)=>setBottomMargin(trim(bottomMargin*scale,-dy)/scale)}
-			onMove={(dx,dy)=>({height:trim(bottomMargin*scale,-dy)})}
+		<Movable key="bottomMargin" cursor={cursor}
+			onMove={(dx,dy,{y})=>{
+				const height=trim(bottomMargin*scale,-dy)
+				setBottomMargin(height/scale)
+				return {y0:y,height}
+			}}
 			>
 			{React.createElement(({height, moverWidth=3, style, ...props})=>(
-				<div style={{...style,height:moverWidth,bottom:height-moverWidth,cursor:"ns-resize",left:0,opacity:0.6}} {...props}>
+				<div style={{...style,height:moverWidth,bottom:height-moverWidth,cursor,left:0,opacity:0.6}} {...props}>
 					<div style={{...style,height:height-moverWidth,top:moverWidth,cursor:"default"}}/>
 				</div>
 			),{height:bottomMargin*scale,style:{position:"absolute",width,background:"black"},})}

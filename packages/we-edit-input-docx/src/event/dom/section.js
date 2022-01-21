@@ -10,6 +10,15 @@ export class Section extends Base{
 		this.apply(layout)
 	}
 
+	colGap({i,gap}){
+		const isEqualGap=!!parseInt(this.got("w:cols").attr("w:equalWidth"))
+		if(isEqualGap){
+			
+		}else{
+
+		}
+	}
+
 	cols(cols){
 		if(cols.length>1 && new Set(cols).size==1){
 			cols=[cols.length]
