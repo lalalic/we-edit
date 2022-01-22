@@ -119,7 +119,7 @@ export default class PaginationSelectionStyle extends SelectionStyle{
         const deprecision=(props,types=page.constructor.propTypes)=>dom.Frame.deprecision(props,this.precision, types);
         const pageY = () => this.positioning.pageXY(this.position.page).y/precision;
         const line = () => this.position.line
-        const column = () => deprecision(page.columnIndexOf(line(),this.position),dom.Frame.ColumnShape);
+        const column = () => page.columnIndexOf(line(),this.position)
         const cols = () => [...deprecision(page.cols,page.constructor.propTypes.cols)];
         const { margin, width, height } = deprecision({...page.props});
         return {

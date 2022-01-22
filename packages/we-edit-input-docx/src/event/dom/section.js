@@ -10,13 +10,37 @@ export class Section extends Base{
 		this.apply(layout)
 	}
 
-	colGap({i,gap}){
-		const isEqualGap=!!parseInt(this.got("w:cols").attr("w:equalWidth"))
-		if(isEqualGap){
-			
+	colGap({i,dx, atEnd}){
+		dx=this.file.px2dxa(dx)
+		const wCols=this.got("w:cols")
+		const num=wCols.attr('w:num')
+		if(!num)
+			return 
+		const cols=wCols.children('w\\:col')
+		let col=cols.eq(i)
+		if(col.length){
+			col.attr('w:space', parseInt(col.attr('w:space'))+dx)
+			atEnd && (col=cols.eq(i+1));
+			col.attr('w:w', parseInt(col.attr('w:w'))-dx)
 		}else{
-
+			wCols.attr('w:space', dx+parseInt(wCols.attr('w:space')))
 		}
+	}
+
+	colGapMove({i,dx}){//only unequal columns support moving
+		dx=this.file.px2dxa(dx)
+		const wCols=this.got("w:cols")
+		const num=wCols.attr('w:num')
+		if(!num)
+			return 
+		const cols=wCols.children('w\\:col')
+		if(cols.length==0)
+			return 
+		let col=cols.eq(i)
+		col.attr('w:w',parseInt(col.attr('w:w'))-dx)
+
+		col=cols.eq(i+1)
+		col.attr('w:w',parseInt(col.attr('w:w'))+dx)
 	}
 
 	cols(cols){
@@ -43,7 +67,7 @@ export class Section extends Base{
 			wCols.attr('w:num',cols.length)
 			const w=parseInt(this.node.children("w\\:pgSz").attr('w:w'))
 			const {"w:left":l, "w:right":r, left=parseInt(l), right=parseInt(r)}=this.node.children("w\\:pgMar")[0].attribs
-			const w1=(w-right-left-(cols.length-1)*720)/cols.reduce((n,i)=>n+i,0)
+			const w1=(w-right-left-(cols.length-1)*space)/cols.reduce((n,i)=>n+i,0)
 			wCols.append(cols.map(i=>`<w:col w:w="${parseInt(w1*i)}" w:space="${space}"/>`))
 			wCols.children().last().removeAttr("w:space")
 		break

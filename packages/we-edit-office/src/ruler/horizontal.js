@@ -1,4 +1,4 @@
-import React from "react"
+import React, { Fragment } from "react"
 import {onlyUpdateForKeys} from "recompose"
 import {SvgIcon} from "material-ui"
 
@@ -7,7 +7,7 @@ import Movable from "../components/movable"
 export default onlyUpdateForKeys("width,scale,leftMargin,rightMargin,firstLine,leftIndent,cm,step,cols,column".split(","))((
 	{scale=1,
 	width=0,cols=[], column,scaleHeight:height=20, markerSize=8,
-	leftMargin=3, rightMargin=3, setLeftMargin, setRightMargin,setColGap,
+	leftMargin=3, rightMargin=3, setLeftMargin, setRightMargin,setColGap,moveColGap,
 	firstLine=0, leftIndent=0, rightIndent=0, setFirstLine, setLeftIndent, setRightIndent,
 	cm=scale*96/2.54, step=cm/8, trim=(x,dx)=>Math[dx>0 ? 'ceil' : 'floor']((x+dx)/step)*step,
 	children,
@@ -17,17 +17,22 @@ export default onlyUpdateForKeys("width,scale,leftMargin,rightMargin,firstLine,l
 			<div className="ruler horizontal" style={{width:width*scale,position:"relative",height,margin: "0px auto 0px auto"}}>
 				<Scale {...{width:width*scale,height,from:leftMargin*scale,cm}}/>
 				{children}
-				{
-					((leftMargin, rightMargin, col=cols[column])=>{
-						if(!width)
-							return null
-						if(col){
-							leftMargin=col.x
-							rightMargin=width-col.x-col.width
-						}
-						const indentStyle={position:"absolute",width:markerSize,height:markerSize}
-						const halfMarkerSize=markerSize/2
-						return [
+
+				{(()=>{
+					return cols.reduce((segs,{x,width},i)=>{
+						i+1<cols.length && segs.push([x+width,cols[i+1].x])
+						return segs
+					},[]).map(([x,x2],i)=><Col {...{key:i,x,width:x2-x,scale,height,i, setColGap, moveColGap}}/>)
+				})()}
+				
+				{((col=cols[column])=>{
+					if(!width)
+						return null
+
+					const indentStyle={position:"absolute",width:markerSize,height:markerSize}
+					const halfMarkerSize=markerSize/2
+					return [
+						<Fragment>
 							<Movable key="leftMargin" cursor="ew-resize"
 								onMove={(dx,dy,{x})=>{
 									const width=trim(leftMargin*scale,dx)
@@ -42,7 +47,7 @@ export default onlyUpdateForKeys("width,scale,leftMargin,rightMargin,firstLine,l
 										</div>	
 									),{width:leftMargin*scale,style:{position:"absolute",height,background:"black",}})
 								}
-							</Movable>,
+							</Movable>
 							<Movable key="rightMargin" cursor="ew-resize"
 								onMove={(dx,dy,{x})=>{
 									const width=trim(rightMargin*scale,-dx)
@@ -57,50 +62,47 @@ export default onlyUpdateForKeys("width,scale,leftMargin,rightMargin,firstLine,l
 										</div>	
 									),{width:rightMargin*scale,style:{position:"absolute",height,background:"black",}})
 								}
-							</Movable>,
+							</Movable>
+						</Fragment>,
 
+						<div style={{position:"absolute",top:0,left:col.x, width:col.width,height}}>
 							<Movable ref={a=>fl=a} key="first"
 								onMove={(dx,dy,{x})=>{
 									const width=trim((leftIndent+firstLine)*scale,dx)
 									setFirstLine((width-leftIndent*scale)/scale)
-									return {x0:x,style:{...indentStyle, top:0,left:leftMargin*scale+width-halfMarkerSize}}
+									return {x0:x,style:{...indentStyle, top:0,left:width-halfMarkerSize}}
 								}}
 								>
-								<div title="First Line Indent" style={{...indentStyle, top:0,left:(leftMargin+leftIndent+firstLine)*scale-halfMarkerSize}}>
+								<div title="First Line Indent" style={{...indentStyle, top:0,left:(leftIndent+firstLine)*scale-halfMarkerSize}}>
 									<Marker direction="bottom"/>
 								</div>
-							</Movable>,
+							</Movable>
+
 							<Movable key="left"
 								onMove={(dx,dy,{x})=>{
 									const indent=trim(leftIndent*scale,dx)
 									setLeftIndent(indent/scale)
-									return {x0:x,style:{...indentStyle, bottom:0,left:leftMargin*scale+indent-halfMarkerSize}}
+									return {x0:x,style:{...indentStyle, bottom:0,left:indent-halfMarkerSize}}
 								}}
 								>
-								<div title="Left Indent" style={{...indentStyle, bottom:0,left:(leftMargin+leftIndent)*scale-halfMarkerSize}}>
+								<div title="Left Indent" style={{...indentStyle, bottom:0,left:leftIndent*scale-halfMarkerSize}}>
 									<Marker/>
 								</div>
-							</Movable>,
-							
+							</Movable>
+
 							<Movable key="right"
 								onMove={(dx,dy,{x})=>{
 									const indent=trim(rightIndent*scale,-dx)
 									setRightIndent(indent/scale)
-									return {x0:x,style:{...indentStyle,bottom:0,right:rightMargin*scale+indent-halfMarkerSize}}
+									return {x0:x,style:{...indentStyle,bottom:0,right:indent-halfMarkerSize}}
 								}}
 								>
-								<div title="Right Indent" style={{...indentStyle,bottom:0,right:(rightMargin+rightIndent)*scale-halfMarkerSize}}>
+								<div title="Right Indent" style={{...indentStyle,bottom:0,right:rightIndent*scale-halfMarkerSize}}>
 									<Marker/>
 								</div>
 							</Movable>
-						]
-					})(leftMargin,rightMargin)
-				}
-				{(()=>{
-					return cols.reduce((segs,{x,width},i)=>{
-						i+1<cols.length && segs.push([x+width,cols[i+1].x])
-						return segs
-					},[]).map(([x,x2],i)=><Col {...{key:i,x,width:x2-x,scale,height,i, setColGap}}/>)
+						</div>
+					]
 				})()}
 			</div>
 		)
@@ -115,20 +117,34 @@ class Col extends React.Component{
 		this.state={x,width}
 	}
 	render(){
-		const {i,x:x0,width:w,scale,height, setColGap}=this.props
+		const {i,x:x0,width:w,scale,height, setColGap, moveColGap}=this.props
 		const {x,width}=this.state
-		const style={position:"absolute",cursor:"ew-resize",top:0,height,width:3,background:"red"}
+		const style={position:"absolute",cursor:"ew-resize",top:0,height,width:3}
 		return (
 			<div style={{position:"absolute",top:0,left:x*scale,width:width*scale,height,background:"black",opacity:0.4}}>
 				<Movable cursor="ew-resize"
-					onMove={dx=>(this.setState({x:x0+dx,width:w-2*dx}),false)}
-					onAccept={dx=>setColGap({i,width})}
+					onMove={(dx,dy,{x})=>{
+						setColGap({i,dx:-dx/scale})
+						return {x0:x}
+					}}
 					>
 					<div style={{...style,left:0}}/>
 				</Movable>
+				
+				<Movable cursor="move"
+					onMove={(dx,dy,{x})=>{
+						moveColGap({i,dx:-dx/scale})
+						return {x0:x}
+					}}
+					>
+					<div style={{...style,background:"red",cursor:"move",left:(width*scale-3)/2}}/>
+				</Movable>
+
 				<Movable cursor="ew-resize"
-					onMove={dx=>(this.setState({x:x0-dx,width:w+2*dx}),false)}
-					onAccept={dx=>0}
+					onMove={(dx,dy,{x})=>{
+						setColGap({i,dx:dx/scale,atEnd:true})
+						return {x0:x}
+					}}
 					>
 					<div style={{...style,right:0}}/>
 				</Movable>

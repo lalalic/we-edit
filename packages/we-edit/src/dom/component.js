@@ -636,6 +636,7 @@ export default class Base extends Component{
 	static WrapModeShape=PropTypes.oneOf(["square", "tight", "clear","no"],{$type:"WrapModeShape"})
     static WrapSideShape=PropTypes.oneOf(["both","left","right","largest"],{$type:"WrapSideShape"})
     static AnchorBaseShape=PropTypes.oneOf(["character","line","paragraph","page","frame","margin", "closest"],{$type:"AnchorBaseShape"})
+	
 	static ColumnShape=this.normalizeChecker(PropTypes.shape({
 		x:this.UnitShape,
 		y:this.UnitShape,

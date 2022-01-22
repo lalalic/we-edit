@@ -51,7 +51,10 @@ export default compose(
 				dispatch(ACTION.Selection.UPDATE({paragraph:{indent:{right}}}))
 			},
 			setColGap(colGap){
-				dispatch(ACTION.Selection.UPDATE(isSection ? {section:{layout:{col: colGap}}} : {page:{col: colGap}}))
+				dispatch(ACTION.Selection.UPDATE(isSection ? {section:{layout:{colGap}}} : {page:{colGap}}))
+			},
+			moveColGap(colGapMove){
+				dispatch(ACTION.Selection.UPDATE(isSection ? {section:{layout:{colGapMove}}} : {page:{colGapMove}}))
 			}
 		}
 	}),
