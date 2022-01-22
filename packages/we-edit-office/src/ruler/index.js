@@ -29,7 +29,7 @@ export default compose(
 			width,height,leftMargin,topMargin,bottomMargin,rightMargin,leftIndent,rightIndent,firstLine,
 			cols,column,
 			pageY,
-			threshold:1,
+			threshold:10,
 			setLeftMargin(left){
 				dispatch(ACTION.Selection.UPDATE(marginAction({left})))
 			},

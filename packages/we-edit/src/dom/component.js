@@ -1,5 +1,6 @@
 import React, {Component,Fragment} from "react"
 import PropTypes from "prop-types"
+import {fromJS, Map} from "immutable"
 import units from "../tools/units"
 import Geometry from "../tools/geometry"
 import numberings from "../tools/numbering"
@@ -631,7 +632,18 @@ export default class Base extends Component{
 		this.BulletListShape,
 		this.NumberListShape,
 		this.OutlineListShape,
-	]))
+	]),{
+		equal:(current,next)=>{
+			if(typeof(current.label)!==typeof(next.label))
+				return false
+
+			const TypedShape=typeof(current.label)=="object" ? this.BulletListShape : this.NumberListShape
+			
+			const currentNormalized=TypedShape.normalize(current)
+			const nextNormalized=TypedShape.normalize(next)
+			return fromJS(currentNormalized).equals(fromJS(nextNormalized))
+		}
+	})
 
 	static WrapModeShape=PropTypes.oneOf(["square", "tight", "clear","no"],{$type:"WrapModeShape"})
     static WrapSideShape=PropTypes.oneOf(["both","left","right","largest"],{$type:"WrapSideShape"})

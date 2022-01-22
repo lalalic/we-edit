@@ -12,6 +12,10 @@ export class Getable{
 		this.styles=styles
 	}
 
+	hashCode(){
+		return 1
+	}
+
 	get(path){
 		if(this.cache && this.cache.has(path))
 			return this.cache.get(path)

@@ -177,7 +177,13 @@ export class WeDocumentStub extends Component{
 			}
 	
 			let elChildren=children
-			const hashCodes=[Type.hashCode ? Type.hashCode(props,content,id) : current.hashCode()]
+			const hashCodes=[]
+			if(Type.hashCode){
+				hashCodes.push(Type.hashCode(props,content,id))
+			} else {
+				hashCodes.push(current.hashCode())
+			}
+
 			if(Array.isArray(children)){
 				elChildren=children.map(a=>createNode(a))
 				elChildren.every(a=>hashCodes.push(a.props.hash))

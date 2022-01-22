@@ -127,7 +127,7 @@ class Col extends React.Component{
 		this.state={x,width}
 	}
 	render(){
-		const {i,x:x0,width:w,scale,height, setColGap, moveColGap}=this.props
+		const {i,x:x0,width:w,scale,height, setColGap, moveColGap, threshold}=this.props
 		const {x,width}=this.state
 		const style={position:"absolute",cursor:"ew-resize",top:0,height,width:3}
 		return (
@@ -151,7 +151,7 @@ class Col extends React.Component{
 						return {x0:x}
 					}}
 					>
-					<div style={{...style,background:"red",cursor:"move",left:(width*scale-3)/2}}/>
+					<div style={{...style,background:"gray",cursor:"move",left:(width*scale-3)/2}}/>
 				</Movable>
 
 				<Movable cursor="ew-resize"

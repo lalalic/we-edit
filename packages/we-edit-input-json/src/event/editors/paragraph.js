@@ -13,7 +13,7 @@ export default class Paragraph extends Editor{
             const prevNonEmptyParagraph=this.getPrevNonEmptyParagraph(this.node)
             if(prevNonEmptyParagraph.length && prevNonEmptyParagraph.attr('numbering')){
                 const prevNumbering=this.reducer.getNumbering(prevNonEmptyParagraph.attr('numbering').toJS())
-                if(dom.Paragraph.NumberingShape.meet(prevNumbering,numbering)){
+                if(dom.Paragraph.ListShape.equal(prevNumbering,numbering)){
                     this.node.attr("numbering",prevNonEmptyParagraph.attr('numbering'))
                     return 
                 }
