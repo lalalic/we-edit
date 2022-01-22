@@ -5,14 +5,16 @@ import Movable from "../components/movable"
 export default onlyUpdateForKeys(['height','scale','topMargin','bottomMargin',])(
 	({height=0, scale=1, scaleWidth:width=20,children, cursor="ns-resize",
 	topMargin=3, bottomMargin=3,setTopMargin, setBottomMargin,
-	cm=scale*96/2.54, step=cm/8, trim=(y,dy)=>Math[dy>0 ? 'ceil' : 'floor']((y+dy)/step)*step,
+	cm=scale*96/2.54, threshold=5,
 	})=>(
 	<div className="ruler vertical" style={{height:height*scale,position:"relative"}}>
 		<Scale {...{height:height*scale,width,from:topMargin*scale, cm, children}}/>
 
 		<Movable key="topMargin" cursor={cursor}
 			onMove={(dx,dy,{y})=>{
-				const height=trim(topMargin*scale,dy)
+				if(Math.abs(dy)<threshold)
+					return 
+				const height=topMargin*scale+dy
 				setTopMargin(height)
 				return {y0:y,height}
 			}}
@@ -26,7 +28,9 @@ export default onlyUpdateForKeys(['height','scale','topMargin','bottomMargin',])
 
 		<Movable key="bottomMargin" cursor={cursor}
 			onMove={(dx,dy,{y})=>{
-				const height=trim(bottomMargin*scale,-dy)
+				if(Math.abs(dy)<threshold)
+					return 
+				const height=bottomMargin*scale-dy
 				setBottomMargin(height/scale)
 				return {y0:y,height}
 			}}

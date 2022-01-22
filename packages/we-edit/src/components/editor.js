@@ -170,28 +170,29 @@ export class WeDocumentStub extends Component{
 			if(!type){
 				debugger
 			}
-			let Child=ModelTypes[type[0].toUpperCase()+type.substr(1)]
-			if(!Child){
-				Child=ModelTypes.Unknown
+			let Type=ModelTypes[type[0].toUpperCase()+type.substr(1)]
+			if(!Type){
+				Type=ModelTypes.Unknown
 				console.warn(`[${type}] not found`)
 			}
 	
 			let elChildren=children
-			const hashCodes=[Child.hashCode ? Child.hashCode(props,content,id) : current.hashCode()]
+			const hashCodes=[Type.hashCode ? Type.hashCode(props,content,id) : current.hashCode()]
 			if(Array.isArray(children)){
 				elChildren=children.map(a=>createNode(a))
 				elChildren.every(a=>hashCodes.push(a.props.hash))
 			}
-	
-			const el=(<Child
+			
+			console.debug(`${type}[id=${id}].hashCode=${hashCodes.join(",")}`)
+			const el=(<Type
 					key={id}
 					id={id}
 					{...props}
 					children={elChildren}
 					hash={hashCode(hashCodes)}
 				/>)
-			if(Child.createElement)
-				return Child.createElement(el, content, createNode)
+			if(Type.createElement)
+				return Type.createElement(el, content, createNode)
 			return el
 		}
 	

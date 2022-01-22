@@ -4,12 +4,12 @@ import {SvgIcon} from "material-ui"
 
 import Movable from "../components/movable"
 
-export default onlyUpdateForKeys("width,scale,leftMargin,rightMargin,firstLine,leftIndent,cm,step,cols,column".split(","))((
+export default onlyUpdateForKeys("width,scale,leftMargin,rightMargin,firstLine,leftIndent,cm,threshold,cols,column".split(","))((
 	{scale=1,
 	width=0,cols=[], column,scaleHeight:height=20, markerSize=8,
 	leftMargin=3, rightMargin=3, setLeftMargin, setRightMargin,setColGap,moveColGap,
 	firstLine=0, leftIndent=0, rightIndent=0, setFirstLine, setLeftIndent, setRightIndent,
-	cm=scale*96/2.54, step=cm/8, trim=(x,dx)=>Math[dx>0 ? 'ceil' : 'floor']((x+dx)/step)*step,
+	cm=scale*96/2.54, threshold=5,
 	children,
 	})=>{
 		let fl=null
@@ -22,7 +22,7 @@ export default onlyUpdateForKeys("width,scale,leftMargin,rightMargin,firstLine,l
 					return cols.reduce((segs,{x,width},i)=>{
 						i+1<cols.length && segs.push([x+width,cols[i+1].x])
 						return segs
-					},[]).map(([x,x2],i)=><Col {...{key:i,x,width:x2-x,scale,height,i, setColGap, moveColGap}}/>)
+					},[]).map(([x,x2],i)=><Col {...{key:i,x,width:x2-x,scale,height,i, threshold, setColGap, moveColGap}}/>)
 				})()}
 				
 				{((col=cols[column])=>{
@@ -35,7 +35,9 @@ export default onlyUpdateForKeys("width,scale,leftMargin,rightMargin,firstLine,l
 						<Fragment>
 							<Movable key="leftMargin" cursor="ew-resize"
 								onMove={(dx,dy,{x})=>{
-									const width=trim(leftMargin*scale,dx)
+									if(Math.abs(dx)<threshold)
+										return 
+									const width=leftMargin*scale+dx
 									setLeftMargin(width/scale)
 									return {x0:x,width}
 								}}
@@ -50,7 +52,9 @@ export default onlyUpdateForKeys("width,scale,leftMargin,rightMargin,firstLine,l
 							</Movable>
 							<Movable key="rightMargin" cursor="ew-resize"
 								onMove={(dx,dy,{x})=>{
-									const width=trim(rightMargin*scale,-dx)
+									if(Math.abs(dx)<threshold)
+										return 
+									const width=rightMargin*scale-dx
 									setRightMargin(width/scale)
 									return {x0:x,width}
 								}}
@@ -68,7 +72,9 @@ export default onlyUpdateForKeys("width,scale,leftMargin,rightMargin,firstLine,l
 						<div style={{position:"absolute",top:0,left:col.x, width:col.width,height}}>
 							<Movable ref={a=>fl=a} key="first"
 								onMove={(dx,dy,{x})=>{
-									const width=trim((leftIndent+firstLine)*scale,dx)
+									if(Math.abs(dx)<threshold)
+										return 
+									const width=(leftIndent+firstLine)*scale+dx
 									setFirstLine((width-leftIndent*scale)/scale)
 									return {x0:x,style:{...indentStyle, top:0,left:width-halfMarkerSize}}
 								}}
@@ -80,7 +86,9 @@ export default onlyUpdateForKeys("width,scale,leftMargin,rightMargin,firstLine,l
 
 							<Movable key="left"
 								onMove={(dx,dy,{x})=>{
-									const indent=trim(leftIndent*scale,dx)
+									if(Math.abs(dx)<threshold)
+										return 
+									const indent=leftIndent*scale+dx
 									setLeftIndent(indent/scale)
 									return {x0:x,style:{...indentStyle, bottom:0,left:indent-halfMarkerSize}}
 								}}
@@ -92,7 +100,9 @@ export default onlyUpdateForKeys("width,scale,leftMargin,rightMargin,firstLine,l
 
 							<Movable key="right"
 								onMove={(dx,dy,{x})=>{
-									const indent=trim(rightIndent*scale,-dx)
+									if(Math.abs(dx)<threshold)
+										return 
+									const indent=rightIndent*scale-dx
 									setRightIndent(indent/scale)
 									return {x0:x,style:{...indentStyle,bottom:0,right:indent-halfMarkerSize}}
 								}}
@@ -124,6 +134,8 @@ class Col extends React.Component{
 			<div style={{position:"absolute",top:0,left:x*scale,width:width*scale,height,background:"black",opacity:0.4}}>
 				<Movable cursor="ew-resize"
 					onMove={(dx,dy,{x})=>{
+						if(Math.abs(dx)<threshold)
+							return 
 						setColGap({i,dx:-dx/scale})
 						return {x0:x}
 					}}
@@ -133,6 +145,8 @@ class Col extends React.Component{
 				
 				<Movable cursor="move"
 					onMove={(dx,dy,{x})=>{
+						if(Math.abs(dx)<threshold)
+							return 
 						moveColGap({i,dx:-dx/scale})
 						return {x0:x}
 					}}
@@ -142,6 +156,8 @@ class Col extends React.Component{
 
 				<Movable cursor="ew-resize"
 					onMove={(dx,dy,{x})=>{
+						if(Math.abs(dx)<threshold)
+							return 
 						setColGap({i,dx:dx/scale,atEnd:true})
 						return {x0:x}
 					}}
