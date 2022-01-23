@@ -1,4 +1,5 @@
 import Base from "./character"
+import {fromJS} from "immutable"
 
 const attribs={
 	"w:spacing":"spacing",
@@ -60,5 +61,9 @@ export default class Paragraph extends Base{
 					return props
 				},{})
 		return this.__clear(props,undefined)
+	}
+
+	hashCode(){
+		return fromJS(this.flat()).hashCode()
 	}
 }

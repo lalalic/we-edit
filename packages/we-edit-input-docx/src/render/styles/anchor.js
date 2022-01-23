@@ -1,4 +1,6 @@
 import Style from "./base"
+import {fromJS} from "immutable"
+
 export default class extends Style{
     constructor(node, styles, selector){
         super(...arguments)
@@ -39,5 +41,9 @@ export default class extends Style{
 			}
 		}
 		return o
+	}
+
+    hashCode(){
+		return fromJS(this.flat()).hashCode()
 	}
 }

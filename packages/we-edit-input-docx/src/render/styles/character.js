@@ -1,5 +1,5 @@
-import { instanceOf, node } from "prop-types"
 import Base from "./base"
+import {fromJS} from "immutable"
 
 const attribs={
 	"w:rFonts":"fonts",
@@ -19,6 +19,10 @@ export default class Character extends Base{
 		super(node, styles, selector)
 		this.type="character"
 		this.r=this._convert(node, "w:rPr",attribs, selector)
+	}
+
+	hashCode(){
+		return fromJS(this.flat()).hashCode()
 	}
 
 	static Direct=class __$1 extends Character{
