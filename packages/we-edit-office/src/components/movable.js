@@ -1,4 +1,6 @@
 import React, {Component, Fragment} from "react"
+import ReactDOM from "react-dom"
+
 
 const shrink=o=>Object.keys(o).reduce((a,k)=>{
 	if(o[k]===undefined)
@@ -13,11 +15,11 @@ export default class Movable extends Component{
 
 	render(){
 		const {move, x0,y0,x,y,...changing}=this.state
-		let {children, cursor}=this.props
+		let {children, cursor, color}=this.props
 		
 		let overlay=null
 		if(move){
-			overlay=<Overlay onMouseUp={e=>this.onEndMove(e)} onMouseMove={e=>this.move(e)} cursor={cursor}/>
+			overlay=<Overlay color={color} onMouseUp={e=>this.onEndMove(e)} onMouseMove={e=>this.move(e)} cursor={cursor}/>
 			children=React.cloneElement(children, {...shrink(changing), onMouseUp:e=>this.onEndMove(e)})
 		}else{
 			children=React.cloneElement(children, {
@@ -52,4 +54,6 @@ export default class Movable extends Component{
     }
 }
 
-const Overlay=({cursor,...props})=><div {...props} style={{position:"fixed", zIndex:Number.MAX_SAFE_INTEGER, left:0, top:0, width:"100%",height:"100%",cursor:cursor||"default"}}/>
+const Overlay=({cursor,color="transparent", ...props})=>ReactDOM.createPortal(
+	<div {...props} style={{position:"fixed", /* background:color, opacity:0.5, */zIndex:Number.MAX_SAFE_INTEGER, left:0, top:0, width:"100%",height:"100%",cursor:cursor||"default"}}/>,
+	document.body)

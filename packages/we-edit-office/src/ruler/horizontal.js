@@ -70,7 +70,7 @@ export default onlyUpdateForKeys("width,scale,leftMargin,rightMargin,firstLine,l
 						</Fragment>,
 
 						<div style={{position:"absolute",top:0,left:col.x, width:col.width,height}}>
-							<Movable ref={a=>fl=a} key="first"
+							<Movable ref={a=>fl=a} key="first" color="yellow"
 								onMove={(dx,dy,{x})=>{
 									if(Math.abs(dx)<threshold)
 										return 
@@ -84,7 +84,7 @@ export default onlyUpdateForKeys("width,scale,leftMargin,rightMargin,firstLine,l
 								</div>
 							</Movable>
 
-							<Movable key="left"
+							<Movable key="left" color="blue"
 								onMove={(dx,dy,{x})=>{
 									if(Math.abs(dx)<threshold)
 										return 
@@ -98,7 +98,7 @@ export default onlyUpdateForKeys("width,scale,leftMargin,rightMargin,firstLine,l
 								</div>
 							</Movable>
 
-							<Movable key="right"
+							<Movable key="right" color="blue"
 								onMove={(dx,dy,{x})=>{
 									if(Math.abs(dx)<threshold)
 										return 
@@ -132,7 +132,7 @@ class Col extends React.Component{
 		const style={position:"absolute",cursor:"ew-resize",top:0,height,width:3}
 		return (
 			<div style={{position:"absolute",top:0,left:x*scale,width:width*scale,height,background:"black",opacity:0.4}}>
-				<Movable cursor="ew-resize"
+				<Movable cursor="ew-resize" color="red"
 					onMove={(dx,dy,{x})=>{
 						if(Math.abs(dx)<threshold)
 							return 
@@ -143,7 +143,7 @@ class Col extends React.Component{
 					<div style={{...style,left:0}}/>
 				</Movable>
 				
-				<Movable cursor="move"
+				<Movable cursor="move" color="red"
 					onMove={(dx,dy,{x})=>{
 						if(Math.abs(dx)<threshold)
 							return 

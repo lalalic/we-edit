@@ -14,7 +14,7 @@ export class Section extends Base{
 		dx=this.file.px2dxa(dx)
 		const wCols=this.got("w:cols")
 		const num=wCols.attr('w:num')
-		if(!num)
+		if(!num)//no cols
 			return 
 		const cols=wCols.children('w\\:col')
 		let col=cols.eq(i)
@@ -22,7 +22,7 @@ export class Section extends Base{
 			col.attr('w:space', parseInt(col.attr('w:space'))+dx)
 			atEnd && (col=cols.eq(i+1));
 			col.attr('w:w', parseInt(col.attr('w:w'))-dx)
-		}else{
+		}else{//equal column
 			wCols.attr('w:space', dx+parseInt(wCols.attr('w:space')))
 		}
 	}
@@ -79,12 +79,35 @@ export class Section extends Base{
 	}
 
 	margin(margin){
-		const {top,right,bottom,left}=dom.Unknown.MarginShape.normalize(margin)
+		let {top,right,bottom,left}=dom.Unknown.MarginShape.normalize(margin)
 		const pgMar=this.got("w:pgMar")
 		top!=undefined && pgMar.attr('w:top',this.file.px2dxa(top))
-		right!=undefined && pgMar.attr('w:right',this.file.px2dxa(right))
 		bottom!=undefined && pgMar.attr('w:bottom',this.file.px2dxa(bottom))
-		left!=undefined && pgMar.attr('w:left',this.file.px2dxa(left))
+		if(right!=undefined){
+			right=this.file.px2dxa(right)
+
+			const lastCol=this.got('w:cols').children('w\\:col').last()
+			if(lastCol.length){
+				const dx=right-parseInt(pgMar.attr('w:right'))
+				lastCol.attr('w:w', parseInt(lastCol.attr('w:w'))-dx)
+			}
+			pgMar.attr('w:right',right)
+
+		}
+
+		if(left!=undefined){
+			left=this.file.px2dxa(left)
+
+			const firstCol=this.got('w:cols').children('w\\:col').first()
+			if(firstCol.length){
+				const dx=left-parseInt(pgMar.attr('w:left'))
+				firstCol.attr('w:w',parseInt(firstCol.attr('w:w'))-dx)
+			}
+
+			pgMar.attr('w:left',left)
+		}
+
+
 	}
 
 	orientation(o){
