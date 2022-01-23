@@ -19,6 +19,7 @@ class Paragraph extends HasParentAndChild(dom.Paragraph){
 		numbering: PropTypes.shape({
 			get: PropTypes.func
 		}),
+
 		editable: PropTypes.any,
 	}
 	
@@ -186,7 +187,6 @@ class Paragraph extends HasParentAndChild(dom.Paragraph){
 					last=i
 					times=0
 				}
-
 				const next=this.currentLine.appendAtom(atoms[i])
 				if(next===false || next===true){
 					//current line is full, atoms[i] not assembled, commit to block layout
@@ -483,7 +483,11 @@ export default class EditableParagraph extends editable(Paragraph,{stoppable:tru
 		}
 	}
 
-	/**if lineSegments is same, last layouted line should be able to fit in without relayout */
+	/**
+	 * be here means paragraph is not changed, so atoms collection should be ignored.
+	 * if lineSegments is same, last layouted line should be able to fit in without relayout 
+	 * 
+	 * */
 	appendLastComposed(){
 		const lines=this.lines
 		this.lines=[]
@@ -505,12 +509,14 @@ export default class EditableParagraph extends editable(Paragraph,{stoppable:tru
 		})
 
 		if(spaceChangedAt==0){
-			this.cancelUnusableLastComposed({changed:true})
-			return false
-		}
-		
-		if(spaceChangedAt>0){
-			this.commit(this.atoms.indexOf(lines[spaceChangedAt].firstAtom))
+			this._cancelAllLastComposed()
+			this.commit(0)
+		}else if(spaceChangedAt>0){
+			let startAtomIndex=this.atoms.indexOf(lines[spaceChangedAt].firstAtom)
+			if(startAtomIndex==-1){//it happens to BlockLayoutTrigger //check Inline.asBlockLayoutTrigger
+				startAtomIndex=this.atoms.indexOf(lines[spaceChangedAt-1].lastAtom)+1
+			}
+			this.commit(startAtomIndex)
 		}
 		return true
 	}

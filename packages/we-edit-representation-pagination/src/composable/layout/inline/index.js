@@ -157,6 +157,10 @@ export default class Inline extends Component{
 	 * leave it to block layout engine decide how to handle overflow block size
 	 */
 	appendAtom(atom){
+		if(!atom){
+			debugger
+			throw new Error('atom is not specified')
+		}
 		if(atom.props.anchor){
 			return this.appendAnchor(atom)
 		}
@@ -212,10 +216,8 @@ export default class Inline extends Component{
 			if(minRequiredWidth){
 				//to indicate the space status
 				this.inlineSegments.segments=[]
-				/**@@Hack: to trigger block layout*/
-				this.freeze=()=>this.children=[<Group width={0} height={this.props.space.height}/>]
-				const lineHeight=this.getLineHeight(this.props.space.height)
-				this.getLineHeight=()=>lineHeight
+				/**@@Hack: In order to trigger a new block layout, add an empty line to take up the space*/
+				this.asBlockLayoutTrigger()
 			}
 			
 			return false
@@ -239,6 +241,12 @@ export default class Inline extends Component{
 		return !!this.inlineSegments.push(atom)
 	}
 	
+	asBlockLayoutTrigger() {
+		this.freeze = () => this.children = [<Group width={0} height={this.props.space.height} title="Trigger for new block layout" />]
+		const lineHeight = this.getLineHeight(this.props.space.height)
+		this.getLineHeight = () => lineHeight
+	}
+
 	getLineHeight(contentHeight=this.contentHeight){
 		const {lineHeight:{height:lineHeight}={}}=this.props
 		if(typeof(lineHeight)=='string'){

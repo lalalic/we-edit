@@ -196,6 +196,7 @@ export class WeDocumentStub extends Component{
 					{...props}
 					children={elChildren}
 					hash={hashCode(hashCodes)}
+					
 				/>)
 			if(Type.createElement)
 				return Type.createElement(el, content, createNode)

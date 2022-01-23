@@ -53,6 +53,10 @@ export default A=>{
             this.computed.composedUUID=Date.now()
             this.context.mount && this.context.mount(this)
             const changed=next.hash!=this.props.hash
+            if(changed){
+                console.debug(`${this.getComposeType()}[${this.props.id}] changed`);
+            }
+            
             if(changed || !this.isAllChildrenComposed()){
                 //clear last allComposed, so it can be reset
                 this.computed.allComposed=undefined

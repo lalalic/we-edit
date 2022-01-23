@@ -12,6 +12,7 @@ export class Getable{
 		this.styles=styles
 	}
 
+	/**@Todo: make real hash for edior to calculate element changes */
 	hashCode(){
 		return 1
 	}
