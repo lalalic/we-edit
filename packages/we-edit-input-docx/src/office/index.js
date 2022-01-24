@@ -106,6 +106,5 @@ export default (
         >
             <Editor representation={"pagination"} canvas={<Canvas/>}/>
         </Workspace.Desk>
-        <DocxTabs.Setting/>
     </Workspace>
 )

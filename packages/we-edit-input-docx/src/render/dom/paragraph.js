@@ -1,6 +1,6 @@
 import React, {Component,Fragment} from "react"
 import PropTypes from "prop-types"
-import {ReactQuery,connect, getUI} from "we-edit"
+import {ReactQuery,connect, getUI, dom} from "we-edit"
 
 import memoize from "memoize-one"
 import {shallowEqual} from "recompose"
@@ -89,6 +89,14 @@ export default ({Paragraph,Text, Frame})=>class DocxParagraph extends Component{
 				hintMeasure: PropTypes.object,
 			}
 
+			static propTypes={
+				...super.propTypes,
+				tabs: dom.Unknown.arrayOf(dom.Unknown.shape({
+					val: dom.Unknown.oneOf(["left","right","center","decimal","bar"]),
+					pos: dom.Unknown.UnitShape,
+				}))
+			}
+
 			getTabAt(x){
 				const {indent:{left:indentLeft=0,firstLine=0}, numbering,}=this.props
 				const bFirstLine=this.lines.length==1
@@ -135,7 +143,7 @@ export default ({Paragraph,Text, Frame})=>class DocxParagraph extends Component{
 						<Fragment>
 							{!leader ? null : leader.repeat(Math.floor(width/textComposer.measure.stringWidth(leader)))}
 							{pilcrow && this.context.editable && (()=>{
-								const measure=new this.context.Measure({fonts:this.hintMeasure.style.fonts,size:textComposer.props.size})
+								const measure=new this.context.Measure({fonts:this.context.hintMeasure.style.fonts,size:textComposer.props.size})
 								const text=String.fromCharCode(0x2192)
 								const tabWidth=measure.stringWidth(text)
 								const props={}

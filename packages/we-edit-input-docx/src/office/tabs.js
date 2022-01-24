@@ -1,7 +1,8 @@
 import React,{Fragment, Component,PureComponent} from "react"
+import PropTypes from "prop-types"
 import {createPortal} from "react-dom"
 import {whenSelectionChangeDiscardable, connect, getUI,getContent, getFile, ACTION} from "we-edit"
-import {getOffice,Dialog, } from "we-edit-office"
+import {getOffice,Dialog, PropTypesUI, SelectStyle} from "we-edit-office"
 import {compose} from "recompose"
 
 
@@ -32,6 +33,9 @@ export const Indicator=compose(
         }
     }),
 )(class Tabs extends Component{
+    static contextTypes={
+        dialogManager: PropTypes.shape({show:PropTypes.func})
+    }
     state={}
     render(){
         const {tabs=[],from=0, scale=1, defaultAlign, switchDefault}=this.props
@@ -48,7 +52,8 @@ export const Indicator=compose(
                     </marker>
                 </defs>
                 {tabs.map(({val="left", pos},i)=>{
-                    return this[val]((pos+from)*scale,16,i)
+                    const tab=this[val]((pos+from)*scale,16,i)
+                    return React.cloneElement(tab,{onDoubleClick:e=>this.context.dialogManager.show('tabs')})
                 })}
                 {container && <DefaultTab container={container}>
                     <svg style={{width:20,height:20}} onClick={switchDefault}>
@@ -121,7 +126,27 @@ export const Indicator=compose(
     }
 })
 
-export const Setting=compose(
+export function Setting(){
+    return (
+        <SelectStyle 
+            getStyle={selection=>{
+                return selection?.getComposer(selection.end.id).closest('paragraph')
+            }}
+            >
+            {({composer,dispatch})=>(
+                <PropTypesUI 
+                    theme="Paragraph"
+                    props={{tabs:composer.props.tabs}}
+                    propTypes={{tabs:composer.propsTypes.tabs}} 
+                    onChange={paragraph=>dispatch(ACTION.Selection.UPDATE({paragraph}))}
+                    />
+            )}
+
+        </SelectStyle>
+    )
+}
+
+export const Setting1=compose(
     whenSelectionChangeDiscardable(({selection}, state)=>{
         const file=getFile(state)
         const toPx=file.doc.cm2Px
