@@ -15,8 +15,9 @@ export default onlyUpdateForKeys("width,scale,leftMargin,rightMargin,firstLine,l
 		let fl=null
 		return (
 			<div className="ruler horizontal" style={{width:width*scale,position:"relative",height,margin: "0px auto 0px auto"}}>
-				<Scale {...{width:width*scale,height,from:leftMargin*scale,cm}}/>
-				{children}
+				<Scale {...{width:width*scale,height,from:leftMargin*scale,cm}}>
+					{children}
+				</Scale>
 
 				{(()=>{
 					return cols.reduce((segs,{x,width},i)=>{
@@ -31,88 +32,90 @@ export default onlyUpdateForKeys("width,scale,leftMargin,rightMargin,firstLine,l
 
 					const indentStyle={position:"absolute",width:markerSize,height:markerSize}
 					const halfMarkerSize=markerSize/2
-					return [
+					return (
 						<Fragment>
-							<Movable key="leftMargin" cursor="ew-resize"
-								onMove={(dx,dy,{x})=>{
-									if(Math.abs(dx)<threshold)
-										return 
-									const width=leftMargin*scale+dx
-									setLeftMargin(width/scale)
-									return {x0:x,width}
-								}}
-								>
-								{
-									React.createElement(({width,moverWidth=3,style,...props})=>(
-										<div style={{...style,width:moverWidth,left:width-moverWidth,cursor:"ew-resize",top:0,opacity:0.6}} {...props}>
-											<div style={{...style,width:width-moverWidth,right:moverWidth,cursor:"default"}}/>
-										</div>	
-									),{width:leftMargin*scale,style:{position:"absolute",height,background:"black",}})
-								}
-							</Movable>
-							<Movable key="rightMargin" cursor="ew-resize"
-								onMove={(dx,dy,{x})=>{
-									if(Math.abs(dx)<threshold)
-										return 
-									const width=rightMargin*scale-dx
-									setRightMargin(width/scale)
-									return {x0:x,width}
-								}}
-								>
-								{
-									React.createElement(({width,moverWidth=3,style,...props})=>(
-										<div style={{...style,width:moverWidth,right:width-moverWidth,cursor:"ew-resize",top:0,opacity:0.6}} {...props}>
-											<div style={{...style,width:width-moverWidth,left:moverWidth,cursor:"default"}}/>
-										</div>	
-									),{width:rightMargin*scale,style:{position:"absolute",height,background:"black",}})
-								}
-							</Movable>
-						</Fragment>,
+							<Fragment>
+								<Movable key="leftMargin" cursor="ew-resize"
+									onMove={(dx,dy,{x})=>{
+										if(Math.abs(dx)<threshold)
+											return 
+										const width=leftMargin*scale+dx
+										setLeftMargin(width/scale)
+										return {x0:x,width}
+									}}
+									>
+									{
+										React.createElement(({width,moverWidth=3,style,...props})=>(
+											<div style={{...style,width:moverWidth,left:width-moverWidth,cursor:"ew-resize",top:0,opacity:0.6}} {...props}>
+												<div style={{...style,width:width-moverWidth,right:moverWidth,cursor:"default"}}/>
+											</div>	
+										),{width:leftMargin*scale,style:{position:"absolute",height,background:"black",}})
+									}
+								</Movable>
+								<Movable key="rightMargin" cursor="ew-resize"
+									onMove={(dx,dy,{x})=>{
+										if(Math.abs(dx)<threshold)
+											return 
+										const width=rightMargin*scale-dx
+										setRightMargin(width/scale)
+										return {x0:x,width}
+									}}
+									>
+									{
+										React.createElement(({width,moverWidth=3,style,...props})=>(
+											<div style={{...style,width:moverWidth,right:width-moverWidth,cursor:"ew-resize",top:0,opacity:0.6}} {...props}>
+												<div style={{...style,width:width-moverWidth,left:moverWidth,cursor:"default"}}/>
+											</div>	
+										),{width:rightMargin*scale,style:{position:"absolute",height,background:"black",}})
+									}
+								</Movable>
+							</Fragment>
 
-						<div style={{position:"absolute",top:0,left:col.x, width:col.width,height}}>
-							<Movable ref={a=>fl=a} key="first" color="yellow"
-								onMove={(dx,dy,{x})=>{
-									if(Math.abs(dx)<threshold)
-										return 
-									const width=(leftIndent+firstLine)*scale+dx
-									setFirstLine((width-leftIndent*scale)/scale)
-									return {x0:x,style:{...indentStyle, top:0,left:width-halfMarkerSize}}
-								}}
-								>
-								<div title="First Line Indent" style={{...indentStyle, top:0,left:(leftIndent+firstLine)*scale-halfMarkerSize}}>
-									<Marker direction="bottom"/>
-								</div>
-							</Movable>
+							<div style={{position:"absolute",top:0,left:col.x, width:col.width,height}}>
+								<Movable ref={a=>fl=a} key="first" color="yellow"
+									onMove={(dx,dy,{x})=>{
+										if(Math.abs(dx)<threshold)
+											return 
+										const width=(leftIndent+firstLine)*scale+dx
+										setFirstLine((width-leftIndent*scale)/scale)
+										return {x0:x,style:{...indentStyle, top:0,left:width-halfMarkerSize}}
+									}}
+									>
+									<div title="First Line Indent" style={{...indentStyle, top:0,left:(leftIndent+firstLine)*scale-halfMarkerSize}}>
+										<Marker direction="bottom"/>
+									</div>
+								</Movable>
 
-							<Movable key="left" color="blue"
-								onMove={(dx,dy,{x})=>{
-									if(Math.abs(dx)<threshold)
-										return 
-									const indent=leftIndent*scale+dx
-									setLeftIndent(indent/scale)
-									return {x0:x,style:{...indentStyle, bottom:0,left:indent-halfMarkerSize}}
-								}}
-								>
-								<div title="Left Indent" style={{...indentStyle, bottom:0,left:leftIndent*scale-halfMarkerSize}}>
-									<Marker/>
-								</div>
-							</Movable>
+								<Movable key="left" color="blue"
+									onMove={(dx,dy,{x})=>{
+										if(Math.abs(dx)<threshold)
+											return 
+										const indent=leftIndent*scale+dx
+										setLeftIndent(indent/scale)
+										return {x0:x,style:{...indentStyle, bottom:0,left:indent-halfMarkerSize}}
+									}}
+									>
+									<div title="Left Indent" style={{...indentStyle, bottom:0,left:leftIndent*scale-halfMarkerSize}}>
+										<Marker/>
+									</div>
+								</Movable>
 
-							<Movable key="right" color="blue"
-								onMove={(dx,dy,{x})=>{
-									if(Math.abs(dx)<threshold)
-										return 
-									const indent=rightIndent*scale-dx
-									setRightIndent(indent/scale)
-									return {x0:x,style:{...indentStyle,bottom:0,right:indent-halfMarkerSize}}
-								}}
-								>
-								<div title="Right Indent" style={{...indentStyle,bottom:0,right:rightIndent*scale-halfMarkerSize}}>
-									<Marker/>
-								</div>
-							</Movable>
-						</div>
-					]
+								<Movable key="right" color="blue"
+									onMove={(dx,dy,{x})=>{
+										if(Math.abs(dx)<threshold)
+											return 
+										const indent=rightIndent*scale-dx
+										setRightIndent(indent/scale)
+										return {x0:x,style:{...indentStyle,bottom:0,right:indent-halfMarkerSize}}
+									}}
+									>
+									<div title="Right Indent" style={{...indentStyle,bottom:0,right:rightIndent*scale-halfMarkerSize}}>
+										<Marker/>
+									</div>
+								</Movable>
+							</div>
+						</Fragment>
+					)
 				})()}
 			</div>
 		)

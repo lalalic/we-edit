@@ -104,8 +104,7 @@ export default ({Paragraph,Text, Frame})=>class DocxParagraph extends Component{
 					}
 					return {...this.context.defaultTab, pos:Math.ceil((x+0.1)/this.context.defaultTab.pos)*this.context.defaultTab.pos}		 
 				})();
-				tab.pos-=lineLeadingSpace
-				return tab
+				return {...tab, pos:tab.pos-lineLeadingSpace}
 			}
 
 			createParagraphEndAtom(){
@@ -246,6 +245,7 @@ export default ({Paragraph,Text, Frame})=>class DocxParagraph extends Component{
 				 */
 				appendTab(atom){
 					const paragraph=this.context.parent
+					const {indent:{left=0,right=0,firstLine=0}}=paragraph.props
 					const x=this.inlineSegments.currentX
 					const tab=paragraph.getTabAt(x)
 					const {pos,width=pos-x,leader}=tab

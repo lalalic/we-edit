@@ -481,7 +481,7 @@ function createTheme(){
         },
         FontsShape:{
             style:{
-                width:50,
+                width:100,
             },
             Tree:{
                 style:{
