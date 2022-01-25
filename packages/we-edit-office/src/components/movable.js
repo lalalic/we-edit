@@ -24,7 +24,7 @@ export default class Movable extends Component{
 		
 		const style={...children.props.style,...style1,...style0,}
 		if(move){
-			const {rodX=0, rod=<this.constructor.RodX left={style.left-1+rodX}/>}=this.props
+			const {rodDx=0, rod=<this.constructor.RodX left={style.left-1+rodDx}/>}=this.props
 			return (
 				<Fragment>
 					<Overlay color={color} onMouseUp={e=>this.onEndMove(e)} onMouseMove={e=>this.move(e)} cursor={cursor}/>

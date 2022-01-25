@@ -15,7 +15,7 @@ export default onlyUpdateForKeys(['height','scale','topMargin','bottomMargin',])
 			onMove={(dx,dy,{y})=>{
 				if(Math.abs(dy)<threshold)
 					return 
-				setTopMargin(topMargin*scale+dy)
+				setTopMargin((topMargin*scale+dy)/scale)
 				return {y0:y}
 			}}
 			>
@@ -31,9 +31,8 @@ export default onlyUpdateForKeys(['height','scale','topMargin','bottomMargin',])
 			onMove={(dx,dy,{y})=>{
 				if(Math.abs(dy)<threshold)
 					return 
-				const height=bottomMargin*scale-dy
-				setBottomMargin(height/scale)
-				return {y0:y,height}
+				setBottomMargin((bottomMargin*scale-dy)/scale)
+				return {y0:y}
 			}}
 			>
 			{React.createElement(({style, ...props})=>(

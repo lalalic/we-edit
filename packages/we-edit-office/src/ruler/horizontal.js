@@ -147,7 +147,7 @@ class Col extends React.Component{
 					<div style={style}/>
 				</Movable>
 				
-				<Movable cursor="move" color="red" style={{left:(width*scale-3)/2}} rodX={1.5}
+				<Movable cursor="move" color="red" style={{left:(width*scale-3)/2}} rodDx={1.5}
 					onMove={(dx,dy,{x})=>{
 						if(Math.abs(dx)<threshold)
 							return 
