@@ -10,14 +10,14 @@ export default onlyUpdateForKeys("width,scale,leftMargin,rightMargin,firstLine,l
 	leftMargin=3, rightMargin=3, setLeftMargin, setRightMargin,setColGap,moveColGap,
 	firstLine=0, leftIndent=0, rightIndent=0, setFirstLine, setLeftIndent, setRightIndent,
 	cm=scale*96/2.54, threshold=5,
-	children,
+	children, col=cols[column],
 	})=>{
 		let fl=null
 		return (
 			<div className="ruler horizontal" style={{width:width*scale,position:"relative",height,margin: "0px auto 0px auto"}}>
-				<Scale {...{width:width*scale,height,from:leftMargin*scale,cm}}>
-					{children}
-				</Scale>
+				<Scale {...{width:width*scale,height,from:leftMargin*scale,cm}}/>
+
+				{children && React.cloneElement(children,{col,scale,leftMargin, rightMargin})}
 
 				{(()=>{
 					return cols.reduce((segs,{x,width},i)=>{
@@ -26,94 +26,95 @@ export default onlyUpdateForKeys("width,scale,leftMargin,rightMargin,firstLine,l
 					},[]).map(([x,x2],i)=><Col {...{key:i,x,width:x2-x,scale,height,i, threshold, setColGap, moveColGap}}/>)
 				})()}
 				
-				{((col=cols[column])=>{
+				{(()=>{
 					if(!width)
 						return null
 
 					const indentStyle={position:"absolute",width:markerSize,height:markerSize}
 					const halfMarkerSize=markerSize/2
+					const moverWidth=3
 					return (
 						<Fragment>
-							<Fragment>
-								<Movable key="leftMargin" cursor="ew-resize"
-									onMove={(dx,dy,{x})=>{
-										if(Math.abs(dx)<threshold)
-											return 
-										const width=leftMargin*scale+dx
-										setLeftMargin(width/scale)
-										return {x0:x,width}
-									}}
-									>
-									{
-										React.createElement(({width,moverWidth=3,style,...props})=>(
-											<div style={{...style,width:moverWidth,left:width-moverWidth,cursor:"ew-resize",top:0,opacity:0.6}} {...props}>
-												<div style={{...style,width:width-moverWidth,right:moverWidth,cursor:"default"}}/>
-											</div>	
-										),{width:leftMargin*scale,style:{position:"absolute",height,background:"black",}})
-									}
-								</Movable>
-								<Movable key="rightMargin" cursor="ew-resize"
-									onMove={(dx,dy,{x})=>{
-										if(Math.abs(dx)<threshold)
-											return 
-										const width=rightMargin*scale-dx
-										setRightMargin(width/scale)
-										return {x0:x,width}
-									}}
-									>
-									{
-										React.createElement(({width,moverWidth=3,style,...props})=>(
-											<div style={{...style,width:moverWidth,right:width-moverWidth,cursor:"ew-resize",top:0,opacity:0.6}} {...props}>
-												<div style={{...style,width:width-moverWidth,left:moverWidth,cursor:"default"}}/>
-											</div>	
-										),{width:rightMargin*scale,style:{position:"absolute",height,background:"black",}})
-									}
-								</Movable>
-							</Fragment>
+							<Movable key="leftMargin" cursor="ew-resize" rodDx={moverWidth}
+								style={{left:leftMargin*scale-moverWidth}}
+								onMove={(dx,dy,{x})=>{
+									if(Math.abs(dx)<threshold)
+										return 
+									setLeftMargin((leftMargin*scale+dx)/scale)
+									return {x0:x}
+								}}
+								>
+								{
+									React.createElement(({style,...props})=>(
+										<div style={{width:moverWidth,cursor:"ew-resize",top:0,opacity:0.6,position:"absolute",height,background:"black",...style}} 
+											{...props}>
+											<div style={{width:leftMargin*scale-moverWidth,right:moverWidth,cursor:"default",position:"absolute",height,background:"black"}}/>
+										</div>	
+									))
+								}
+							</Movable>
+							<Movable key="rightMargin" cursor="ew-resize"
+								style={{left:(width-rightMargin)*scale}}
+								onMove={(dx,dy,{x})=>{
+									if(Math.abs(dx)<threshold)
+										return 
+									setRightMargin((rightMargin*scale-dx)/scale)
+									return {x0:x}
+								}}
+								>
+								{
+									React.createElement(({style,...props})=>(
+										<div style={{width:moverWidth,cursor:"ew-resize",top:0,opacity:0.6,position:"absolute",height,background:"black",...style}} {...props}>
+											<div style={{width:rightMargin*scale-moverWidth,left:moverWidth,cursor:"default",position:"absolute",height,background:"black",}}/>
+										</div>	
+									))
+								}
+							</Movable>
 
-							<div style={{position:"absolute",top:0,left:col.x, width:col.width,height}}>
-								<Movable ref={a=>fl=a} key="first" color="yellow"
-									onMove={(dx,dy,{x})=>{
-										if(Math.abs(dx)<threshold)
-											return 
-										const width=(leftIndent+firstLine)*scale+dx
-										setFirstLine((width-leftIndent*scale)/scale)
-										return {x0:x,style:{...indentStyle, top:0,left:width-halfMarkerSize}}
-									}}
-									>
-									<div title="First Line Indent" style={{...indentStyle, top:0,left:(leftIndent+firstLine)*scale-halfMarkerSize}}>
-										<Marker direction="bottom"/>
-									</div>
-								</Movable>
+							<Movable ref={a=>fl=a} key="first" color="yellow" rodDx={halfMarkerSize}
+								style={{left:(col.x+leftIndent+firstLine)*scale-halfMarkerSize}}
+								onMove={(dx,dy,{x})=>{
+									if(Math.abs(dx)<threshold)
+										return 
+									const width=(leftIndent+firstLine)*scale+dx
+									setFirstLine((width-leftIndent*scale)/scale)
+									return {x0:x}
+								}}
+								>
+								<div title="First Line Indent" style={{...indentStyle, top:0}}>
+									<Marker direction="bottom"/>
+								</div>
+							</Movable>
 
-								<Movable key="left" color="blue"
-									onMove={(dx,dy,{x})=>{
-										if(Math.abs(dx)<threshold)
-											return 
-										const indent=leftIndent*scale+dx
-										setLeftIndent(indent/scale)
-										return {x0:x,style:{...indentStyle, bottom:0,left:indent-halfMarkerSize}}
-									}}
-									>
-									<div title="Left Indent" style={{...indentStyle, bottom:0,left:leftIndent*scale-halfMarkerSize}}>
-										<Marker/>
-									</div>
-								</Movable>
+							<Movable key="left" color="blue" rodDx={halfMarkerSize}
+								style={{left:(col.x+leftIndent)*scale-halfMarkerSize}}
+								onMove={(dx,dy,{x})=>{
+									if(Math.abs(dx)<threshold)
+										return 
+									const indent=leftIndent*scale+dx
+									setLeftIndent(indent/scale)
+									return {x0:x}
+								}}
+								>
+								<div title="Left Indent" style={{...indentStyle, bottom:0}}>
+									<Marker/>
+								</div>
+							</Movable>
 
-								<Movable key="right" color="blue"
-									onMove={(dx,dy,{x})=>{
-										if(Math.abs(dx)<threshold)
-											return 
-										const indent=rightIndent*scale-dx
-										setRightIndent(indent/scale)
-										return {x0:x,style:{...indentStyle,bottom:0,right:indent-halfMarkerSize}}
-									}}
-									>
-									<div title="Right Indent" style={{...indentStyle,bottom:0,right:rightIndent*scale-halfMarkerSize}}>
-										<Marker/>
-									</div>
-								</Movable>
-							</div>
+							<Movable key="right" color="blue" rodDx={halfMarkerSize}
+								style={{left:(col.x+col.width-rightIndent)*scale-halfMarkerSize}}
+								onMove={(dx,dy,{x})=>{
+									if(Math.abs(dx)<threshold)
+										return 
+									const indent=rightIndent*scale-dx
+									setRightIndent(indent/scale)
+									return {x0:x}}
+								}
+								>
+								<div title="Right Indent" style={{...indentStyle,bottom:0}}>
+									<Marker/>
+								</div>
+							</Movable>
 						</Fragment>
 					)
 				})()}
@@ -135,7 +136,7 @@ class Col extends React.Component{
 		const style={position:"absolute",cursor:"ew-resize",top:0,height,width:3}
 		return (
 			<div style={{position:"absolute",top:0,left:x*scale,width:width*scale,height,background:"black",opacity:0.4}}>
-				<Movable cursor="ew-resize" color="red"
+				<Movable cursor="ew-resize" color="red" style={{left:0}}
 					onMove={(dx,dy,{x})=>{
 						if(Math.abs(dx)<threshold)
 							return 
@@ -143,10 +144,10 @@ class Col extends React.Component{
 						return {x0:x}
 					}}
 					>
-					<div style={{...style,left:0}}/>
+					<div style={style}/>
 				</Movable>
 				
-				<Movable cursor="move" color="red"
+				<Movable cursor="move" color="red" style={{left:(width*scale-3)/2}} rodDx={1.5}
 					onMove={(dx,dy,{x})=>{
 						if(Math.abs(dx)<threshold)
 							return 
@@ -154,10 +155,10 @@ class Col extends React.Component{
 						return {x0:x}
 					}}
 					>
-					<div style={{...style,background:"gray",cursor:"move",left:(width*scale-3)/2}}/>
+					<div style={{...style,background:"gray",cursor:"move"}}/>
 				</Movable>
 
-				<Movable cursor="ew-resize"
+				<Movable cursor="ew-resize" style={{left:width*scale}}
 					onMove={(dx,dy,{x})=>{
 						if(Math.abs(dx)<threshold)
 							return 
@@ -165,7 +166,7 @@ class Col extends React.Component{
 						return {x0:x}
 					}}
 					>
-					<div style={{...style,right:0}}/>
+					<div style={style}/>
 				</Movable>
 			</div>
 		)
@@ -187,7 +188,7 @@ const Marker=({direction="top",degs={bottom:180}, style, ...props})=>(
 )
 
 const Scale=({width,height,from,cm, children, style})=>(
-	<svg style={{width,height,backgroundColor:"white", ...style}}
+	<svg className="HorizontalScale" style={{width,height,backgroundColor:"white", ...style}}
 		preserveAspectRatio="none"
 		viewBox={`0 0 ${width} ${height}`} >
 		<symbol id="marker" viewBox="0 0 60 60">

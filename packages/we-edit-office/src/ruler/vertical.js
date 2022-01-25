@@ -5,28 +5,29 @@ import Movable from "../components/movable"
 export default onlyUpdateForKeys(['height','scale','topMargin','bottomMargin',])(
 	({height=0, scale=1, scaleWidth:width=20,children, cursor="ns-resize",
 	topMargin=3, bottomMargin=3,setTopMargin, setBottomMargin,
-	cm=scale*96/2.54, threshold=5,
+	cm=scale*96/2.54, threshold=5, moverWidth=3
 	})=>(
 	<div className="ruler vertical" style={{height:height*scale,position:"relative"}}>
 		<Scale {...{height:height*scale,width,from:topMargin*scale, cm, children}}/>
 
-		<Movable key="topMargin" cursor={cursor}
+		<Movable key="topMargin" cursor={cursor} style={{top:topMargin*scale-moverWidth,}}
+			rod={<Movable.RodY top={topMargin*scale-moverWidth/2}/>}
 			onMove={(dx,dy,{y})=>{
 				if(Math.abs(dy)<threshold)
 					return 
-				const height=topMargin*scale+dy
-				setTopMargin(height)
-				return {y0:y,height}
+				setTopMargin(topMargin*scale+dy)
+				return {y0:y}
 			}}
 			>
-			{React.createElement(({height, moverWidth=3,style, ...props})=>(
-				<div style={{...style,height:moverWidth,top:height-moverWidth,cursor,left:0,opacity:0.6}} {...props}>
-					<div style={{...style,height:height-moverWidth,bottom:moverWidth,cursor:"default"}}/>
+			{React.createElement(({style, ...props})=>(
+				<div style={{height:moverWidth,cursor,left:0,opacity:0.6,position:"absolute",width,background:"black",...style}} {...props}>
+					<div style={{height:topMargin*scale-moverWidth,bottom:moverWidth,cursor:"default",position:"absolute",width,background:"black"}}/>
 				</div>
-			),{height:topMargin*scale,style:{position:"absolute",width,background:"black"}})}
+			))}
 		</Movable>
 
-		<Movable key="bottomMargin" cursor={cursor}
+		<Movable key="bottomMargin" cursor={cursor} style={{top:(height-bottomMargin)*scale}}
+			rod={<Movable.RodY top={(height-bottomMargin)*scale-moverWidth/2}/>}
 			onMove={(dx,dy,{y})=>{
 				if(Math.abs(dy)<threshold)
 					return 
@@ -35,17 +36,17 @@ export default onlyUpdateForKeys(['height','scale','topMargin','bottomMargin',])
 				return {y0:y,height}
 			}}
 			>
-			{React.createElement(({height, moverWidth=3, style, ...props})=>(
-				<div style={{...style,height:moverWidth,bottom:height-moverWidth,cursor,left:0,opacity:0.6}} {...props}>
-					<div style={{...style,height:height-moverWidth,top:moverWidth,cursor:"default"}}/>
+			{React.createElement(({style, ...props})=>(
+				<div style={{height:moverWidth,cursor,left:0,opacity:0.6,position:"absolute",width,background:"black",...style}} {...props}>
+					<div style={{height:bottomMargin*scale-moverWidth,top:moverWidth,cursor:"default",position:"absolute",width,background:"black"}}/>
 				</div>
-			),{height:bottomMargin*scale,style:{position:"absolute",width,background:"black"},})}
+			))}
 		</Movable>
 	</div>
 ))
 
 const Scale=({width,height,from,cm=96/2.54, children})=>(
-	<svg style={{width,height,backgroundColor:"white"}}
+	<svg className="VerticalScale" style={{width,height,backgroundColor:"white"}}
 		viewBox={`0 0 ${width} ${height}`} >
 		<g transform={`translate(0 ${from})`}>
 		{

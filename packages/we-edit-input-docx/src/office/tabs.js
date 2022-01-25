@@ -2,7 +2,7 @@ import React,{Fragment, Component,PureComponent} from "react"
 import PropTypes from "prop-types"
 import {createPortal} from "react-dom"
 import {whenSelectionChangeDiscardable, connect, getUI,getContent, getFile, ACTION} from "we-edit"
-import {getOffice,Dialog, PropTypesUI, SelectStyle} from "we-edit-office"
+import {getOffice,Dialog, PropTypesUI, SelectStyle, Movable} from "we-edit-office"
 import {compose} from "recompose"
 
 
@@ -12,54 +12,71 @@ const ALIGNs="Left,Center,Right,Decimal".split(",")
 const LEADERs=`,-|hyphen,.|dot,_|underscore,${String.fromCharCode(0xB7)}|middleDot`.split(",")
 
 export const Indicator=compose(
-    whenSelectionChangeDiscardable(({selection},state)=>{
+    whenSelectionChangeDiscardable(({selection,leftMargin})=>{
         const {tabs}=selection?.props("paragraph",false)||{}
-        const {margin:{left=0}={}}=selection?.props('layout')||{}
-        return {tabs,from:left}
+        return {tabs, from:leftMargin}
     }),
-    connect((state,{from=0, dispatch})=>{
-        const {scale=100}=getOffice(state)
+    connect((state,{dispatch})=>{
         const {tabAlign="left"}=getUI(state)
         return {
-            from, 
             defaultAlign:tabAlign,
-            scale:scale/100,
             switchDefault(){
                 const i=ALIGNs.findIndex(a=>a.toLowerCase()==tabAlign)
                 dispatch(ACTION.UI({tabAlign:ALIGNs[(i+1)%4].toLowerCase()}))
             },
-            setDocumentLayout:()=>dispatch(ACTION.UI({settingDocumentLayout:true})),
-            setTabs:()=>dispatch(ACTION.UI({settingTab:true})),
+            update(tabs){
+                dispatch(ACTION.Entity.UPDATE({paragraph:{tabs:tabs.sort((a,b)=>a.pos-b.pos)}}))
+            }
         }
     }),
 )(class Tabs extends Component{
     static contextTypes={
         dialogManager: PropTypes.shape({show:PropTypes.func})
     }
-    state={}
+    constructor(){
+        super(...arguments)
+        this.state={}
+        this.placeholder=React.createRef()
+    }
     render(){
-        const {tabs=[],from=0, scale=1, defaultAlign, switchDefault}=this.props
+        const {tabs=[],from=0, scale=1, defaultAlign, switchDefault,update}=this.props
         const {container}=this.state
         return(
             <Fragment>
-                <defs ref="defs">
-                    <marker id="triangle" viewBox="0 0 20 20"
-                        refX="1" refY="5" 
-                        markerUnits="strokeWidth"
-                        markerWidth="10" markerHeight="10"
-                        orient="auto">
-                        <path d="M 0 0 L 10 5 L 0 10 z" fill="black"/>
-                    </marker>
-                </defs>
                 {tabs.map(({val="left", pos},i)=>{
-                    const tab=this[val]((pos+from)*scale,16,i)
-                    return React.cloneElement(tab,{onDoubleClick:e=>this.context.dialogManager.show('tabs')})
+                    if(!this[val])
+                        return null
+
+                    const tab=React.createElement(this[val],{
+                            key:i, height:10, 
+                            style:{position:"absolute",top:10,left:(pos+from)*scale},
+                            onDoubleClick:e=>this.context.dialogManager.show('tabs'),
+                        })
+                    return (
+                        <Movable key={i}
+                            onAccept={(dx)=>{
+                                const cloned=[...tabs]
+                                cloned.splice(i,1,{...tabs[i],pos:pos+dx})
+                                update(cloned)
+                            }}
+                            onMove={dx=>{
+                                return {style:{left:(pos+from)*scale+dx}}
+                            }}
+                            >
+                            {tab}
+                        </Movable>
+                    )
                 })}
-                {container && <DefaultTab container={container}>
-                    <svg style={{width:20,height:20}} onClick={switchDefault}>
-                        {this.defaultTab(defaultAlign)}
-                    </svg>
-                </DefaultTab>}
+                <div ref={this.placeholder} style={{position:"absolute",display:'none'}}/>
+                {container && this[defaultAlign] && createPortal(
+                    <div onClick={switchDefault}
+                        style={{top:0,position:"absolute",left:-20,width:20,height:20}}>
+                        {React.createElement(this[defaultAlign],{
+                            width:20, height:20, 
+                            style:{position:"absolute",left:10,top:-5,} 
+                        })}
+                    </div>
+                ,container)}
             </Fragment>
         )
     }
@@ -67,64 +84,82 @@ export const Indicator=compose(
     componentDidMount(){
         if(this.state.container)
             return 
-        let stickyParent=this.refs.defs
-        while(stickyParent && stickyParent.style.position!="sticky"){
-            stickyParent=stickyParent.parentElement
+        let horizontalRulerParent=this.placeholder.current
+        while(horizontalRulerParent && !horizontalRulerParent.querySelector('.ruler.horizontal')){
+            horizontalRulerParent=horizontalRulerParent.parentElement
         }
-        if(stickyParent){
-            this.setState({container:stickyParent},()=>{
-                const {setDocumentLayout, setTabs}=this.props
-                stickyParent.addEventListener('dblclick',setDocumentLayout)
-                const horizontalScale=stickyParent.querySelector('svg')
-                horizontalScale.addEventListener('dblclick', e=>{
-                    e.stopPropagation()
-                    setTabs()
-                })
-                horizontalScale.addEventListener('click', ({clientX:left,clientY:top,srcElement})=>{
-                    const {defaultAlign,from, dispatch, tabs=[]}=this.props
-                    const point=horizontalScale.createSVGPoint()
-                    point.x=left,point.y=top
-                    const {x,pos=x-from}=point.matrixTransform(horizontalScale.getScreenCTM().inverse())
-                    if(!tabs.find(a=>Math.abs(a.pos-pos)<10)){
-                        dispatch(ACTION.Entity.UPDATE({paragraph:{tabs:[...{val:defaultAlign,pos},...tabs].sort((a,b)=>a.pos-b.pos)}}))
-                    }
-                })
-
-                let scrollParent=horizontalScale
-                while(scrollParent && scrollParent.style.overflowY!="scroll"){
-                    scrollParent=scrollParent.parentElement
+        if(!horizontalRulerParent)
+            return 
+        const {update}=this.props
+        this.setState({container:horizontalRulerParent},()=>{
+            const horizontalScale=horizontalRulerParent.querySelector('.HorizontalScale')
+                
+            horizontalScale.addEventListener('click', ({clientX:left,clientY:top})=>{
+                const {defaultAlign,from, dispatch, tabs=[]}=this.props
+                const point=horizontalScale.createSVGPoint()
+                point.x=left,point.y=top
+                const {x,pos=x-from}=point.matrixTransform(horizontalScale.getScreenCTM().inverse())
+                if(!tabs.find(a=>Math.abs(a.pos-pos)<10)){
+                    update([...{val:defaultAlign,pos},...tabs])
                 }
-                const verticalRuler=scrollParent.querySelector('.vertical')
-                verticalRuler?.addEventListener('dblclick',setDocumentLayout)
             })
-        }
+        })
     }
 
-    defaultTab(align){
-        return this[align](10,16,0)
+    left({width=9, height, style:{left:x,top:y,...style}, ...props}){
+        return(
+            <svg style={{left:x-1,top:y, width,height, ...style}}
+                viewBox={`0 0 ${width} ${height}`} {...props}>
+                <Arrow/>
+                <path d={`M${1} ${height} v-8 h2`} fill="none" stroke="black" markerEnd="url(#triangle)"/>
+            </svg>
+        )
     }
 
-    left(x,y,i){
-        return <path key={i} d={`M${x} ${y} v-8 h3`} fill="none" stroke="black" markerEnd="url(#triangle)"/>
-    }
-
-    right(x,y,i){
-        return <path key={i} d={`M${x} ${y} v-8 h-3`} fill="none" stroke="black" markerEnd="url(#triangle)"/>
-    }
-
-    center(x,y,i){
-        return <path key={i} d={`M${x} ${y} v-8`} fill="none" stroke="black" markerEnd="url(#triangle)"/>
-    }
-
-    decimal(x,y,i){
+    right({width=9,height,style:{left:x,top:y,...style},...props}){
         return (
-            <g key={i}>
-                <circle {...{cx:x,cy:y-1,r:1}}/>
-                <path d={`M${x} ${y-3} v-4`} fill="none" stroke="black" markerEnd="url(#triangle)"/>
-            </g>
+            <svg style={{left:x-(width-1),top:y, width,height,...style}} 
+                viewBox={`0 0 ${width} ${height}`} {...props}>
+                <Arrow/>
+                <path d={`M${width-1} ${height} v-8 h-2`} fill="none" stroke="black" markerEnd="url(#triangle)"/>
+            </svg>
+        )
+    }
+
+    center({width=6,height,style:{left:x,top:y,...style},...props}){
+        return (
+            <svg style={{left:x-width/2,top:y, width,height, ...style}} 
+                viewBox={`0 0 ${width} ${height}`} {...props}>
+                <Arrow/>
+                <path d={`M${width/2} ${height} v-6`} fill="none" stroke="black" markerEnd="url(#triangle)"/>
+            </svg>    
+        )
+            
+    }
+
+    decimal({width=6,height, r=1, style:{left:x,top:y,...style}, ...props}){
+        return (
+            <svg style={{left:x-width/2,top:y, width,height, ...style}} 
+                viewBox={`0 0 ${width} ${height}`} {...props}>
+                <Arrow/>
+                <circle {...{cx:width/2,cy:height-r,r}}/>
+                <path d={`M${width/2} ${height-3} v-3`} fill="none" stroke="black" markerEnd="url(#triangle)"/>
+            </svg>
         )    
     }
 })
+
+const Arrow = ()=>(
+    <defs>
+        <marker id="triangle" viewBox="0 0 20 20"
+            refX="1" refY="5" 
+            markerUnits="strokeWidth"
+            markerWidth="10" markerHeight="10"
+            orient="auto">
+            <path d="M 0 0 L 10 5 L 0 10 z" fill="black"/>
+        </marker>
+    </defs>
+)
 
 export function Setting(){
     return (
@@ -296,18 +331,6 @@ export const Setting1=compose(
         )
     }
 })
-
-class DefaultTab extends PureComponent{
-    render(){
-        const {children,container}=this.props
-        return createPortal(
-            <div style={{top:0,position:"absolute",left:-20}}>
-                {children}
-            </div>,
-            container
-        )
-    }
-}
 
 export const Events=class extends PureComponent{
 
