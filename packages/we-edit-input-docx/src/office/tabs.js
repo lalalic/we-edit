@@ -1,15 +1,11 @@
-import React,{Fragment, Component,PureComponent} from "react"
+import React,{Fragment, Component} from "react"
 import PropTypes from "prop-types"
 import {createPortal} from "react-dom"
-import {whenSelectionChangeDiscardable, connect, getUI,getContent, getFile, ACTION} from "we-edit"
-import {getOffice,Dialog, PropTypesUI, SelectStyle, Movable} from "we-edit-office"
+import {whenSelectionChangeDiscardable, connect, getUI, ACTION} from "we-edit"
+import {Dialog, PropTypesUI, SelectStyle, Movable} from "we-edit-office"
 import {compose} from "recompose"
 
-
-import {FlatButton} from "material-ui"
-
 const ALIGNs="Left,Center,Right,Decimal".split(",")
-const LEADERs=`,-|hyphen,.|dot,_|underscore,${String.fromCharCode(0xB7)}|middleDot`.split(",")
 
 export const Indicator=compose(
     whenSelectionChangeDiscardable(({selection,leftMargin})=>{
@@ -93,7 +89,7 @@ export const Indicator=compose(
         const {update}=this.props
         this.setState({container:horizontalRulerParent},()=>{
             const horizontalScale=horizontalRulerParent.querySelector('.HorizontalScale')
-                
+    
             horizontalScale.addEventListener('click', ({clientX:left,clientY:top})=>{
                 const {defaultAlign,from, dispatch, tabs=[]}=this.props
                 const point=horizontalScale.createSVGPoint()
@@ -161,178 +157,26 @@ const Arrow = ()=>(
     </defs>
 )
 
-export function Setting(){
+export function Setting({value, onSubmit, ...props}){
     return (
-        <SelectStyle 
-            getStyle={selection=>{
-                return selection?.getComposer(selection.end.id).closest('paragraph')
+        <SelectStyle target="paragraph">
+            {({style,dispatch})=>{
+                const refSetting=React.createRef()
+				if(onSubmit==undefined){
+					onSubmit=paragraph=>dispatch(ACTION.Selection.UPDATE({paragraph}))
+				}
+                return (
+                    <Dialog title="Tabs"
+                        onSubmit={e=>onSubmit(refSetting.current.value, dispatch)}
+                        >
+                        <PropTypesUI ref={refSetting}
+                            props={{tabs:(value||style)?.tabs}}
+                            grid={1}
+                            propTypes={(({tabs})=>({tabs}))(style._composer.constructor.propTypes)} 
+                            />
+                    </Dialog>
+                )
             }}
-            >
-            {({composer,dispatch})=>(
-                <PropTypesUI 
-                    theme="Paragraph"
-                    props={{tabs:composer.props.tabs}}
-                    propTypes={{tabs:composer.propsTypes.tabs}} 
-                    onChange={paragraph=>dispatch(ACTION.Selection.UPDATE({paragraph}))}
-                    />
-            )}
-
         </SelectStyle>
     )
 }
-
-export const Setting1=compose(
-    whenSelectionChangeDiscardable(({selection}, state)=>{
-        const file=getFile(state)
-        const toPx=file.doc.cm2Px
-            
-        let tabs=selection?.props("paragraph",false)?.tabs
-        if(tabs){
-            tabs=tabs.map(a=>({...a, pos:Number(file.px2cm(a.pos)).toFixed(2)}))
-        }
-        const content=getContent(state)
-        const {defaultTab}=content ? content.get("root").toJS() : {}
-        return {tabs,detaultTab:defaultTab ? Number(file.doc.px2cm(defaultTab)).toFixed(2): undefined, toPx}
-    }),
-    connect(state=>({setting:getUI(state).settingTab})),
-)(class Setting extends Component{
-
-    static getDerivedStateFromProps({tabs, defaultTab},state){
-        return {tabs:state.tabs||tabs,defaultTab:state.defaultTab||defaultTab}
-    }
-
-    state={}
-    render(){
-        const {setting, dispatch, toPx}=this.props
-        if(!setting)
-            return null
-        const {tabs=[], i, tab=tabs[i]||{val:"left"}, defaultTab=1.27}=this.state
-        const close=e=>dispatch(ACTION.UI({settingTab:undefined}))
-        return (
-            <Dialog open={true} modal={true} title="Tabs" titleStyle={{padding:2,background:"lightgray",textAlign:"center"}}
-                actions={[
-                    <FlatButton
-                        label="Clear All"
-                        onClick={e=>this.setState({tabs:[],i:undefined})}
-                        style={{float:"left"}}
-                    />,
-                    <FlatButton
-                        label="Cancel"
-                        onClick={close}
-                    />,
-                    <FlatButton
-                        label="Submit"
-                        primary={true}
-                        onClick={e=>{
-                            close()
-                            const paragraph={tabs}
-                            if(tabs!==this.props.tabs){
-                                paragraph.tabs=tabs.map(a=>({...a,pos:toPx(`${a.pos}cm`)}))
-                            }
-                            if(defaultTab!==this.props.defaultTab){
-                                paragraph.defaultTab=toPx(`${defaultTab}cm`)
-                            }
-                            dispatch(ACTION.Entity.UPDATE({paragraph}))
-                        }}
-                    />,
-                ]}
-                >
-                <div style={{marginTop:10,marginBottom:5}}>Tab stops:</div>
-                <div style={{display:"flex", flexDirection:"row"}}>
-                    <div style={{width:200}}>
-                        <div style={{whiteSpace:"nowrap"}}>
-                            <input type="number" step={0.1}
-                            style={{width:"calc(100% - 37.97px)",marginBottom:10}} 
-                            value={tab.pos||""}
-                            onChange={({target:{value:pos}})=>{
-                                const j=tabs.findIndex(a=>a.pos==pos)
-                                if(j!=-1){
-                                    this.setState({i:j, tab:undefined})
-                                }else{
-                                    this.setState({i:undefined,tab:{...tab,pos}})
-                                }
-                            }}
-                            /> cm
-                        </div>
-                        <select style={{width:"100%"}} 
-                            size={11} multiple value={[i]}
-                            onChange={e=>{
-                                this.setState({i:e.target.value[0],tab:undefined})
-                            }}
-                            >
-                            {tabs.map(({pos},k)=><option value={k} key={k}>{pos} cm</option>)}
-                        </select>
-                    </div>
-                    <div style={{flex:1,paddingLeft:10}}>
-                        <div>Alignment:</div>
-                        <div style={{marginTop:10,marginBottom:10}}>
-                            {ALIGNs.map(val=>{
-                                return (
-                                    <span key={val} style={{padding:5,display:"inline-block",width:"calc(50% - 10px)"}}>
-                                        <input type="radio" 
-                                            checked={val.toLowerCase()==(tab.val||'left')} 
-                                            onChange={e=>{
-                                                tabs.splice(i,1,{...tab,val})
-                                                this.setState({tabs:[...tabs]})
-                                            }}
-                                        />
-                                        {val}
-                                    </span>
-                                )
-                            })}
-                        </div>
-                        <div>Leader:</div>
-                        <div style={{marginTop:10,marginBottom:10}}>
-                            {LEADERs.map(a=>{
-                                const [d,leader]=a.split("|")
-                                return (
-                                    <span key={d} style={{padding:5,display:"inline-block",width:"calc(50% - 10px)"}}>
-                                        <input type="radio" 
-                                            checked={leader===tab.leader}
-                                            onChange={e=>{
-                                                tabs.splice(i,1,{...tab,leader})
-                                                this.setState({tabs:[...tabs]})
-                                            }}
-                                            />
-                                        {d.repeat(5)||"None"}
-                                    </span>
-                                )
-                            })}
-                        </div>
-                    </div>
-                </div>
-
-                <div style={{marginTop:10}}>
-                    <div style={{float:"left"}}>
-                        <button style={{borderRadius:0}} onClick={e=>{
-                            const newTabs=[tab, ...tabs].sort((a,b)=>a.pos-b.pos)
-                            this.setState({tabs:newTabs, i:newTabs.findIndex(a=>a.pos==tab.pos)})
-                        }}>+</button>
-                        <button style={{borderRadius:0,borderLeft:0}} onClick={e=>{
-                            if(i!==undefined){
-                                tabs.splice(i,1)
-                                this.setState({
-                                    tabs:[...tabs],
-                                    i:tabs[i] ? i : (tabs[i-1] ? i-1 : undefined)
-                                })
-                            }
-                        }}>-</button>
-                    </div>
-                    <div style={{float:"right"}}>
-                        Default stops: 
-                        <input type="number" min={0.02} style={{textAlign:"right"}}
-                            value={defaultTab} step={0.1} 
-                            onChange={e=>{
-                                this.setState({defaultTab:e.target.value})
-                            }}/> cm
-                    </div>
-                </div>
-            </Dialog>
-        )
-    }
-})
-
-export const Events=class extends PureComponent{
-
-}
-

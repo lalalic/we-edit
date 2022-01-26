@@ -32,6 +32,67 @@ It would create a default office for quick playaround if
 * create(container, office=<Office/>)
 
 
+## PropTypesUI 
+PropTypesUI is to create UI based on component's propTypes for ribbon, menu, tree UI mode. It support configurations through theme. Support following proptypes
+### shape
+### oneOf
+### oneOfType
+### arrayOf
+```js
+    /**
+     * onAdd identify controlled/uncontrolled,
+     * controlled: state.activeValue keeps changes, onAdd should handle activeValue submit when click add
+     * uncontrolled: click add to add(initNewValue), then select it as active 
+     
+     * <PropTypesUI.wrappers.ArrayOf layout={({actions, collection, active})=><div/>}/>
+     */
+```
+### link : link a property to a dialog
+```js
+    <link dialog={dialogName|component}><button/></link>
+```
+### bool, string, number
+### customized: UnitShape, FontsShape
+### wrapers: each prop node can be wrapped with a wrapper to customize UI layout, 
+```js
+    Wrapper=({host/*UI node, such as shape|oneOf|...*/, children/*raw UI*/})=><div/>
+```
+### Theme
+theme is a central configuration for UI
+```js
+{
+	$Types:{
+
+	},
+	$settingDialogs:{//register dialogs, so dialog can be called with context.dialogManager.show(dialogName)
+
+	},
+	$settingPanels:{//register panels, so panel can be toggled by context.panelManager.toggle()
+
+	},
+	//...Customized Shapes,
+	UnitShape:{
+		style:{width:100},//for all UI
+		Dialog:{//UI Mode
+			style:{width:150},//specific for dialog
+		},
+		Ribbon:{
+			style:{width:50},
+		},
+		Tree:{
+			style:{width:20},
+		}
+	}
+	//...we-edit.dom,
+	Paragraph:{
+		indent:{
+			
+		}
+	}
+}
+```
+
+
 ## install
 ```bash
     npm install we-edit

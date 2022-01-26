@@ -691,15 +691,15 @@ function createTheme(){
             Dialog:{
                 collectionStyle:{width:"100%",height:"80%"},
                 wrapper1:React.createElement(({i,...props})=><option {...props}>{i}</option>),
-                wrapper:React.createElement(({host,children:{props:{children:[actions,collection,active]}}})=>(
-                    <div style={{display:"flex",flexDirection:"row"}}>
-                        <div style={{width:50,marginRight:10}}>
-                            <h3>Level</h3>
-                            {collection}
-                        </div>
-                        <div style={{flex:"auto"}}>{active}</div>
-                    </div>
-                ))
+                wrapper:<Wrappers.ArrayOf layout={({actions,collection,active})=>(
+                            <div style={{display:"flex",flexDirection:"row"}}>
+                                <div style={{width:50,marginRight:10}}>
+                                    <h3>Level</h3>
+                                    {collection}
+                                </div>
+                                <div style={{flex:"auto"}}>{active}</div>
+                            </div>
+                        )}/>
             }
         },
         Text:{

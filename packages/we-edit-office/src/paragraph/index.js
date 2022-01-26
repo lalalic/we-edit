@@ -61,6 +61,7 @@ export function ParagraphSetting({value, onSubmit, ...props}){
 	return (
 		<SelectStyle target="paragraph">
 			{({style,dispatch})=>{
+				const Paragraph=style?._composer.constructor||dom.Paragraph
 				const refSetting=React.createRef()
 				if(onSubmit==undefined){
 					onSubmit=paragraph=>dispatch(ACTION.Selection.UPDATE({paragraph}))
@@ -78,7 +79,7 @@ export function ParagraphSetting({value, onSubmit, ...props}){
 						{...props}
 						>
 						<PropTypesUI theme="Paragraph" 
-							propTypes={{...dom.Paragraph.propTypes,numbering:null}} 
+							propTypes={{...Paragraph.propTypes,numbering:null}} 
 							props={value||style} ref={refSetting}/>
 					</Dialog>
 				)

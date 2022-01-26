@@ -123,15 +123,25 @@ export default class base extends PureComponent{
                 return this.Types[typedShape]
             if(this.Types[baseShape]){
                 if(this.Theme[typedShape]){
-                    const Type=props=>React.createElement(this.Types[baseShape],{typedShape,...props})
-                    Type.defaultProps=this.Types[baseShape].defaultProps
-                    Type.displayName=type
-                    return Type
+                    return this.__createTypedShape(baseShape, typedShape, type)
                 }
                 return this.Types[baseShape]
             }
         }
         return this.Types[type]||type
+    }
+
+    /**cached, so react will not recreate instance */
+    __createTypedShape(baseShape, typedShape, type) {
+        this.adHocTypes=this.adHocTypes||{}
+        if(type in this.adHocTypes){
+            return this.adHocTypes[type]
+        }
+
+        const Type = props => React.createElement(this.Types[baseShape], { typedShape, ...props })
+        Type.defaultProps = this.Types[baseShape].defaultProps
+        Type.displayName = type
+        return this.adHocTypes[type]=Type
     }
 
     makePath(key){
@@ -201,7 +211,7 @@ export default class base extends PureComponent{
     set(path, value){
         const {onChange}=this.$props
         if(onChange){
-            onChange(value,this)
+            onChange(value,this, path)
         }else{
             this.context.set(path,value)
         }

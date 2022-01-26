@@ -27,7 +27,9 @@ export default class Movable extends Component{
 			const {rodDx=0, rod=<this.constructor.RodX left={style.left-1+rodDx}/>}=this.props
 			return (
 				<Fragment>
-					<Overlay color={color} onMouseUp={e=>this.onEndMove(e)} onMouseMove={e=>this.move(e)} cursor={cursor}/>
+					<Overlay color={color}  cursor={cursor}
+						onMouseUp={e=>this.onEndMove(e)} 
+						onMouseMove={e=>this.move(e)}/>
 					{React.cloneElement(children, {
 						onMouseUp:e=>this.onEndMove(e),
 						style,
@@ -53,8 +55,18 @@ export default class Movable extends Component{
 
     onEndMove(e){
         const {x0,y0,x,y}=this.state
-		const reset=Object.keys(this.state).reduce((o,k)=>(o[k]=undefined,o),{move:false})
-		this.setState(reset,()=>this.props.onAccept?.(x-x0, y-y0))
+		if((x-x0)!=0 || (y-y0)!=0){
+			const reset=Object.keys(this.state).reduce((o,k)=>(o[k]=undefined,o),{move:false})
+			this.setState(reset,()=>this.props.onAccept?.(x-x0, y-y0))	
+		}else{
+			this.setState({move:false})
+		}
+		
+		const {now=Date.now(), lastUp=now-1000}=this
+		this.lastUp=now
+		if((now-lastUp)<500){//double click
+			this.props.children?.props.onDoubleClick?.(e)
+		}
 		e.stopPropagation()
     }
 

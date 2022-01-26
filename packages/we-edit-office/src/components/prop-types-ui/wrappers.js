@@ -49,9 +49,9 @@ export const DropDownMenu=({children, host:{$props:{name,label=name, icon, onCli
     </DropDownButton>
 )
 
-export const ShapeGrid=({host:{$props:{name,label:label1=name,grid:_=2}}, style, label=label1, children, grid=_})=>(
-    <div style={{borderBottom:"1px solid lightgray", marginTop:5, ...style}}>
-        <h3 style={{fontSize:"bigger"}}>{label}</h3>
+export const ShapeGrid=({host:{$props:{name,label:label1=name,bottomBorder=true, grid:_=2}}, style, label=label1, children, grid=_})=>(
+    <div style={{borderBottom:bottomBorder&&"1px solid lightgray"||"", marginTop:5, ...style}}>
+        {label && <h3 style={{fontSize:"bigger"}}>{label}</h3>}
         <div style={{display:"grid",gridTemplateColumns:`repeat(${grid}, 1fr)`}}>
             {children}
         </div>
@@ -177,5 +177,7 @@ export class GridOneOf extends Component{
         }
     }
 }
+
+export const ArrayOf=({layout, children:{props:{children:[actions,collection,active]}}})=>layout({actions,collection,active})
 
 export const Nest=({host,children,wrappers})=>[...wrappers].reverse().reduce((nested,a)=>React.cloneElement(a,{host,children:nested}),children)

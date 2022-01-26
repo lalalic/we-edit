@@ -92,9 +92,10 @@ export default ({Paragraph,Text, Frame})=>class DocxParagraph extends Component{
 			static propTypes={
 				...super.propTypes,
 				tabs: dom.Unknown.arrayOf(dom.Unknown.shape({
-					val: dom.Unknown.oneOf(["left","right","center","decimal","bar"]),
 					pos: dom.Unknown.UnitShape,
-				}))
+					align: dom.Unknown.oneOf(["left","right","center","decimal","bar"]),
+					leader: dom.Unknown.oneOf(["hyphen","dot","underscore","middleDot"],{labels:["-",".","_",String.fromCharCode(0xB7)].map(a=>a.repeat(5))})
+				},{$type:"TabShape"}),{$type:"TabsShape"})
 			}
 
 			getTabAt(x){
@@ -253,7 +254,6 @@ export default ({Paragraph,Text, Frame})=>class DocxParagraph extends Component{
 				 */
 				appendTab(atom){
 					const paragraph=this.context.parent
-					const {indent:{left=0,right=0,firstLine=0}}=paragraph.props
 					const x=this.inlineSegments.currentX
 					const tab=paragraph.getTabAt(x)
 					const {pos,width=pos-x,leader}=tab
@@ -272,10 +272,6 @@ export default ({Paragraph,Text, Frame})=>class DocxParagraph extends Component{
 					}
 					const inlineSegments=this.inlineSegments
 					this.tab=Object.defineProperties({...tab},{
-						align:{
-							value:tab.val,
-							writable:true,
-						},
 						__w:{
 							value:width,
 							writable:true,

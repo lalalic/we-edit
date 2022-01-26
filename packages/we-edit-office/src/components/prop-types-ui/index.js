@@ -15,6 +15,7 @@ import UnitShape from "./unit-shape"
 import FontsShape from "./fonts-shape"
 
 import BaseTheme from "./theme"
+import * as wrappers from "./wrappers"
 
 /**
  * <PropTypesUI component={this}/>
@@ -30,6 +31,7 @@ export default class PropTypesUI extends PureComponent{
         return Iterable.isKeyed(value) ? value.toMap() : value.toList()
     }
     static Theme=BaseTheme
+    static wrappers=wrappers
 
     static getTheme=a=>{
         return fromJS(BaseTheme).mergeDeep(a).toJS()

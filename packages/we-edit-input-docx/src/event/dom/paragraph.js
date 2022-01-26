@@ -209,7 +209,7 @@ export default class Paragraph extends Editor{
 		}else{
 			this.got('w:tabs').empty()
 				.append(tabs.map((tab)=>{
-					const {val,pos,leader}=tab
+					const {align:val,pos,leader}=tab
 					if(!val)
 						delete tab.val
 					if(!leader)

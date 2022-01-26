@@ -118,10 +118,12 @@ export class Properties{
 	tab(x){
 		return Object.keys(x.attribs).reduce((props,a)=>{
 			const k=a.split(":").pop()
-			props[k]=x.attribs[a]
 			switch(k){
 				case "pos":
-					props[k]=this.docx.dxa2Px(props[k])
+					props.pos=this.docx.dxa2Px(x.attribs[a])
+				break
+				case "val":
+					props.align=x.attribs[a]
 				break
 				case "leader":
 					props.leader=({
