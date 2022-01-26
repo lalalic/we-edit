@@ -168,6 +168,7 @@ export function Setting({value, onSubmit, ...props}){
                 return (
                     <Dialog title="Tabs"
                         onSubmit={e=>onSubmit(refSetting.current.value, dispatch)}
+                        {...props}
                         >
                         <PropTypesUI ref={refSetting}
                             props={{tabs:(value||style)?.tabs}}

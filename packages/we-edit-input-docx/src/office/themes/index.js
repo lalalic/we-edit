@@ -49,6 +49,9 @@ export default {
     TabShape:{
         grid:1,
         bottomBorder:false,
+        pos:{
+            label:"tab stop at"
+        }
     },
     Text:{
         size:{

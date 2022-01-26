@@ -71,7 +71,7 @@ export default class arrayOf extends base{
         const UIType=this.getUIType(Type.type)
         const activeEl=(
             <div key="active" style={activeStyle}>
-                {React.createElement(UIType,{...Type.props,...$0,value:activeValue.toJS(),path:`${this.path}.${active}`})}
+                {React.createElement(UIType,{...Type.props,...$0,value:activeValue?.toJS(),path:`${this.path}.${active}`})}
             </div>
         )
 
@@ -136,7 +136,7 @@ export default class arrayOf extends base{
     set(path,value){
         const {onAdd}=this.$props
         if(path!=this.path && onAdd){
-            const {activeValue,active}=this.state
+            const {activeValue=fromJS({}),active}=this.state
             const relativePath=path.replace(`${this.path}.${active}.`,'')
             this.setState({activeValue:activeValue.setIn(relativePath.split("."),value)})
             return 
