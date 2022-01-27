@@ -40,7 +40,7 @@ export default class extends Component{
                         onRequestClose?.()
                     }}
                 />,
-            ],
+            ].filter(a=>!!a),
             ...props}=this.props
             
         const dialog=<Dialog {...{

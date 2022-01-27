@@ -61,7 +61,7 @@ export function ParagraphSetting({value, onSubmit, ...props}){
 	return (
 		<SelectStyle target="paragraph">
 			{({style,dispatch})=>{
-				const Paragraph=style?._composer.constructor||dom.Paragraph
+				const Paragraph=style?._composer?.constructor||dom.Paragraph
 				const refSetting=React.createRef()
 				if(onSubmit==undefined){
 					onSubmit=paragraph=>dispatch(ACTION.Selection.UPDATE({paragraph}))

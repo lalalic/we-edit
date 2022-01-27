@@ -545,7 +545,7 @@ function createTheme(){
             },
                 
             Ribbon:<OneOf label="Bullet Character" values={Bullets} icon={<IconListBullet/>}
-                wrapper1={React.createElement(({value:{label,style:{fonts}}})=><span style={{font:fonts,width:40,height:40,lineHeight:"40px",margin:4,border:"1px solid lightgray",textAlign:"center"}}>{label}</span>)}
+                wrapper1={React.createElement(({value:{label,style:{fonts}}, onClick})=><span onClick={onClick} style={{font:fonts,width:40,height:40,lineHeight:"40px",margin:4,border:"1px solid lightgray",textAlign:"center"}}>{label}</span>)}
                 wrapper={[<Wrappers.DropDownMenu/>,<Wrappers.GridOneOf selector={false} grid={4}/>]}
                 uiContext="Dialog"//to remove MenuItem, and use children directly
                 children={

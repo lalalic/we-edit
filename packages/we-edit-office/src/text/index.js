@@ -47,8 +47,11 @@ export function FontSetting({value, onSubmit, ...props}){
 	return (
 		<SelectStyle target="text">
 			{({style,dispatch})=>{
+				const Text=style?._composer?.constructor||dom.Text
 				if(onSubmit==undefined){
 					onSubmit=text=>dispatch(ACTION.Selection.UPDATE({text}))
+				}else{
+					style=value
 				}
 				const refTextSetting=React.createRef()
 				return (
@@ -64,8 +67,8 @@ export function FontSetting({value, onSubmit, ...props}){
 						{...props}
 					>
 						<PropTypesUI theme="Text" 
-							propTypes={dom.Text.propTypes} 
-							props={value||style} 
+							propTypes={Text.propTypes} 
+							props={style} 
 							ref={refTextSetting}
 							/>
 					</Dialog>

@@ -171,7 +171,7 @@ export function Setting({value, onSubmit, ...props}){
                         {...props}
                         >
                         <PropTypesUI ref={refSetting}
-                            props={{tabs:(value||style)?.tabs}}
+                            props={{tabs:value||style?.tabs}}
                             grid={1}
                             propTypes={(({tabs})=>({tabs}))(style._composer.constructor.propTypes)} 
                             />

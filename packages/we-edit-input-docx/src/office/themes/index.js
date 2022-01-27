@@ -5,7 +5,7 @@ import {dom} from "we-edit"
 import * as Tabs from "../tabs"
 const BaseTheme=PropTypesUI.Theme
 
-const fontSize=value=>value ? dom.Unknown.UnitShape.normalize(value+'px','pt') : value
+const fontSize=value=>value ? dom.Unknown.UnitShape.normalize(value+'px','pt')+'pt' : value
 export default {
     //$Types:{ColorShape}
     $settingDialogs:{
