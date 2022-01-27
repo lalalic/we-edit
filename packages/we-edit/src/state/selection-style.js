@@ -1,4 +1,5 @@
 import dom from "../dom/component"
+import {stateSafe} from "./index"
 /**
  * To provide a selection structure to UI layer
  * Represenation layer should implement and dispatch(ACTION.Selection.STYLE(style)) to state
@@ -44,8 +45,9 @@ export default class SelectionStyle{
                 if(this.precision){
                     props=dom.deprecision(props,this.precision, composer.constructor.propTypes)
                 }
+                props= __unnormalized ? {...__unnormalized,...props} : props
                 props._composer=composer
-                return __unnormalized ? {...__unnormalized,...props} : props
+                return props
             }
         }
     }

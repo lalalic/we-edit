@@ -2,7 +2,8 @@ import {createStore as createRawStore, compose, applyMiddleware} from "redux"
 import {connect as _connect, createProvider} from "react-redux"
 import Immutable,{Map} from "immutable"
 import thunk from "redux-thunk"
-import {firstCursorable, getSelectionStyle, getSelection, getContent} from "./selector"
+import {firstCursorable, getSelectionStyle, getSelection} from "./selector"
+import React from "react"
 
 export function stateSafe(o){
 	return new Proxy(o,{
@@ -16,10 +17,21 @@ export function stateSafe(o){
 }
 
 export function createStore(reducer,INIT_STATE){
-	const composeEnhancers = window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ ?
-	 	window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__({
-			serialize:true
-		}) : compose;
+	const composeEnhancers = window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__?.({
+			serialize:{
+				replacer(key,value){
+					if(React.isValidElement(value)){
+						return `<A ReactElement>`
+					}
+
+					if(value?.setState && value?.render){
+						return `<A React Component>`
+					}
+					
+					return value
+				}
+			}
+		}) || compose;
 
 	return createRawStore(
 		reducer,
