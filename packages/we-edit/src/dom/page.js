@@ -77,7 +77,7 @@ export default class Page extends Component{
         orientation:"portrait"
     }
 
-    static normalizePropShape({...props}){
+    static normalizeProps({...props}){
         if(props.size && (!props.width || !props.height)){
             const [w,h]=this.Size[props.size]||this.Size['A4']
             props={...props, width:w, height:h}
@@ -88,7 +88,7 @@ export default class Page extends Component{
                 return parseInt(w*1000/h)===r
             })
         }
-        return super.normalizePropShape(props)
+        return super.normalizeProps(props)
     }
 }
 

@@ -1,6 +1,8 @@
 import Editor from "./base"
 import Numbering from "./numbering"
+import {dom} from "we-edit"
 
+const {UnitShape}=dom.Unknown
 export default class Paragraph extends Editor{
 	got(nodeName){
 		return super.got(nodeName, "w:p", "w:pPr")
@@ -214,7 +216,7 @@ export default class Paragraph extends Editor{
 						delete tab.val
 					if(!leader)
 						delete tab.leader
-					return `<w:tab ${val && `w:val="${val}"`||''} ${leader&&`w:leader="${leader}"`||''} w:pos="${this.file.px2dxa(pos)}"/>`
+					return `<w:tab ${val && `w:val="${val}"`||''} ${leader&&`w:leader="${leader}"`||''} w:pos="${this.file.px2dxa(UnitShape.normalize(pos))}"/>`
 				}))
 		}
 		this.reducer.$target.attr('tabs',tabs)

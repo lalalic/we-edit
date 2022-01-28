@@ -35,7 +35,7 @@ It would create a default office for quick playaround if
 ## PropTypesUI 
 PropTypesUI is to create UI based on component's propTypes for ribbon, menu, tree UI mode. It support configurations through theme. Support following proptypes
 ### shape
-### oneOf
+### oneOf[]
 ### oneOfType
 ### arrayOf
 ```js

@@ -74,7 +74,7 @@ export class Text extends Base{
 	}
 
 	size(size){
-		size=UnitShape.normalize(size,"pt",'pt')
+		size=UnitShape.normalize(size,"pt")
 		this.got("w:sz").attr("w:val",parseInt(size)*2)
 		this.got("w:szCs").attr("w:val",parseInt(size)*2)
 	}

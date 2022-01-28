@@ -183,7 +183,7 @@ export default class Base extends Component{
 	}
 	static reactCreateElementNormalized=((createElement, memorize)=>{
 			React.createElement=function(Type, props, ...args){
-				props=Type.normalizePropShape?.({...Type.defaultProps,...props})||props
+				props=Type.normalizeProps?.({...Type.defaultProps,...props})||props
 				return createElement(Type, props, ...args)
 			}
 
@@ -682,8 +682,8 @@ export default class Base extends Component{
 		parts.splice(-1,1,Next.displayName.split("-").pop())
 		const displayName = parts.join("-")
 
-		const superNormalizePropShape=this.normalizePropShape?.bind(this)||(props=>props)
-		this.normalizePropShape=props=>superNormalizePropShape(Next.normalizePropShape?.(props)||props)
+		const superNormalizePropShape=this.normalizeProps?.bind(this)||(props=>props)
+		this.normalizeProps=props=>superNormalizePropShape(Next.normalizeProps?.(props)||props)
 
 		return displayName
 	}
@@ -692,7 +692,7 @@ export default class Base extends Component{
 	 * normalize props
 	 * __unnormalize could be used to keep original format of props when setting from UI, such as resize,move,rotate by dragging mouse
 	 */
-	static normalizePropShape(props){
+	static normalizeProps(props){
 		const checks=this.propTypes
 		const __unnormalized={}
 		delete __unnormalized.children

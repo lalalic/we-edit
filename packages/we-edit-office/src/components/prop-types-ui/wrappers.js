@@ -26,7 +26,7 @@ export const LabelField=({host:{$props:{name,label:_l=name}},label=_l,children,
 
 export const RibbonField=({children, host:{$props:{name,label=name}}})=>(
     <span style={{zoom:0.8,marginLeft:2,marginRight:2}}>
-        <span style={{fontSize:10,paddingLeft:4}}>{label}</span>
+        <span style={{fontSize:10,paddingLeft:4,whiteSpace:"nowrap"}}>{label}</span>
         <br/>		
         {children}
     </span>

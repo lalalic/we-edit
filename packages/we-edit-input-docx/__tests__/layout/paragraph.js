@@ -72,25 +72,25 @@ describe("paragraph",()=>{
         })
 
         it("right tab should push next content end at tabstop",()=>{
-            return test("hello "+Tab+"world",[{pos:15,val:"right"}]).then(world=>{
+            return test("hello "+Tab+"world",[{pos:15,align:"right"}]).then(world=>{
                 expect(world.x).toBe(15-5)
             })
         })
 
         it("center tab should push next content centered at tabstop",()=>{
-            return test("hello "+Tab+"world",[{pos:15,val:"center"}]).then(world=>{
+            return test("hello "+Tab+"world",[{pos:15,align:"center"}]).then(world=>{
                 expect(world.x).toBe(15-5/2)
             })
         })
 
         it("decimal tab should push point of number in next content start at tabstop",()=>{
-            return test("hello "+Tab+"a 2.5 world",[{pos:15,val:"decimal"}],'[children=" world"]').then(world=>{
+            return test("hello "+Tab+"a 2.5 world",[{pos:15,align:"decimal"}],'[children=" world"]').then(world=>{
                 expect(world.x).toBe(17)
             })
         })
 
         it("decimal tab should push number in next content start at tabstop",()=>{
-            return test("hello "+Tab+"a 25 world",[{pos:15,val:"decimal"}],'[children=" world"]').then(world=>{
+            return test("hello "+Tab+"a 25 world",[{pos:15,align:"decimal"}],'[children=" world"]').then(world=>{
                 expect(world.x).toBe(15)
             })
         })

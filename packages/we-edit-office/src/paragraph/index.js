@@ -88,7 +88,7 @@ export function ParagraphSetting({value, onSubmit, ...props}){
 	)
 }
 
-export function ListSetting({shape=dom.Paragraph.propTypes.numbering, value, onSubmit, ...props}){
+export function ListSetting({shape=dom.Paragraph.propTypes.numbering, value, defaultValue, onSubmit, ...props}){
 	return (
 		<SelectStyle target="paragraph">
 			{({style,dispatch})=>{
@@ -104,7 +104,7 @@ export function ListSetting({shape=dom.Paragraph.propTypes.numbering, value, onS
 						>
 						<PropTypesUI
 							propTypes={{numbering:shape}}
-							props={{numbering:value||style.numbering}}
+							props={{numbering:value||style.numbering||defaultValue}}
 							wrapper={null}
 							ref={refSetting}
 							/>

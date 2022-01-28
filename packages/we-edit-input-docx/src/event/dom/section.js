@@ -78,8 +78,7 @@ export class Section extends Base{
 		this.got("w:pgSz").attr('w:w',this.file.cm2dxa(width)).attr('w:h',this.file.cm2dxa(height))
 	}
 
-	margin(margin){
-		let {top,right,bottom,left}=dom.Unknown.MarginShape.normalize(margin)
+	margin({top,right,bottom,left}){
 		const pgMar=this.got("w:pgMar")
 		top!=undefined && pgMar.attr('w:top',this.file.px2dxa(top))
 		bottom!=undefined && pgMar.attr('w:bottom',this.file.px2dxa(bottom))

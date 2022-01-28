@@ -60,10 +60,11 @@ export default class arrayOf extends base{
     renderDialog(){
         const {
             type:{Type},
-            collectionStyle={height:150, border:"1px solid gray", padding:5}, 
+            size=5, lineHeight=20,
+            collectionStyle={height:size*lineHeight+10, border:"1px solid gray", padding:5}, 
             collection=React.createElement(props=><div {...props} style={{width:"100%",height:"100%"}}/>), 
             label1=a=>a,
-            wrapper1=React.createElement(({value,i,selected, style, ...props})=><div {...props} style={{background:selected ? "lightblue" : "", cursor:"default",...style}}>{label1(value)}</div>), 
+            wrapper1=React.createElement(({value,i,selected, style, ...props})=><div {...props} style={{background:selected ? "lightblue" : "", cursor:"default",...style}}>{label1(value,i)}</div>), 
             actionStyle={float:"left", marginTop:5}, 
             activeStyle={}, 
             $0}=this.$props

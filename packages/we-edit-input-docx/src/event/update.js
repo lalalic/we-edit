@@ -1,5 +1,5 @@
 import {Text,Paragraph,Image,Section,Table,Shape,Field,TOC, Document} from "./dom"
-
+import {dom} from "we-edit"
 export default {
     update_at_text(props){
         const target=this.target
@@ -28,13 +28,13 @@ export default {
 
         const editor=new Text(this)
         editor.node=this.target
-        editor.update(props)
+        editor.update(dom.Text.normalizeProps(props))
     },
 
     update_at_paragraph(props){
         const editor=new Paragraph(this)
         editor.node=this.target
-        editor.update(props)
+        editor.update(dom.Paragraph.normalizeProps(props))
     },
 
     update_at_image(props){

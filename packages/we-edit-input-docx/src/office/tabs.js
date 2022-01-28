@@ -39,11 +39,11 @@ export const Indicator=compose(
         const {container}=this.state
         return(
             <Fragment>
-                {tabs.map(({val="left", pos},i)=>{
-                    if(!this[val])
+                {tabs.map(({align="left", pos},i)=>{
+                    if(!this[align])
                         return null
 
-                    const tab=React.createElement(this[val],{
+                    const tab=React.createElement(this[align],{
                             key:i, height:10, 
                             style:{position:"absolute",top:10,left:(pos+from)*scale},
                             onDoubleClick:e=>this.context.dialogManager.show('tabs'),
@@ -96,7 +96,7 @@ export const Indicator=compose(
                 point.x=left,point.y=top
                 const {x,pos=x-from}=point.matrixTransform(horizontalScale.getScreenCTM().inverse())
                 if(!tabs.find(a=>Math.abs(a.pos-pos)<10)){
-                    update([...{val:defaultAlign,pos},...tabs])
+                    update([...{align:defaultAlign,pos},...tabs])
                 }
             })
         })

@@ -43,7 +43,6 @@ import IconShadding from "material-ui/svg-icons/editor/format-color-fill"
 import IconColor from "material-ui/svg-icons/editor/format-color-fill"
 import IconDropDown from 'material-ui/svg-icons/navigation/arrow-drop-down'
 
-import textures from "./textures"
 import { IconColumn, Column, IconTextBorder, IconSubscript, IconSuperscript, IconSize, IconOrientation, IconMargin } from "./icons"
 import {FontSetting} from "../../../text"
 import {ParagraphSetting, ListSetting} from "../../../paragraph"
@@ -65,71 +64,10 @@ import OneOf from "../one-of"
 import SizableIconButton from "../../size-icon-button"
 import FormatPanel from "../../format-panel"
 
-let uuid=new Date().getTime()
+import {Numberings, Bullets, Outlines} from "./list"
+import { LineWeights, LineDashes, LineSketches, FillGradients, Gradient, FillPatterns, Pattern, FillTextures } from "./geometry"
 
-const LineWeights=[0.25,0.5,0.75,1,1.5,2.25,3,4.5,6]
-const LineDashes=["","1", "4 2", "4 2 2 2", "6 2", "6 2 2 2","6 2 2 2 2 2"]
-const LineSketches=["M0 5h30","M0 5h30"]
-
-const FillGradients=[
-    {type:"linear",angle:90,stops:[{offset:"0%",color:"blue"},{offset:"100%",color:"red"}]},
-    {type:"linear",angle:90,stops:[{offset:"0%",color:"blue"},{offset:"100%",color:"red"}]},
-    {type:"linear",angle:90,stops:[{offset:"0%",color:"blue"},{offset:"100%",color:"red"}]},
-    {type:"linear",angle:90,stops:[{offset:"0%",color:"blue"},{offset:"100%",color:"red"}]},
-    {type:"linear",angle:90,stops:[{offset:"0%",color:"blue"},{offset:"100%",color:"red"}]},
-    {type:"linear",angle:90,stops:[{offset:"0%",color:"blue"},{offset:"100%",color:"red"}]},
-    {type:"linear",angle:90,stops:[{offset:"0%",color:"blue"},{offset:"100%",color:"red"}]},
-    {type:"linear",angle:90,stops:[{offset:"0%",color:"blue"},{offset:"100%",color:"red"}]},
-]
-const FillTextures=textures
-const FillPatterns=[
-    <polygon points={"0,0 2,5 0,10 5,8 10,10 8,5 10,0 5,2"}/>,
-    <circle r={1} cx={5} cy={5}/>,
-    <line {...{x1:0,y1:10,x2:10,y2:0,strokeLinecap:"round",strokeWidth:1, strokeDasharray:"3,5",stroke:"black"}}/>,
-]
-
-const Bullets=[
-    {style:{fonts:"Arial"},label:String.fromCharCode(0x25CF)},
-    {style:{fonts:"Arial"},label:String.fromCharCode(0x25CB)},
-    {style:{fonts:"Arial"},label:String.fromCharCode(0x25A0)},
-    {style:{fonts:"Arial"},label:String.fromCharCode(0x2666)},
-    {style:{fonts:"Arial"},label:String.fromCharCode(0x263A)},
-    {style:{fonts:"Arial"},label:String.fromCharCode(0x263B)},
-]
-
-const Numberings=[
-    {format:"decimal",label:"%1."},
-    {format:"lowerLetter",label:"%1."},
-    {format:"upperLetter",label:"%1."},
-    {format:"lowerRoman",label:"%1."},
-    {format:"upperRoman",label:"%1."},
-    {format:"chinese",label:"%1"},
-]
-
-const Outlines=[
-    [{format:"decimal",label:"%1."},{format:"decimal",label:"%1.%2."},{format:"decimal",label:"%1.%2.%3."}],
-    [{format:"decimal",label:"%1."},{format:"lowerLetter",label:"%1."},{format:"lowerRoman",label:"%1."},],
-    [{format:"decimal",label:"%1."},{format:"lowerLetter",label:"%1."},{format:"lowerRoman",label:"%1."},],
-]
-
-
-const Gradient=({value:{type,angle=0,stops},onClick})=>(
-    <div onClick={onClick} style={{width:45,height:45,}}>
-        <div style={{width:"100%",height:"100%", 
-            background:`${type}-gradient(${angle}deg,${stops.map(({offset,color})=>`${color} ${offset}`).join(",")})`
-        }}/>
-    </div>
-)
-const Pattern=({value, onClick, checked, id=`ptn_${uuid++}`})=>(
-    <svg style={{width:45,height:45}} onClick={onClick}>
-        <defs>
-            <pattern id={id} viewBox="0,0,10,10" width="20%" height="20%">
-                {value}
-            </pattern>
-        </defs>
-        <rect width="100%" height="100%" fill={`url(#${id})`}/>
-    </svg>
-)
+export let uuid=new Date().getTime()
 
 const Li=({indent, hanging, format, style, label, i=1})=><li style={{}}></li>
 
@@ -141,11 +79,12 @@ function createTheme(){
         $settingDialogs:{
             font:<FontSetting/>,
             paragraph: <ParagraphSetting/>,
-            bullet: <ListSetting shape={dom.Paragraph.BulletListShape} title="Create Bullet List"/>,
-            numbering: <ListSetting shape={dom.Paragraph.NumberListShape} title="Create Number List"/>,
-            outline: <ListSetting shape={dom.Paragraph.OutlineListShape} title="Create Outline List"/>,
+            bullet: <ListSetting shape={dom.Paragraph.BulletListShape} title="Create Bullet List" defaultValue={Bullets[0]}/>,
+            numbering: <ListSetting shape={dom.Paragraph.NumberListShape} title="Create Number List" defaultValue={Numberings[0]}/>,
+            outline: <ListSetting shape={dom.Paragraph.OutlineListShape} title="Create Multiple Level List" defaultValue={Outlines[0]}/>,
             diff: <Diff.Setting portalContainer={document.body}/>,
-            color: <ColorSelector/>
+            color: <ColorSelector/>,
+            listStyle: <div/>,
         },
         $settingPanels:{
             format:<FormatPanel children={[<ShapeSetting key="shape" title="Format Shape"/>,<PictureSetting key="picture" title="Format Picture"/>]}/>,
@@ -686,11 +625,15 @@ function createTheme(){
                     )}
                     wrapper={[<Wrappers.DropDownMenu/>,<Wrappers.GridOneOf selector={false} grid={3} style={{gap:5,padding:5}}/>]}
                     uiContext="Dialog"
-                    children={<Fragment><Divider/><Link label="Define New Outline List" dialog="outline"/></Fragment>}
+                    children={<Fragment>
+                        <Divider/>
+                        <Link label="Define Multiple Level List" dialog="outline"/>
+                        <Link label="Define List Style" dialog="listStyle"/>
+                    </Fragment>}
                 />,
             Dialog:{
-                collectionStyle:{width:"100%",height:"80%"},
-                wrapper1:React.createElement(({i,...props})=><option {...props}>{i}</option>),
+                size:9,
+                label1:(value,i)=>parseInt((value.level||i)+1),
                 wrapper:<Wrappers.ArrayOf layout={({actions,collection,active})=>(
                             <div style={{display:"flex",flexDirection:"row"}}>
                                 <div style={{width:50,marginRight:10}}>

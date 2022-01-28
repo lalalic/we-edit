@@ -55,8 +55,8 @@ describe("normalize props",()=>{
 
     it("subclass should be normalized",()=>{
         const TypedPage=class extends dom.Page{
-            static normalizePropShape(props){
-                props=super.normalizePropShape(props)
+            static normalizeProps(props){
+                props=super.normalizeProps(props)
                 return {...props, normalized:true}
             }
         }
@@ -70,13 +70,13 @@ describe("normalize props",()=>{
     })
 
     it("switched type should be normalized to target and source types",()=>{
-        const n1=dom.Section.normalizePropShape=jest.fn()
-        const n2=jest.spyOn(dom.Page,"normalizePropShape")
+        const n1=dom.Section.normalizeProps=jest.fn()
+        const n2=jest.spyOn(dom.Page,"normalizeProps")
         n2.mockClear()
         const Type=class extends dom.Page{
             static displayName=this.switchTypeTo(dom.Section)
         }
-        const n3=jest.spyOn(Type,"normalizePropShape")
+        const n3=jest.spyOn(Type,"normalizeProps")
         const p=<Type/>
         expect(n3).toHaveBeenCalledTimes(1)
         expect(n1).toHaveBeenCalledTimes(1)

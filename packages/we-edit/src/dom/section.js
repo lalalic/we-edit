@@ -32,11 +32,11 @@ export default class __$1 extends Component{
 		return true
 	}
 
-	static normalizePropShape({layout, ...props}){
+	static normalizeProps({layout, ...props}){
 		if(layout){
-			props.layout=Page.normalizePropShape(layout)
+			props.layout=Page.normalizeProps(layout)
 			delete props.layout.__unnormalized
 		}
-		return super.normalizePropShape(props)
+		return super.normalizeProps(props)
     }
 }
