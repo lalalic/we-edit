@@ -94,7 +94,7 @@ export function ListSetting({shape=dom.Paragraph.propTypes.numbering, value, def
 			{({style,dispatch})=>{
 				const refSetting=React.createRef()
 				if(onSubmit==undefined){
-					onSubmit=numbering=>dispatch(ACTION.Selection.UPDATE({paragraph:{numbering}}))
+					onSubmit=paragraph=>dispatch(ACTION.Selection.UPDATE({paragraph}))
 				}
 				
 				return (

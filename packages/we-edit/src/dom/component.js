@@ -604,8 +604,7 @@ export default class Base extends Component{
 		id: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
 		level: PropTypes.number,
 		indent: this.UnitShape,
-		hanging: this.UnitShape,
-		align: PropTypes.oneOf(["left","center","right"]),
+		hanging: this.UnitShape,//relative to indent, 0 at indent, >0 means bullet go right of indent, <0 means bullet go left of indent
 		style: this.TextStyleShape,
 	}
 
@@ -623,6 +622,7 @@ export default class Base extends Component{
 		...this.CommonListShape,
 		format: PropTypes.string,
 		start: PropTypes.number,
+		align: PropTypes.oneOf(["left","center","right"]),
 		label: PropTypes.string,
 	},{$type:"NumberListShape", type:"numbering"})
 

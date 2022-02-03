@@ -118,6 +118,8 @@ export const ShapeLayout=({host,children, layout,idSelector="a[id]",othersSelect
         if(i>-1){
             const [target]=children.splice(i,1)
             $=$.replace(source,target)
+        }else if(i==-1){
+            $=$.replace(source,<a role={`missing-${id}`}/>)
         }
         source=$.findFirst(idSelector)
     }

@@ -35,16 +35,17 @@ export default class Paragraph extends Base{
 	}
 
 	flat(...inherits){
-		let targets=[this,...inherits]
+		const targets=[this,...inherits]
 		const props=Object.values(attribs)
 				.reduce((props, k)=>{
 					if(targets.find(a=>(props[k]=a.get(`p.${k}`))!==undefined)){
 						if(k==="num"){
-							let {numId,ilvl:level=0}=props.num
-							let numStyle=this.styles[`_num_${numId}`]
+							const {numId,ilvl:level=0}=props.num
+							const numStyle=this.styles[`_num_${numId}`]
+							const indent=numStyle.get(`${level}.p.indent`)
 							props.indent={
 								...props.indent,
-								...numStyle.get(`${level}.p.indent`)
+								...indent,
 							}
 
 							props.numbering={
@@ -53,6 +54,7 @@ export default class Paragraph extends Base{
 								format:numStyle.parent[level].numFmt,
 								numId,
 								level,
+								indent,
 							}
 
 							delete props.num

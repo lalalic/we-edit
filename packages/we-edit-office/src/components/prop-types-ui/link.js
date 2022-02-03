@@ -38,7 +38,10 @@ export default class link extends base{
 
     show(){
         const {dialog:type, value}=this.props
-        const props={value,onSubmit:value=>this.set(this.path,value),host:this}
+        const props={value,host:this}
+        if(this.path){
+            props.onSubmit=value=>this.set(this.path,value)
+        }
         if(this.uiContext=="Menu"){
             //the link will be unmounted, so only global dialog, we don't check
             return this.context.setting(type,props)

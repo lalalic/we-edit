@@ -35,11 +35,13 @@ export default ({Paragraph,Text, Frame})=>class DocxParagraph extends Component{
 		}
 
 		if(style.numbering){
-			let {style:props}=style.numbering
+			let {style:props,indent:{left,hanging}}=style.numbering
 			style.numbering={
 				style:{...defaultStyle,...props},
 				id: this.props.numId,
 				level: this.props.level,
+				indent:left,
+				hanging
 			}
 		}
 
@@ -57,7 +59,6 @@ export default ({Paragraph,Text, Frame})=>class DocxParagraph extends Component{
 	}
 
 	render(){
-
 		if(Paragraph.support('pageable')){
 			const {style:$1, hash,...props}=this.props
 			const {style:{widow,orphan=widow, spacing,...style}, defaultStyle:{...defaultStyle}}=this.style(this.props.style,this.context.style)

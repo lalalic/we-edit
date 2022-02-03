@@ -64,7 +64,7 @@ import OneOf from "../one-of"
 import SizableIconButton from "../../size-icon-button"
 import FormatPanel from "../../format-panel"
 
-import {Numberings, Bullets, Outlines} from "./list"
+import {Numberings, Bullets, Outlines, DemoList, BulletWrapper1} from "./list"
 import { LineWeights, LineDashes, LineSketches, FillGradients, Gradient, FillPatterns, Pattern, FillTextures } from "./geometry"
 
 export let uuid=new Date().getTime()
@@ -484,7 +484,7 @@ function createTheme(){
             },
                 
             Ribbon:<OneOf label="Bullet Character" values={Bullets} icon={<IconListBullet/>}
-                wrapper1={React.createElement(({value:{label,style:{fonts}}, onClick})=><span onClick={onClick} style={{font:fonts,width:40,height:40,lineHeight:"40px",margin:4,border:"1px solid lightgray",textAlign:"center"}}>{label}</span>)}
+                wrapper1={<BulletWrapper1/>}
                 wrapper={[<Wrappers.DropDownMenu/>,<Wrappers.GridOneOf selector={false} grid={4}/>]}
                 uiContext="Dialog"//to remove MenuItem, and use children directly
                 children={
@@ -495,10 +495,12 @@ function createTheme(){
                 }/>,
 
             Dialog:{
-                $presets:<OneOf label="Bullet Character"  values={Bullets}
-                    wrapper1={React.createElement(({value:{label,style:{fonts}}})=><span style={{font:fonts,width:40,height:40,lineHeight:"40px",margin:4,border:"1px solid lightgray",textAlign:"center"}}>{label}</span>)}
-                    wrapper={<Wrappers.GridOneOf selector={false} style={{display:"auto"}}/>}
-                    />,
+                $presets:<OneOf label="Bullet Character"  
+                        values={Bullets}
+                        equal={(a,b)=>a.label==b.label}
+                        wrapper1={<BulletWrapper1/>}
+                        wrapper={<Wrappers.GridOneOf selector={false} style={{display:"auto"}}/>}
+                        />,
                 wrapper:<Wrappers.ShapeLayout layout={
                     <div style={{display:"flex", gridColumn:"span 2", gap:5}}>
                         <div style={{flex:1}}>
@@ -511,21 +513,8 @@ function createTheme(){
                             <h3>Bullet Position</h3>
                             <div><a id="hanging"/></div>
                             <div><a id="align"/></div>
-                            <Wrappers.ShapeGrid role="others" label={null} style={{borderBottom:0}}/>
                         </div>
-                        <div style={{width:200,border:"1px solid black",padding:10}}>
-                            <p> </p>
-                            <p> </p>
-                            <ul>
-                                <li/>
-                                <li/>
-                                <li/>
-                                <li/>
-                                <li/>
-                            </ul>
-                            <p> </p>
-                            <p> </p>
-                        </div>
+                        <DemoList role="others"/>
                     </div>
                 }/>,
                 label:{
