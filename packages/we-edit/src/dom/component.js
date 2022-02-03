@@ -237,6 +237,8 @@ export default class Base extends Component{
 			return normalized
 		},
 		deprecision(value,precision=1){
+			if(typeof(value)=="string")
+				return value
 			return value/precision
 		},
 		is:value=>!isNaN(parseFloat(value)),
@@ -372,6 +374,25 @@ export default class Base extends Component{
 				Object.keys(normalized).length==2 && normalized[normalized.hint]==normalized.ascii){
 				return normalized.ascii
 			}
+			return normalized
+		}
+	})
+
+	static LineHeightShape=this.normalizeChecker(PropTypes.oneOfType([
+		this.UnitShape,
+		PropTypes.shape({
+			height: this.UnitShape,//whole line height
+			offset: this.UnitShape,//text start layout from top offset 
+		}),
+	],{$shape:1}),{
+		normalize:value=>{
+			if(typeof(value)=="object")
+				return this.LineHeightShape.$shape.normalize(value)
+			return {height:this.UnitShape.normalize(value)}
+		},
+		denormalize:(value,normalized)=>{
+			if(this.UnitShape.is(value) && !('offset' in normalized))
+				return this.UnitShape.denormalize(value,normalized.height)
 			return normalized
 		}
 	})

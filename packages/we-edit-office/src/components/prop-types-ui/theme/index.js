@@ -66,6 +66,7 @@ import FormatPanel from "../../format-panel"
 
 import {Numberings, Bullets, Outlines, DemoList, BulletWrapper1} from "./list"
 import { LineWeights, LineDashes, LineSketches, FillGradients, Gradient, FillPatterns, Pattern, FillTextures } from "./geometry"
+import UnitShape from "../unit-shape"
 
 export let uuid=new Date().getTime()
 
@@ -705,7 +706,7 @@ function createTheme(){
             defaultStyle:false,
             wrap:false,
             spacing:{
-                lineHeight:false,
+                lineHeight:<UnitShape label="line height" normalize={value=>(value.height || value)}/>,
             },
             Ribbon:{
                 spacing:{
