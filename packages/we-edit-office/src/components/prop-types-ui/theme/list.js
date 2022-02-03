@@ -41,7 +41,7 @@ export const Outlines=[
 ]
 
 export const DemoList=({host:{$props:{value}}})=>{
-    const lineStyle={marginLeft:value.indent}
+    const lineStyle={marginLeft:value?.indent}
     return (
         <div style={{width:200,border:"1px solid black",padding:10}}>
             <Line background="lightgray"/>

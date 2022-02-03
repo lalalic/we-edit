@@ -706,7 +706,7 @@ function createTheme(){
             defaultStyle:false,
             wrap:false,
             spacing:{
-                lineHeight:<UnitShape label="line height" normalize={value=>(value.height || value)}/>,
+                lineHeight:<UnitShape label="line height" normalize={value=>(value?.height || value)}/>,
             },
             Ribbon:{
                 spacing:{
