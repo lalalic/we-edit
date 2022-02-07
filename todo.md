@@ -91,6 +91,7 @@ docx:
 * mono width font, such as chinese font
 * text fonts maybe a few for different 
 * we-edit-office.fonts nested fonts display problem
+* the target of setting text style on cursor should be the atom
 
 # Notes
 * immutable 4.0 would deadloop

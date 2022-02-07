@@ -498,7 +498,7 @@ function createTheme(){
             Dialog:{
                 $presets:<OneOf label="Bullet Character"  
                         values={Bullets}
-                        equal={(a,b)=>a.label==b.label}
+                        equal={(a,b)=>a?.label==b?.label}
                         wrapper1={<BulletWrapper1/>}
                         wrapper={<Wrappers.GridOneOf selector={false} style={{display:"auto"}}/>}
                         />,
@@ -538,6 +538,7 @@ function createTheme(){
             },
             
             Ribbon: <OneOf label="numbering list" values={Numberings} icon={<IconListNumber/>}
+                equal={(a,b)=>a?.format==b?.format}
                 wrapper1={<NumberingWrapper1/>}
                 wrapper={[<Wrappers.DropDownMenu/>,<Wrappers.GridOneOf selector={false} grid={3} style={{gap:5,padding:5}}/>]}
                 uiContext="Dialog"

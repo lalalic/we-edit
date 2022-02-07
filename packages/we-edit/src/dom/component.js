@@ -112,21 +112,54 @@ export default class Base extends Component{
 			}
 		})(types.shape);
 
+		/**
+		 * 2 usages:
+		 * * shortcut: $shape
+		 * * different shapes
+		 */
 		this.oneOfType=types.oneOfType=(fn=>{
 			return function(types,{$type,$shape,...props}={}){
 				let validator=fn(types)
 				validator.Type=React.createElement(asType($type,'oneOfType'),{...props,types,})
 				validator.isRequired.Type=React.cloneElement(validator.Type, {required:true})
-				if($shape!=undefined){
-					validator.isRequired.$shape=validator.$shape=types[$shape]
-					if(validator.$shape.deprecision){
-						validator.isRequired.deprecision=validator.deprecision=validator.$shape.deprecision
+				
+				const $$shape=value=>{
+					let i=$shape
+					if(typeof($shape)=="function"){
+						i=$shape(value)
 					}
-					validator.isRequired.equal=validator.equal=function(a,b){
-						a=this.normalize(a)
-						b=this.normalize(b)
-						return types[$shape].equal?.(a,b)
+					return types.find((a,k)=>i===a || i===k || a.Type?.props.type===i)
+				}
+
+				validator.isRequired.$shape=validator.$shape=$$shape()
+
+				validator.isRequired.deprecision=validator.deprecision=value=>{
+					const type=$$shape(value)
+					if(type?.deprecision)
+						return type.deprecision(value)
+					return value
+				}
+
+				validator.isRequired.equal=validator.equal=function(a,b){
+					a=this.normalize(a)
+					b=this.normalize(b)
+					return $$shape(a||b)?.equal?.(a,b)
+				}
+
+				validator.isRequired.normalize=validator.normalize=value=>{
+					const type=$$shape(value)
+					if(type?.normalize){
+						return type.normalize(value)
 					}
+					return value
+				}
+
+				validator.isRequired.denormalize=validator.denormalize=(value,normalized)=>{
+					const type=$$shape(normalized)
+					if(type?.denormalize){
+						return type.denormalize(value,normalized)
+					}
+					return normalized
 				}
 				return validator
 			}
@@ -663,6 +696,13 @@ export default class Base extends Component{
 			const currentNormalized=TypedShape.normalize(current)
 			const nextNormalized=TypedShape.normalize(next)
 			return fromJS(currentNormalized).equals(fromJS(nextNormalized))
+		},
+		$shape:value=>{
+			if(Array.isArray(value))
+				return this.OutlineListShape
+			if(value.format=="bullet" || !value.format)
+				return this.BulletListShape
+			return this.NumberListShape
 		}
 	})
 

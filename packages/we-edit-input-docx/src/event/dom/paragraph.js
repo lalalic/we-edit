@@ -13,6 +13,7 @@ export default class Paragraph extends Editor{
 	}
 
 	numbering(props){
+		props=dom.Paragraph.ListShape.normalize(props)
 		const numPr=this.got("w:numPr")
 		if(!props){
 			numPr.remove()
