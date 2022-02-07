@@ -133,10 +133,10 @@ export default class Base extends Component{
 
 				validator.isRequired.$shape=validator.$shape=$$shape()
 
-				validator.isRequired.deprecision=validator.deprecision=value=>{
+				validator.isRequired.deprecision=validator.deprecision=(value,prec)=>{
 					const type=$$shape(value)
 					if(type?.deprecision)
-						return type.deprecision(value)
+						return type.deprecision(value,prec)
 					return value
 				}
 
