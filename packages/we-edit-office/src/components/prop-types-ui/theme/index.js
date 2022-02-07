@@ -64,7 +64,7 @@ import OneOf from "../one-of"
 import SizableIconButton from "../../size-icon-button"
 import FormatPanel from "../../format-panel"
 
-import {Numberings, Bullets, Outlines, DemoList, BulletWrapper1} from "./list"
+import {Numberings, Bullets, Outlines, DemoList, BulletWrapper1,NumberingWrapper1} from "./list"
 import { LineWeights, LineDashes, LineSketches, FillGradients, Gradient, FillPatterns, Pattern, FillTextures } from "./geometry"
 import UnitShape from "../unit-shape"
 
@@ -538,16 +538,7 @@ function createTheme(){
             },
             
             Ribbon: <OneOf label="numbering list" values={Numberings} icon={<IconListNumber/>}
-                wrapper1={React.createElement(({value, onClick})=>(
-                    <div style={{width:50,height:50,border:"1px solid lightgray",overflow:"hidden",fontSize:9}} 
-                        onClick={onClick}>
-                        <ol style={{paddingLeft:0}}>
-                            <Li {...value} i={1}/>
-                            <Li {...value} i={2}/>
-                            <Li {...value} i={3}/>
-                        </ol>
-                    </div>
-                ))}
+                wrapper1={<NumberingWrapper1/>}
                 wrapper={[<Wrappers.DropDownMenu/>,<Wrappers.GridOneOf selector={false} grid={3} style={{gap:5,padding:5}}/>]}
                 uiContext="Dialog"
                 children={<Fragment><Divider/><Link label="Define New Number List" dialog="numbering"/></Fragment>}
@@ -559,7 +550,7 @@ function createTheme(){
                         <div style={{flex:1}}>
                             <div>
                                 <h3>Number Format</h3>
-                                <div style={{display:"grid", gridTemplateColumns:"repeat(2,1fr)"}}>
+                                <div style={{display:"grid", gridTemplateColumns:"repeat(2,1fr)", rowGap:5}}>
                                     <a id="label"/><a id="style"/>
                                     <a id="format"/><a id="start"/>    
                                 </div>
@@ -570,17 +561,8 @@ function createTheme(){
                             <h3>Number Position</h3>
                             <div><a id="hanging"/></div>
                             <div><a id="align"/></div>
-                            
                         </div>
-                        <div style={{width:200,border:"1px solid black",padding:10}}>
-                            <ol>
-                                <li/>
-                                <li/>
-                                <li/>
-                                <li/>
-                                <li/>
-                            </ol>
-                        </div>
+                        <DemoList role="others" label={({label,format},i)=>label.replace('%1',dom.Unknown.numberings[format]?.(i))}/>
                     </div>
                 }/>,
                 label:{

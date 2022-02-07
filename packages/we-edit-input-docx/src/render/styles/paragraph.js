@@ -55,6 +55,8 @@ export default class Paragraph extends Base{
 								numId,
 								level,
 								indent,
+								label: numStyle.parent[level].lvlText,
+								start: numStyle.parent[level].start,
 							}
 
 							delete props.num

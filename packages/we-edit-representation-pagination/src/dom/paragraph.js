@@ -266,11 +266,9 @@ class Paragraph extends HasParentAndChild(dom.Paragraph){
 	 */
 	createNumberingAtom(){
 		const {props:{numbering, defaultStyle, indent:{firstLine=0}, id},context:{Measure}}=this
-		let {style,label,hanging=-firstLine,align="left"}=numbering
+		let {style,hanging=-firstLine,align="left"}=numbering
 		let atom=null
-		if(!label){
-			label=this.context.numbering.get(numbering, `${id}-create`)
-		}
+		const label=this.context.numbering.get(numbering, `${id}-create`)
 		const props={key:"numbering",className:"numbering",x:-hanging}
 		if(typeof(label)=="string"){
 			const measure=new Measure({...defaultStyle,...style})

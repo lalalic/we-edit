@@ -1,7 +1,7 @@
 import React from "react"
 import {fromJS} from "immutable"
 import {dom} from "we-edit"
-const {UnitShape}=dom.Unknown
+const {UnitShape, numberings}=dom.Unknown
 
 const indent="1.27cm", hanging="0.63cm", align="left"
 export const Bullets=[
@@ -40,19 +40,19 @@ export const Outlines=[
     ],
 ]
 
-export const DemoList=({host:{$props:{value}}})=>{
+export const DemoList=({host:{$props:{value}}, label=a=>a?.label})=>{
     const lineStyle={marginLeft:value?.indent}
     return (
         <div style={{width:200,border:"1px solid black",padding:10}}>
             <Line background="lightgray"/>
             <Line background="lightgray"/>
-            <Li {...value}/>
+            <Li {...value} label={label(value,0)}/>
             <Line style={lineStyle}/>
 
-            <Li {...value}/>
+            <Li {...value} label={label(value,1)}/>
             <Line style={lineStyle}/>
 
-            <Li {...value}/>
+            <Li {...value} label={label(value,2)}/>
             <Line style={lineStyle}/>
 
             <Line background="lightgray"/>
@@ -70,10 +70,10 @@ class Li extends React.Component{
     }
 
     render(){
-        const {state:{width=0},props:{indent,hanging,label,style:{fonts,size}}}=this
+        const {state:{width=0},props:{indent=0,hanging=0,label,pStyle, style:{fonts,size}={}}}=this
         const marginLeft=Math.max(UnitShape.normalize(indent),UnitShape.normalize(hanging)+width)
         return (
-            <Line style={{marginLeft,position:"relative"}}>
+            <Line style={{marginLeft,position:"relative", ...pStyle}}>
                 <span ref={this.label} style={{
                     position:"absolute",
                     left:UnitShape.normalize(hanging)-marginLeft,
@@ -98,5 +98,13 @@ export const BulletWrapper1=({value:{label,style:{fonts}}, onClick, checked})=>(
         style={{cursor:"default", font:fonts,width:40,height:40,lineHeight:"40px",margin:4,border:"1px solid lightgray",textAlign:"center", background:checked ? "lightblue" : "none"}}>
         {label}
     </span>
+)
+
+export const NumberingWrapper1=({value:{format="decimal", label="%1"}, onClick, checked})=>(
+    <div style={{width:50,height:50,border:"1px solid lightgray",overflow:"hidden",fontSize:9}} padding={2} onClick={onClick}>
+        <Li indent={10} label={label.replace('%1',numberings[format]?.(0))} pStyle={{marginTop:0,background:"lightgray"}}/>
+        <Li indent={10} label={label.replace('%1',numberings[format]?.(1))} pStyle={{background:"lightgray"}}/>
+        <Li indent={10} label={label.replace('%1',numberings[format]?.(2))} pStyle={{background:"lightgray"}}/>
+    </div>
 )
                 
