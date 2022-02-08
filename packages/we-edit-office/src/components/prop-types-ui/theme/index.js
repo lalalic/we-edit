@@ -490,8 +490,8 @@ function createTheme(){
                 uiContext="Dialog"//to remove MenuItem, and use children directly
                 children={
                     <Fragment>
-                        <Divider/>
-                        <Link label="Define New Bullet" dialog='bullet'/>
+                        <Divider key="divider"/>
+                        <Link key="bullet" label="Define New Bullet" dialog='bullet'/>
                     </Fragment>
                 }/>,
 
@@ -526,7 +526,7 @@ function createTheme(){
                     label:"indent at"
                 },
                 hanging:{
-                    label:"indent at"
+                    label:"hanging at"
                 }
             }
         },
@@ -542,7 +542,7 @@ function createTheme(){
                 wrapper1={<NumberingWrapper1/>}
                 wrapper={[<Wrappers.DropDownMenu/>,<Wrappers.GridOneOf selector={false} grid={3} style={{gap:5,padding:5}}/>]}
                 uiContext="Dialog"
-                children={<Fragment><Divider/><Link label="Define New Number List" dialog="numbering"/></Fragment>}
+                children={<Fragment><Divider key="d"/><Link key="l" label="Define New Number List" dialog="numbering"/></Fragment>}
                 />
             ,
             Dialog:{
@@ -574,7 +574,7 @@ function createTheme(){
                     label:"indent at"
                 },
                 hanging:{
-                    label:"indent at"
+                    label:"hanging at"
                 }, 
                 format:{
                     label: "number style"

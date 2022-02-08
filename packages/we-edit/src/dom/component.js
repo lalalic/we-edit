@@ -658,7 +658,11 @@ export default class Base extends Component{
 		id: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
 		level: PropTypes.number,
 		indent: this.UnitShape,
-		hanging: this.UnitShape,//relative to indent, 0 at indent, >0 means bullet go right of indent, <0 means bullet go left of indent
+		/**
+		 * relative to indent, 0 at indent, >0 means bullet go left of indent, <0 means bullet go right of indent
+		 * contrary to firstLine concept of paragraph indent
+		 */
+		hanging: this.UnitShape,
 		style: this.TextStyleShape,
 	}
 

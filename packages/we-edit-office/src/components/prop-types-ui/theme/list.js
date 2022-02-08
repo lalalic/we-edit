@@ -71,12 +71,13 @@ class Li extends React.Component{
 
     render(){
         const {state:{width=0},props:{indent=0,hanging=0,label,pStyle, style:{fonts,size}={}}}=this
-        const marginLeft=Math.max(UnitShape.normalize(indent),UnitShape.normalize(hanging)+width)
+        const ind=UnitShape.normalize(indent), han=UnitShape.normalize(hanging)
+        const marginLeft=Math.max(ind,ind-han+width)
         return (
             <Line style={{marginLeft,position:"relative", ...pStyle}}>
                 <span ref={this.label} style={{
                     position:"absolute",
-                    left:UnitShape.normalize(hanging)-marginLeft,
+                    left:marginLeft==ind ? -han : -width,
                     top:0,fontFamily:fonts,fontSize:size}}>{label}</span>
                 <i>&nbsp;</i>
             </Line>
