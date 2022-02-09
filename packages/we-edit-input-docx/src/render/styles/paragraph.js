@@ -58,7 +58,8 @@ export default class Paragraph extends Base{
 	applyNumbering(props, numIndentHigherPriorityThanMe) {
 		const { numId, ilvl: level = 0 } = props.num
 		const numStyle = this.styles[`_num_${numId}`]
-		const indent = numStyle.get(`${level}.p.indent`)
+		const {left, hanging=left } = numStyle.get(`${level}.p.indent`)
+		const indent={left, hanging}
 		if(numIndentHigherPriorityThanMe===true){
 			props.indent = {
 				...indent,
