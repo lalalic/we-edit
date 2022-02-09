@@ -102,7 +102,8 @@ export const BulletWrapper1=({value:{label,style:{fonts}}, onClick, checked})=>(
 )
 
 export const NumberingWrapper1=({value:{format="decimal", label="%1"}, onClick, checked})=>(
-    <div style={{width:50,height:50,border:"1px solid lightgray",overflow:"hidden",fontSize:9, background:checked ? "lightblue" : "none"}} padding={2} onClick={onClick}>
+    <div style={{width:50,height:50,border:"1px solid lightgray",overflow:"hidden",fontSize:9, background:checked ? "lightblue" : "none"}} 
+        padding={2} onClick={onClick}>
         <Li indent={10} label={label.replace('%1',numberings[format]?.(0))} pStyle={{marginTop:0,background:"lightgray"}}/>
         <Li indent={10} label={label.replace('%1',numberings[format]?.(1))} pStyle={{background:"lightgray"}}/>
         <Li indent={10} label={label.replace('%1',numberings[format]?.(2))} pStyle={{background:"lightgray"}}/>

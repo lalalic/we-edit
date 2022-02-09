@@ -40,8 +40,9 @@ export const RibbonInputField=({children, host:{$props:{name,label=name, style, 
 )
 
 
-export const DropDownMenu=({children, host:{$props:{name,label=name, icon, onClick}}})=>(
+export const DropDownMenu=({children, host:{$props:{name,label=name,status, icon, onClick}}})=>(
     <DropDownButton
+        status={status}
         onClick={onClick}
         icon={icon}
         hint={label}>
@@ -155,16 +156,17 @@ export class GridOneOf extends Component{
                 {items}
             </div>
         )
+
+        if(uiContext=="Menu")
+            return React.cloneElement(menu,{menuItems:[gridItems,children]})
         
+        if(!selector)
+            return (<Fragment>{gridItems}{children}</Fragment>)
+        
+            
         switch(uiContext){
-            case "Menu":
-                return React.cloneElement(menu,{menuItems:[gridItems,children]})
             case "Tree":
             case "Dialog":{
-                if(!selector){
-                    return (<Fragment>{gridItems}{children}</Fragment>)
-                }
-                
                 const {values, value}=this.props.host.$props
                 const i=values.indexOf(value)
                 return (

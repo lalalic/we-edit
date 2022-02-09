@@ -1,6 +1,7 @@
 import Editor from "./base"
 import Numbering from "./numbering"
 import {dom} from "we-edit"
+import {Text} from "./text"
 
 const {UnitShape}=dom.Unknown
 export default class Paragraph extends Editor{
@@ -78,19 +79,31 @@ export default class Paragraph extends Editor{
 			}
 
 			//applyChangeToAbstractNumberingLevel(props, aNumId, level)
-			;(({format:type,label:text,start,indent,hanging,font,tabs},{numId,level},nLevel=getLevelNode(numId, level))=>{
+			;(({format:type="bullet",label:text,start,indent,hanging,style:font,tabs},{numId,level},nLevel=getLevelNode(numId, level))=>{
 				if(type!=undefined)
 					nLevel.find("w\\:numFmt").attr("w:val",type)
 				if(text!=undefined)
 					nLevel.find("w\\:lvlText").attr("w:val",text)
 				if(start!=undefined)
 					nLevel.find("w\\:start").attr("w:val",start)
-				if(indent!=undefined)
-					nLevel.find("w\\:pPr>w\\:ind").attr("w:left",indent)
-				if(hanging!=undefined)
-					nLevel.find("w\\:pPr>w\\:ind").attr("w:hanging",hanging)
-				if(font!=undefined)
-					nLevel.find("w\\:rPr>w\\:rFonts").attr("w:ascii",font).attr("w:hAnsi",font)
+				
+				if(indent!=undefined){
+					const p=new Paragraph(this.reducer)
+					p.node=nLevel
+					p.indent({left:indent})
+				}
+
+				if(hanging!=undefined){
+					const p=new Paragraph(this.reducer)
+					p.node=nLevel
+					p.indent({firstLine:-hanging})
+				}
+
+				if(font!=undefined){
+					const text=new Text(this.reducer)
+					text.node=nLevel
+					text.apply(font)
+				}
 
 				this.file.renderChanged($(`w\\:abstractNum[w\\:abstractNumId="${nLevel.closest("w\\:abstractNum").attr("w:abstractNumId")}"]`))
 			})(props,numIdLevel(numPr))

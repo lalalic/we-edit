@@ -119,16 +119,18 @@ export default class Base extends Component{
 		 */
 		this.oneOfType=types.oneOfType=(fn=>{
 			return function(types,{$type,$shape,...props}={}){
-				let validator=fn(types)
-				validator.Type=React.createElement(asType($type,'oneOfType'),{...props,types,})
-				validator.isRequired.Type=React.cloneElement(validator.Type, {required:true})
+				const validator=fn(types)
 				
+				if(typeof($shape)=="function"){
+					props.$choice=value=>$shape(value)?.Type.props.choice
+				}
+
 				const $$shape=value=>{
 					let i=$shape
 					if(typeof($shape)=="function"){
 						i=$shape(value)
 					}
-					return types.find((a,k)=>i===a || i===k || a.Type?.props.type===i)
+					return types.find((a,k)=>i===a || i===k || a.Type?.props.choice===i)
 				}
 
 				validator.isRequired.$shape=validator.$shape=$$shape()
@@ -161,6 +163,10 @@ export default class Base extends Component{
 					}
 					return normalized
 				}
+
+				validator.Type=React.createElement(asType($type,'oneOfType'),{...props,types,})
+				validator.isRequired.Type=React.cloneElement(validator.Type, {required:true})
+				
 				return validator
 			}
 		})(types.oneOfType);
@@ -569,7 +575,7 @@ export default class Base extends Component{
 			y: this.UnitShape,
 			rx: this.UnitShape,
 			ry: this.UnitShape,
-		},{$type:"RectGeometryShape",type:"rect"}),
+		},{$type:"RectGeometryShape",choice:"rect"}),
 
 		PropTypes.shape({
 			intersects: PropTypes.func,//({x1,x2,y2,y1})=>[{x,width},{x,width}]
@@ -579,7 +585,7 @@ export default class Base extends Component{
 			height: PropTypes.number,
 		},{$type:"AnyGeometryShape"}),
 		
-		PropTypes.string.$({$type:"PathGeometryPath",type:"path"}),// a svg path
+		PropTypes.string.$({$type:"PathGeometryPath",choice:"path"}),// a svg path
 
 		PropTypes.shape({
 			type: PropTypes.string,//ellipse
@@ -587,7 +593,7 @@ export default class Base extends Component{
 			ry: this.UnitShape,
 			cx: this.UnitShape,
 			cy: this.UnitShape,
-		},{$type:"EllipseGeometryShape",type:"ellipse"}),
+		},{$type:"EllipseGeometryShape",choice:"ellipse"}),
 	],{$type:"GeometryShape"}),{
 		normalize:value=>Geometry.create(value),
 		denormalize:(value,normalized)=>{
@@ -674,7 +680,7 @@ export default class Base extends Component{
 				url: this.BlobShape,
 			})
 		])
-	},{$type:"BulletListShape",type:"bullet"})
+	},{$type:"BulletListShape",choice:"bullet"})
 
 	static NumberListShape=PropTypes.shape({
 		...this.CommonListShape,
@@ -682,15 +688,25 @@ export default class Base extends Component{
 		start: PropTypes.number,
 		align: PropTypes.oneOf(["left","center","right"]),
 		label: PropTypes.string,
-	},{$type:"NumberListShape", type:"numbering"})
+	},{$type:"NumberListShape", choice:"numbering"})
 
-	static OutlineListShape=PropTypes.arrayOf(this.NumberListShape,{$type:"OutlineListShape",type:"outline"})
+	static OutlineListShape=PropTypes.arrayOf(this.NumberListShape,{$type:"OutlineListShape"})
 
 	static ListShape=this.normalizeChecker(PropTypes.oneOfType([
 		this.BulletListShape,
 		this.NumberListShape,
 		this.OutlineListShape,
-	]),{
+	],{
+		$shape:value=>{
+			if(!value)
+				return 
+			if(Array.isArray(value))
+				return this.OutlineListShape
+			if(value.format=="bullet" || !value.format)
+				return this.BulletListShape
+			return this.NumberListShape
+		}
+	}),{
 		equal:(current,next)=>{
 			if(typeof(current.label)!==typeof(next.label))
 				return false
@@ -700,13 +716,6 @@ export default class Base extends Component{
 			const currentNormalized=TypedShape.normalize(current)
 			const nextNormalized=TypedShape.normalize(next)
 			return fromJS(currentNormalized).equals(fromJS(nextNormalized))
-		},
-		$shape:value=>{
-			if(Array.isArray(value))
-				return this.OutlineListShape
-			if(value.format=="bullet" || !value.format)
-				return this.BulletListShape
-			return this.NumberListShape
 		}
 	})
 

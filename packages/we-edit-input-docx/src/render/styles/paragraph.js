@@ -28,43 +28,59 @@ export default class Paragraph extends Base{
 		getLink(){
 			return this.styles[this.basedOn]?.getLink()
 		}
+
+		flat(...inherits){
+			return super.flat(true, ...inherits)
+		}
 	}
 
 	flat4Character(){
 		return super.flat(...arguments)
 	}
 
-	flat(...inherits){
-		const targets=[this,...inherits]
+	flat(numIndentHigherPriorityThanMe, ...inherits){
+		if(numIndentHigherPriorityThanMe!==true)
+			inherits.splice(0,0,numIndentHigherPriorityThanMe)
+		const targets=[this,...inherits].filter(a=>!!a)
 		const props=Object.values(attribs)
 				.reduce((props, k)=>{
 					if(targets.find(a=>(props[k]=a.get(`p.${k}`))!==undefined)){
 						if(k==="num"){
-							const {numId,ilvl:level=0}=props.num
-							const numStyle=this.styles[`_num_${numId}`]
-							const indent=numStyle.get(`${level}.p.indent`)
-							props.indent={
-								...props.indent,
-								...indent,
-							}
-
-							props.numbering={
-								nextValue:()=>numStyle.level(level).nextValue(),
-								style:numStyle.get(`${level}.r`),
-								format:numStyle.parent[level].numFmt,
-								numId,
-								level,
-								indent,
-								label: numStyle.parent[level].lvlText,
-								start: numStyle.parent[level].start,
-							}
-
+							this.applyNumbering(props, numIndentHigherPriorityThanMe)
 							delete props.num
 						}
 					}
 					return props
 				},{})
 		return this.__clear(props,undefined)
+	}
+
+	applyNumbering(props, numIndentHigherPriorityThanMe) {
+		const { numId, ilvl: level = 0 } = props.num
+		const numStyle = this.styles[`_num_${numId}`]
+		const indent = numStyle.get(`${level}.p.indent`)
+		if(numIndentHigherPriorityThanMe===true){
+			props.indent = {
+				...indent,
+				...props.indent,
+			}
+		}else{
+			props.indent = {
+				...props.indent,
+				...indent,
+			}
+		}
+
+		props.numbering = {
+			nextValue: () => numStyle.level(level).nextValue(),
+			style: numStyle.get(`${level}.r`),
+			format: numStyle.parent[level].numFmt,
+			numId,
+			level,
+			indent,
+			label: numStyle.parent[level].lvlText,
+			start: numStyle.parent[level].start,
+		}
 	}
 
 	hashCode(){

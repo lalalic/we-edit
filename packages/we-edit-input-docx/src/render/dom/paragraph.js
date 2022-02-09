@@ -35,7 +35,7 @@ export default ({Paragraph,Text, Frame})=>class DocxParagraph extends Component{
 		}
 
 		if(style.numbering){
-			let {style:props,indent:{left,hanging}, format, label, start}=style.numbering
+			let {style:props,indent:{left,firstLine,hanging=-firstLine}, format, label, start}=style.numbering
 			style.numbering={
 				style:{...defaultStyle,...props},
 				id: this.props.numId,

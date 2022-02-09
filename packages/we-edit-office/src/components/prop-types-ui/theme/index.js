@@ -483,11 +483,12 @@ function createTheme(){
             style:{
                 $link:true
             },
+
                 
             Ribbon:<OneOf label="Bullet Character" values={Bullets} icon={<IconListBullet/>}
                 wrapper1={<BulletWrapper1/>}
+                equal={(a,b)=>a?.label==b?.label}
                 wrapper={[<Wrappers.DropDownMenu/>,<Wrappers.GridOneOf selector={false} grid={4}/>]}
-                uiContext="Dialog"//to remove MenuItem, and use children directly
                 children={
                     <Fragment>
                         <Divider key="divider"/>
@@ -541,7 +542,6 @@ function createTheme(){
                 equal={(a,b)=>a?.format==b?.format}
                 wrapper1={<NumberingWrapper1/>}
                 wrapper={[<Wrappers.DropDownMenu/>,<Wrappers.GridOneOf selector={false} grid={3} style={{gap:5,padding:5}}/>]}
-                uiContext="Dialog"
                 children={<Fragment><Divider key="d"/><Link key="l" label="Define New Number List" dialog="numbering"/></Fragment>}
                 />
             ,
@@ -597,7 +597,6 @@ function createTheme(){
                         </div>
                     )}
                     wrapper={[<Wrappers.DropDownMenu/>,<Wrappers.GridOneOf selector={false} grid={3} style={{gap:5,padding:5}}/>]}
-                    uiContext="Dialog"
                     children={<Fragment>
                         <Divider/>
                         <Link label="Define Multiple Level List" dialog="outline"/>

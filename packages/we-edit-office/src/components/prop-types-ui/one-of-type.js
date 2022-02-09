@@ -12,7 +12,7 @@ import {fromJS} from "immutable"
  * dialog select last,
  * or on-demand
  * or choices
- * if there's value, props.which should be called to get choice
+ * if there's value, props.$choice should be called to get choice
  */
 const clean=base.clean
 export default class oneOfType extends base{
@@ -34,7 +34,7 @@ export default class oneOfType extends base{
             return
         
         if(choices===true){
-            choices=this.types.map(({Type:{props:{type}}})=>type).filter(a=>!!a)
+            choices=this.types.map(({Type:{props:{choice}}})=>choice).filter(a=>!!a)
             if(choices.length==0)
                 return true
         }
@@ -42,57 +42,75 @@ export default class oneOfType extends base{
         return choices
     }
 
+    get choice(){
+        const {choices, $props:{$choice, value}}=this
+        return choices && $choice?.(value)
+    }
+
     getType(i){
         if(typeof(i)=="string"){
-            return this.types.find(({Type:{props:{type:choice}}})=>choice==i)
+            return this.types.find(({Type:{props:{choice}}})=>choice==i)
         }
         return this.types[i]
     }
 
-    iterate(i,$choice=`$${i}`){
+    renderForType(a,i=this.types.indexOf(a)){
         const $props=this.$props
-        return this.types.map((a,i)=>{
-            const possibleSpecifiedChoice=[`$${a.Type.props.type}`,`$${i}`]
-            if(arguments.length!=0 && !possibleSpecifiedChoice.includes($choice)){
-                return 
-            }
-            let theme=clean(this.theme,["i","types",'*',...possibleSpecifiedChoice])
+        const possibleSpecifiedChoice=[`$${a.Type.props.choice}`,`$${i}`]
+        
+        let theme=clean(this.theme,["i","types",'*',...possibleSpecifiedChoice])
+        
+        const {type, props:props0={}}=(()=>{
+            if(React.isValidElement(a))
+                return a
             
-            const {type, props:props0={}}=(()=>{
-                if(React.isValidElement(a))
-                    return a
-                
-                const choice=$props[possibleSpecifiedChoice.find(a=>a in $props)]
-                if(choice){
-                    if(React.isValidElement(choice)){
-                        return choice
-                    }else if(typeof(choice)=="object"){
-                        theme=fromJS(theme,this.constructor.reviver).mergeDeep(fromJS(choice,this.constructor.reviver)).toJS()
-                    }
+            const choice=$props[possibleSpecifiedChoice.find(a=>a in $props)]
+            if(choice){
+                if(React.isValidElement(choice)){
+                    return choice
+                }else if(typeof(choice)=="object"){
+                    theme=fromJS(theme,this.constructor.reviver).mergeDeep(fromJS(choice,this.constructor.reviver)).toJS()
                 }
+            }
 
-                return a.Type||{}
-            })();
+            return a.Type||{}
+        })();
 
-            const UIType=this.getUIType(type)
-            return <UIType key={i} 
-                {...clean(props0,Object.keys(theme))} 
-                {...clean(this.props,["theme","i","types","typedShape",...possibleSpecifiedChoice])} 
-                theme={theme}
-                />
-        })
+        const UIType=this.getUIType(type)
+        const typeProps=clean({...props0},Object.keys(theme))
+        const instanceProps=clean({...this.props},["theme","i","types","typedShape","$choice",...possibleSpecifiedChoice])
+        
+        if(this.choice){
+            if(this.choice!=a.Type.props.choice){
+                delete instanceProps.value
+            }else{
+                instanceProps.status="checked"
+            }
+        }
+
+        return <UIType key={i} {...typeProps} {...instanceProps} theme={theme}/>
+    }
+
+    iterate(){
+        return this.types.map((a,i)=>this.renderForType(a,i))
+    }
+
+    renderForShortcut(){
+        const {i=({"Dialog":this.types.length-1}[this.uiContext])||0}=this.$props
+        const type=this.getType(i)
+        return type ? this.renderForType(type) : null
     }
 
     renderMenu(){
         if(!this.choices){
-            return super.renderMenu()
+            return this.renderForShortcut()
         }
         return this.iterate()
     }
 
     renderRibbon(){
         if(!this.choices){
-            return super.renderRibbon()
+            return this.renderForShortcut()
         }
         return this.iterate()
     }
@@ -100,21 +118,17 @@ export default class oneOfType extends base{
     renderTree(){
         const choices=this.choices
         if(!choices){
-            let {i}=this.$props
-            if(i==undefined){
-                i=({"Dialog":this.types.length-1}[this.uiContext])||0
-            }
-            return this.iterate(i).filter(a=>!!a)[0]||null
+            return this.renderForShortcut()
+        }else if(choices===true){
+            return this.iterate()
         }
 
-        if(choices===true)
-            return this.iterate()
-
-        const {value}=this.props
+        const {value, $choice}=this.$props
+        const choice=$choice?.(value)
         const schema=choices.reduce((s,k)=>(s[k]=this.getType(k),s),{})
         return <Shape
             {...clean(this.props,["choice","typedShape","types"])}
-            schema={schema} choices={choices} value={{[value?.type]:value}}
+            schema={schema} choices={choices} value={{[choice]:value}}
             theme={choices.reduce((s,k)=>(s[k]={type:false},s),{})}
             />
     }
