@@ -277,6 +277,9 @@ export class Measure{
 					3190 - 319F,3200 - 32FF,3300 - 33FF,3400 - 4DBF,4E00 - 9FAF,A000 - A48F,A490 - A4CF,AC00 - D7AF,
 					D800 - DB7F,DB80 - DBFF,DC00 - DFFF,F900 - FAFF,FE30 - FE4F,FE50 - FE6F,FF00 - FFEF
 				`, {}, true),
+		hansi: this.createFromCharCode2FontFunction(`
+					00A0 – 00FF,0100 – 017F,0180 – 024F,0250 – 02AF,1E00 – 1EFF,FB00 – FB4F
+				`,{},true)
 	}
 
 	static requireFonts=function(){

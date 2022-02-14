@@ -382,7 +382,7 @@ export default class Base extends Component{
 	})
 
 	/**
-	 * Font selection Priority: fonts.segmented>fonts[fonts.hint]>fonts.fallback>systemFallbacks[fonts.hint]>systemFallbacks.segmented>systemFallbacks.fallback
+	 * Font selection Priority: fonts.segmented>fonts.fallback>systemFallbacks.segmented>systemFallbacks.fallback
 	 */
 	static FontsShape=this.normalizeChecker(PropTypes.oneOfType([
 		/** same as {ascii: fontName, hint:"ascii"}*/

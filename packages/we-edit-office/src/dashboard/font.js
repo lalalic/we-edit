@@ -14,12 +14,14 @@ export default connect()(class __$1 extends PureComponent{
         const loaded=FontManager.names
         return (
             <Fragment>
-                {loaded.length>0 && <div>Already Loaded {loaded.length} Fonts</div>}
                 <span>you can </span><button onClick={e=>input.click()}>load more local fonts</button>
                 <input type="file" ref={a=>input=a} multiple
                     style={{display:"none"}}
                     onChange={e=>this.load(e.target)}
                     />
+                {loaded.length>0 && 
+                    <div>Already Loaded {loaded.length} Fonts: {loaded.join(",")}</div>
+                }
             </Fragment>
         )
     }

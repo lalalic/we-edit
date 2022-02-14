@@ -155,6 +155,10 @@ export class Properties{
 		if(hint=="eastAsia")
 			hint="ea"
 
+		if(ea=="Times New Roman" && ascii && ascii==hansi){
+			hint="ascii"
+		}
+
 		return {ascii,cs,ea,hansi,hint}
 	}
 
