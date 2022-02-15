@@ -1,7 +1,6 @@
-import React, { Fragment } from "react"
+import React from "react"
 import base from "./base"
 import FontList from "../fonts"
-import Shape from "./shape"
 import { LabelField } from "./wrappers"
 
 export default class FontsShape extends base{

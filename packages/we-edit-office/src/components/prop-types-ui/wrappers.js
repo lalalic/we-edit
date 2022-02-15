@@ -8,7 +8,7 @@ import CheckIconButton from "../check-icon-button"
 import Select from "../select"
 
 export const LabelField=({host:{$props:{name,label:_l=name}},label=_l,children, 
-    style={width:100,display:"inline-block",textAlign:"right",marginRight:5}})=>{
+    style={width:120,display:"inline-block",textAlign:"right",marginRight:5, whiteSpace:"nowrap"}})=>{
     if(!label){
         return children
     }
@@ -68,36 +68,40 @@ export class ShapeTree extends Component{
     render(){
         const {children, host}=this.props
         const {choices}=host.$props
-        const items=children.map(a=>{
+        const items=(Array.isArray(children) ? children : [children]).map(a=>{
             if(!React.isValidElement(a)){
                 return a
             }
 
-            const {props:{path,name, theme:{label:_}={},label=_,}, type}=a
-            if(path){
-                const props={name, value:a, key:path}
-                if(label)
-                    props.name=label
+            const {props:{path,name, theme:{label:_,}={},label=_,}, type}=a
+            if(!path)
+                return a
 
-                if(type.isPrimitive?.(a, this.context)){
-                    props.value=React.cloneElement(a,{isPrimitive:true})
-                }
+            const props={name, value:a, key:path}
+            if(label)
+                props.name=label
 
-                if(choices?.includes(name)){
-                    props.name=(
-                        <span>
-                            <input type="radio" name={`${name}_choice`} 
-                                style={{margin:0,position:"relative",top:3}}
-                                checked={name==host.choice}
-                                onClick={e=>host.set(path,true)}/>
-                            {name}
-                        </span>
-                    )
+            if(type.isPrimitive?.(a, this.context)){
+                props.value=React.cloneElement(a,{isPrimitive:true})
+            }else {
+                const link=host.isLink(a)
+                if(link){
+                    props.value=React.cloneElement(link,{isPrimitive:true})
                 }
-                return <ObjectTree {...props}/>
             }
 
-            return a
+            if(choices?.includes(name)){
+                props.name=(
+                    <span>
+                        <input type="radio" name={`${name}_choice`} 
+                            style={{margin:0,position:"relative",top:3}}
+                            checked={name==host.choice}
+                            onClick={e=>host.set(path,true)}/>
+                        {name}
+                    </span>
+                )
+            }
+            return <ObjectTree {...props}/>
         })
 
         return items

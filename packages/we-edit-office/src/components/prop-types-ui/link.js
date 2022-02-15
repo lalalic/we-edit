@@ -15,6 +15,8 @@ export default class link extends base{
         dialog: PropTypes.oneOfType([PropTypes.string,PropTypes.element])
     }
 
+    static isLink=true
+
     constructor(){
         super(...arguments)
         this.state={}

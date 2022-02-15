@@ -148,17 +148,33 @@ export default class base extends PureComponent{
         return `${this.path}${this.path ? "." : ""}${key}`
     }
 
+    isLink(el){
+        const getTypedShape=type=>{
+            const i=type.indexOf("(")
+            return i==-1 ? null : type.substring(i+1).replace(")","").trim()
+        }
+        const {type, props:{typedShape=getTypedShape(type.displayName)}}=el
+        if(typedShape && this.Theme[typedShape]){
+            const TypedShape=this.Theme[typedShape]
+            const link=TypedShape[this.uiContext]||TypedShape
+            if(React.isValidElement(link) && link.type.isLink){
+                return link
+            }
+        }
+    }
+
     render(){
-        const {uiContext, theme:{[uiContext]:show=true}, $props:{$link,typedShape, $presets, isPrimitive}}=this
+        const {uiContext, theme:{[uiContext]:show=true}, $props:{$presets, isPrimitive}}=this
         if(!show) 
             return null 
             
-        if($link && this.Theme[typedShape]?.Link){
-            const {typedShape,...props}=this.props
-            return React.cloneElement(this.Theme[typedShape]?.Link,...props)
-        }
-
         const rendered=(()=>{
+            const link=this.isLink({type:this.constructor, props:this.props})
+            if(link){
+                const {typedShape:_,...props}=this.props
+                return React.cloneElement(link,...props)
+            }
+
             //to change type
             if(React.isValidElement(show)){
                 const UIType=this.getUIType(show.type)

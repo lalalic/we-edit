@@ -137,7 +137,7 @@ function createTheme(){
         link:{
             Dialog:React.createElement(({host:{$props:{label,style={marginRight:5},icon}},onClick})=><button {...{onClick,style,children:label}}/>),
             Menu:React.createElement(({host:{$props:{label,style,icon}},onClick})=><MenuItem {...{onClick,style,leftIcon:icon,primaryText:label}}/>),
-            Tree:React.createElement(({host:{$props:{label,style,icon}},onClick})=><button {...{onClick,style,title:label,children:"..."}}/>),
+            Tree:React.createElement(({host:{$props:{label,style={fontSize:"smaller",padding:0,border:0,background:"transparent"},icon}},onClick})=><button {...{onClick,style,title:label,children:"..."}}/>),
             Ribbon:React.createElement(({host:{$props:{label,style,icon}},onClick})=><CheckIconButton {...{onClick,style,icon,title:label}}/>)
         },
         UnitShape:{
@@ -416,9 +416,7 @@ function createTheme(){
         FillShapeTypes:{
 
         },
-        TextStyleShape:{
-            Link:<Link dialog="font" label="Font..."/>
-        },
+        TextStyleShape:<Link dialog="font" label="Font..."/>,
         FontsShape:{
             style:{
                 width:100,
@@ -427,45 +425,39 @@ function createTheme(){
                 style:{
                     border:"none",
                     outline:"none",
-                    width:50,
                     background:"transparent",
+                    fontSize:"smaller"
                 },
                 label:"..."
             }
         },
-        FontShape:{
-            Dialog:<Link children={(a,host)=><FontList value={host.$props.value} onChange={f=>host.set(host.path,f)}/>}/>,
-            Ribbon:<Link children={(a,host)=><FontList value={host.$props.value} onChange={f=>host.set(host.path,f)}/>}/>,
-            Tree:<Link children={(a,host)=><FontList value={host.$props.value} onChange={f=>host.set(host.path,f)}/>}/>,
-        },
-        BulletShape:{
-            Dialog:<Link dialog={React.createElement(({value,host,...props})=>{
-                    const ui=React.createRef()
-                    return (
-                        <Dialog title="Symbol" {...props} 
-                            onSubmit={({font,char})=>{
-                                const path=post.path.split(".")
-                                path.pop()
-                                host.set(path.join("."),{style:{fonts:font},label:char})
-                            }}>
-                            <PropTypesUI uiContext="Dialog"
-                                propTypes={{
-                                    font:dom.Unknown.FontShape,
-                                    char:dom.Unknown.string,
-                                }} 
-                                theme={{
-                                    wrapper:<Wrappers.ShapeGrid grid={1}/>,
-                                    char:<OneOf values={["a","b","c"]} 
-                                        wrapper1={React.createElement(({value,onClick})=><span onClick={onClick}>{value}</span>)}
-                                        wrapper={<Wrappers.GridOneOf grid={1} selector={false}/>}/>
-                                }}
-                                props={{}} ref={ui}
-                                />
-                        </Dialog>
-                        )
-                    })} 
-                children={<button  style={{marginRight:5}} >Bullet...</button>}/>,
-        },
+        FontShape:<Link children={(a,host)=><FontList value={host.$props.value} onChange={f=>host.set(host.path,f)}/>}/>,
+        BulletShape:<Link label="Bullet..." dialog={React.createElement(({value,host,...props})=>{
+                const ui=React.createRef()
+                return (
+                    <Dialog title="Symbol" {...props} 
+                        onSubmit={({font,char})=>{
+                            const path=post.path.split(".")
+                            path.pop()
+                            host.set(path.join("."),{style:{fonts:font},label:char})
+                        }}>
+                        <PropTypesUI uiContext="Dialog"
+                            propTypes={{
+                                font:dom.Unknown.FontShape,
+                                char:dom.Unknown.string,
+                            }} 
+                            theme={{
+                                wrapper:<Wrappers.ShapeGrid grid={1}/>,
+                                char:<OneOf values={["a","b","c"]} 
+                                    wrapper1={React.createElement(({value,onClick})=><span onClick={onClick}>{value}</span>)}
+                                    wrapper={<Wrappers.GridOneOf grid={1} selector={false}/>}/>
+                            }}
+                            props={{}} ref={ui}
+                            />
+                    </Dialog>
+                    )
+                })} 
+            />,
         BlobShape:{
             Dialog:{
                 wrapper:React.createElement(({children:{props:{onClick}}})=><button onClick={onClick}>Select Picture...</button>)
@@ -481,10 +473,9 @@ function createTheme(){
             id:false,
             level:false,
             style:{
-                $link:true
+                wrapper:null,
             },
-
-                
+            
             Ribbon:<OneOf label="Bullet Character" values={Bullets} icon={<IconListBullet/>}
                 wrapper1={<BulletWrapper1/>}
                 equal={(a,b)=>a?.label==b?.label}
@@ -535,7 +526,7 @@ function createTheme(){
             id:false,
             level:false,
             style:{
-                $link:true
+                wrapper:null
             },
             
             Ribbon: <OneOf label="numbering list" values={Numberings} icon={<IconListNumber/>}
