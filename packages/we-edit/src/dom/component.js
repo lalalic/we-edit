@@ -655,10 +655,42 @@ export default class Base extends Component{
 	static VertAlignShape=PropTypes.oneOf(["top","middle","bottom"],{$type:"VertAlignShape",defaultValue:"top"})
 
 	static TextStyleShape=this.normalizeChecker(PropTypes.shape({
-		fonts:this.FontsShape.isRequired,
-		size:this.UnitShape,
+		fonts: this.FontsShape.isRequired,
+		size: this.UnitShape.isRequired,
+		
 		bold: PropTypes.bool,
 		italic: PropTypes.bool,
+		vanish: PropTypes.bool,
+
+		border: PropTypes.oneOfType([
+			PropTypes.bool,
+			this.BorderShape,
+		]),
+		underline: PropTypes.oneOfType([
+			PropTypes.bool,
+			this.LineShape,
+		]),
+		strike: PropTypes.oneOfType([
+			PropTypes.bool,
+			this.LineShape,
+		]),
+		vertAlign: PropTypes.oneOf(["subscript","superscript"],{label:"vertical alignment"}),
+		highlight: this.ColorShape,
+		color: this.ColorShape,
+
+		formatText: PropTypes.func,//caps, dynamic, ...
+
+		scale:PropTypes.shape({
+			horizontal: this.UnitShape,
+			vertical: this.UnitShape,
+		}),
+		spacing: this.UnitShape,
+		position: this.UnitShape,
+		kerning: PropTypes.oneOfType([
+			PropTypes.bool,
+			this.UnitShape,
+		]),
+		emphasizeMark: PropTypes.string,
 	},{$type:"TextStyleShape"}))
 	
 	static CommonListShape={

@@ -241,7 +241,7 @@ export class Measure{
 		const scopes=unicodes.split(",").map(a=>a.trim()).filter(a=>!!a)
 			.map(seg=>seg.split("-").map(a=>a.trim()).filter(a=>!!a).map(a=> parseInt(a,16)))
 			.filter(a=>!!a)
-		return A=>scopes.find(([min,max=min])=>(A>=min && A<=max))!=-1
+		return A=>scopes.findIndex(([min,max=min])=>(A>=min && A<=max))!=-1
 	}
 
 	static namedUnicodeScopeChecks={

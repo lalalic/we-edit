@@ -452,8 +452,9 @@ class Paragraph extends HasParentAndChild(dom.Paragraph){
 			const {state:{label},props:{measure, align}}=this
 			const width=measure.stringWidth(label)
 			const x=align=="right" ? -width : align=="center" ? -width/2 : 0
+			const {color,highlight,border,strike}=measure.style
 			const {height,descent,x:_1,y,...measureStyle}=measure.defaultStyle
-			return <ComposedText {...measureStyle} textLength={false} x={x} children={label}/>
+			return <ComposedText {...measureStyle} {...{height, descent, width, color,highlight,border,strike}} textLength={false} x={x} children={label}/>
 		}
 
 		componentWillUnmount(){
