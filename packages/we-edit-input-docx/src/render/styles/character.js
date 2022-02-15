@@ -1,5 +1,6 @@
 import Base from "./base"
 import {fromJS} from "immutable"
+import {Measure} from "we-edit-representation-pagination"
 
 const attribs={
 	"w:rFonts":"fonts",
@@ -12,8 +13,10 @@ const attribs={
 	"w:highlight":"highlight",
 	"w:bdr":"border",
 	"w:strike":"strike",
+	"w:lang": "lang",
 	"w:vertAlign":"vertAlign"
 }
+
 export default class Character extends Base{
 	constructor(node, styles, selector){
 		super(node, styles, selector)
@@ -49,9 +52,26 @@ export default class Character extends Base{
 		flat(...args){
 			const props=super.flat(...args)
 			if(this.r.fonts?.hint && props.fonts[this.r.fonts.hint]){
-				props.fonts={
-					hint:this.r.fonts.hint,
-					[this.r.fonts.hint]: props.fonts[this.r.fonts.hint]
+				switch(this.r.fonts.hint){
+					case 'cs':
+						props.fonts={fallback:this.r.fonts.cs}
+						break
+					case 'ea':{
+						const extended=[EastAsiaHint]
+						if(this.lang?.startsWith("zh-"))
+							extended.push(EastAsiaHintAndZhLang)
+						props.fonts={
+							...props.fonts, 
+							$(A,fonts,FontManager){
+								if(extended.find(check=>check(A))!=-1)
+									return 'ea'
+								if(EastAsiaHintAndChinese50GB2312(A) && 
+									(FontManager.get(fonts.ea)?.characterSet?.length===7446)){
+									return 'ea'
+								}
+							}
+						}
+					}
 				}
 			}
 			return props
@@ -71,3 +91,20 @@ export default class Character extends Base{
 		return this.__clear(props,undefined)
 	}
 }
+
+const EastAsiaHint=Measure.FontMeasure.unicodeSegmentCheckFactory(
+	`A1, A4, A7 – A8, AA, 
+	AD, AF, B0 – B4, B6 – BA, 
+	BC – BF, D7, F7,
+	02B0 – 02FF,
+	0300 – 036F,
+	0370 – 03CF,	
+	0400 – 04FF,
+	1E00 - 1EFF,
+	2000 - 27BF,
+	2E80 – 2EFF,
+	FB00 - FB1C`
+)
+const EastAsiaHintAndZhLang=Measure.FontMeasure.unicodeSegmentCheckFactory(`E0 – E1, E8 – EA, EC – ED, F2 – F3, F9 – FA, FC`)
+const EastAsiaHintAndChinese50GB2312=Measure.FontMeasure.unicodeSegmentCheckFactory("0100 - 02AF")
+

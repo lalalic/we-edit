@@ -4,12 +4,10 @@ import FontManager from "../fonts"
 /**
  * Measure has 
  * ** fonts: 
- * 		> {ascii:Times,ea:宋体, "00FA-FF00":,..., "ascii,ea":"Arial", fallback, hint:"ea"}
- * 			> hint indicates all chars use same scope font family
- * 				> hint also will be resolved in FallbackMeassure
+ * 		> {ascii:Times,ea:宋体, "00FA-FF00":,..., "ascii,ea":"Arial", fallback}
  * 			> fallback will be used if no font scope located in this fonts
  * 
- * 		> string: every char use the same font=>{hint:fontFamily}
+ * 		> string: every char use the same font=>{fallback:fontFamily}
  * 
  * ** fallback fonts: 
  * 		> system must make sure all fallback fonts loaded, which must be object
@@ -95,7 +93,7 @@ export class Measure{
 			if(typeof(fonts)=="string"){//{ascii:fonts}
 				if(_dont_decide)
 					return fonts
-				fonts={ascii:fonts, hint:"ascii"}
+				fonts={fallback:fonts}
 			}
 		})();
 
@@ -104,13 +102,19 @@ export class Measure{
 			return this.fontFamily
 		}
 
-		const {namedUnicodeScopeChecks,createFromCharCode2FontFunction}=this.constructor
-		const resolveCharFontFunctions=Object.keys(fonts).map(range=>{
-			const font=fonts[range]
-			if(range in namedUnicodeScopeChecks){ 
-				return A=>namedUnicodeScopeChecks[range](A) && font
+		const {namedUnicodeScopeChecks,unicodeSegmentCheckFactory}=this.constructor
+		const resolveCharFontFunctions=Object.keys(fonts).map(segments=>{
+			const font=fonts[segments]
+			if("$"===segments && typeof(font)=="function"){
+				return A=>{
+					segments=font(A,fonts,FontManager)
+					return {font:fonts[segments],segments}
+				}
+			}
+			if(segments in namedUnicodeScopeChecks){ 
+				return A=>namedUnicodeScopeChecks[segments](A) && {font,segments}
 			}else{
-				return createFromCharCode2FontFunction(range,namedUnicodeScopeChecks, font)
+				return A=>unicodeSegmentCheckFactory(segments)(A) && {font,segments}
 			}
 		})
 			
@@ -118,13 +122,7 @@ export class Measure{
 			A=typeof(A)=="string" ? A.charCodeAt(0) : A
 			//1. segmented font
 			let reason=1
-			let family=resolveCharFontFunctions.reduce((font,resolveCharFont)=>font||resolveCharFont(A), "")
-
-			//2.hint
-			if((!family||!this.fontExists(family,A)) && fonts.hint){
-				reason=2
-				family=fonts[fonts.hint]
-			}
+			let {font:family,segments}=resolveCharFontFunctions.reduce((font,resolveCharFont)=>font||resolveCharFont(A), "")
 
 			//3.fallback
 			if((!family || !this.fontExists(family,A)) && fonts.fallback){
@@ -133,12 +131,6 @@ export class Measure{
 			}
 			
 			if(!isFallbackFontsMeasure){//system fallbacks
-				//4. hint in system fallbacks
-				if((!family||!this.fontExists(family,A)) && fonts.hint){
-					reason=4
-					family=this.fallbackFonts[fonts.hint]
-				}
-				
 				//find in system fallbacks
 				if((!family||!this.fontExists(family,A))){
 					reason=5
@@ -146,7 +138,8 @@ export class Measure{
 				}
 			}
 			if(family){
-				console.debug(`Font: '${String.fromCharCode(A)}'[${family}] ${["by segment","by hint","by fallback","by system fallbacks.hint", ""][reason-1]} ${nested>3 ? "in system fallback" : ""}`)
+				family=this.fontExists(family)?.family||family
+				console.debug(`Font: ${segments}.'${String.fromCharCode(A)}'[${family}] ${["by segment","by hint","by fallback","by system fallbacks.hint", ""][reason-1]} ${nested>3 ? "in system fallback" : ""} with ${JSON.stringify(fonts)}`)
 				return family
 			}else if(!isFallbackFontsMeasure){
 				throw new Error(`Font: can't select font for '${String.fromCharCode(A)}' in both ${JSON.stringify(fonts)} and ${JSON.stringify(this.fallbackFonts)}`)
@@ -244,42 +237,25 @@ export class Measure{
 		return new (this.constructor)({...this.style,...style},_dont_decide)
 	}
 
-	static createFromCharCode2FontFunction(
-		unicodes/*OOFA-FF[,ea[,FFA0]]*/, 
-		namedUnicodeScopeChecks={}/*{ascii(){},ea(){},...}*/, 
-		fontFamily
-	){
+	static unicodeSegmentCheckFactory(unicodes/*OOFA-FF[,FFA0]*/){
 		const scopes=unicodes.split(",").map(a=>a.trim()).filter(a=>!!a)
-			.map(seg=>
-				seg.split("-").map(a=>a.trim()).filter(a=>!!a).map(a=>{
-					return a in namedUnicodeScopeChecks ? a : parseInt(a,16)
-				})
-			)
+			.map(seg=>seg.split("-").map(a=>a.trim()).filter(a=>!!a).map(a=> parseInt(a,16)))
 			.filter(a=>!!a)
-		return A=>{
-				const found=scopes.find(([min,max=min])=>{
-					if(min in namedUnicodeScopeChecks){
-						return namedUnicodeScopeChecks[min](A)
-					}else {
-						return A>=min && A<=max
-					}
-				})
-				return found ? fontFamily : ""
-		}
+		return A=>scopes.find(([min,max=min])=>(A>=min && A<=max))!=-1
 	}
 
 	static namedUnicodeScopeChecks={
-		ascii:	this.createFromCharCode2FontFunction(`
-					0000 - 007F,FE70 - FEFE,0590 - 05FF,0600 - 06FF,0700 - 074F,0750 - 077F,0780 - 07BF
-				`,{},true),
-		ea:		this.createFromCharCode2FontFunction(`
+		ascii:	this.unicodeSegmentCheckFactory(`
+					0000 - 007F,FE70 - FEFE,0590 - 05FF,0600 - 06FF,0700 - 074F,0750 - 077F,0780 - 07BF,FB1D – FB4F
+				`),
+		ea:		this.unicodeSegmentCheckFactory(`
 					1100 - 11FF,2F00 - 2FDF,2FF0 - 2FFF,3000 - 303F,3040 - 309F,30A0 - 30FF,3100 - 312F,3130 - 318F,
 					3190 - 319F,3200 - 32FF,3300 - 33FF,3400 - 4DBF,4E00 - 9FAF,A000 - A48F,A490 - A4CF,AC00 - D7AF,
 					D800 - DB7F,DB80 - DBFF,DC00 - DFFF,F900 - FAFF,FE30 - FE4F,FE50 - FE6F,FF00 - FFEF
-				`, {}, true),
-		hansi: this.createFromCharCode2FontFunction(`
+				`),
+		hansi: this.unicodeSegmentCheckFactory(`
 					00A0 – 00FF,0100 – 017F,0180 – 024F,0250 – 02AF,1E00 – 1EFF,FB00 – FB4F
-				`,{},true)
+				`)
 	}
 
 	static requireFonts=function(){
@@ -297,7 +273,6 @@ export class Measure{
 	static releaseFonts=fonts=>FontManager.release(fonts)
 
 	static fallbackFonts={
-		ascii:"Times New Roman",
 		fallback:"Fallback",
 	}
 

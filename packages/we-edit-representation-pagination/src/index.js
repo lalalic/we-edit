@@ -28,7 +28,7 @@ const Canvas=Responsible.Canvas
 const Positioning=Responsible.Positioning
 const SelectionStyle=Responsible.SelectionStyle
 
-const {FontMeasure,  HybridMeasure,BrowserMeasure}=Measure
+const {FontMeasure,  HybridMeasure}=Measure
 
 export default class Pagination extends Representation.Base{
 	static displayName="pagination"
@@ -54,10 +54,10 @@ export default class Pagination extends Representation.Base{
 
 	static Output=Output
 
-	constructor(){
+	constructor(props,{doc}){
 		super(...arguments)
-		const {fallbackFonts,measure,fonts:service}=this.props
-		this.Measure=measure||(isNode ? FontMeasure : HybridMeasure)
+		const {fallbackFonts,measure=isNode ? FontMeasure : HybridMeasure}=this.props
+		this.Measure=measure
 		if(fallbackFonts){
 			this.Measure=this.Measure.createMeasureClassWithFallbackFonts(fallbackFonts)
 		}

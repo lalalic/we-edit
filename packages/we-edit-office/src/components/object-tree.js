@@ -2,6 +2,13 @@ import React, {Component} from "react"
 import PropTypes from "prop-types"
 
 export default class ObjectTree extends Component{
+    static propTypes={
+        name: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+        value: PropTypes.any,
+        order: PropTypes.arrayOf(PropTypes.string),
+        filter: PropTypes.arrayOf(PropTypes.oneOfType([PropTypes.string, PropTypes.func])),
+        style: PropTypes.object
+    }
     static childContextTypes={
         uiContext: PropTypes.string
     }

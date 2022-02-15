@@ -1,6 +1,8 @@
 import React,{PureComponent,Fragment} from "react"
 import {connect} from 'react-redux'
 import {FontManager} from "we-edit-representation-pagination"
+import ObjectTree from "../components/object-tree"
+import selectFile from "../components/file-select"
 
 
 export default connect()(class __$1 extends PureComponent{
@@ -9,19 +11,22 @@ export default connect()(class __$1 extends PureComponent{
         this.state={}
     }
 
+    get fonts(){
+        return FontManager.names.reduce((fonts,a)=>{
+            fonts[a]=new Font(FontManager.get(a))
+            return fonts
+        },{})
+    }
+
     render(){
-        var input
-        const loaded=FontManager.names
         return (
             <Fragment>
-                <span>you can </span><button onClick={e=>input.click()}>load more local fonts</button>
-                <input type="file" ref={a=>input=a} multiple
-                    style={{display:"none"}}
-                    onChange={e=>this.load(e.target)}
-                    />
-                {loaded.length>0 && 
-                    <div>Already Loaded {loaded.length} Fonts: {loaded.join(",")}</div>
-                }
+                <div>
+                    <button onClick={e=>selectFile({multiple:true,accept:".ttf,.ttc,.otf",returnInput:true}).then(input=>this.load(input))}>
+                        load more local fonts
+                    </button>
+                </div>
+                <ObjectTree value={this.fonts} filter={["stream"]} order={["tables"]}/>
             </Fragment>
         )
     }
@@ -31,3 +36,17 @@ export default connect()(class __$1 extends PureComponent{
             .then(e=>this.setState({loaded:Date.now()}))
     }
 })
+
+class Font{
+    constructor(font){
+        this.tables=font._tables
+        "postscriptName,fullName,familyName,subfamilyName,copyright,version,unitsPerEm,ascent,descent,lineGap,underlinePosition,underlineThickness,italicAngle,capHeight,xHeight,bbox,numGlyphs,characterSet,availableFeatures"
+            .split(",").reduce((me, key)=>{
+                Object.defineProperty(me,key,{
+                    get:()=>font[key],
+                    enumerable:true,
+                })
+                return me
+            },this)
+    }
+}

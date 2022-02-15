@@ -382,27 +382,28 @@ export default class Base extends Component{
 	})
 
 	/**
-	 * Font selection Priority: fonts.segmented>fonts.fallback>systemFallbacks.segmented>systemFallbacks.fallback
+	 * Font selection Priority: fonts.segmented>fonts[fonts.hint]>fonts.fallback>systemFallbacks[fonts.hint]>systemFallbacks.segmented>systemFallbacks.fallback
+	 * segmentName: fontName,
+	 * segment: fontName,
+	 * segments: fontName,
 	 */
 	static FontsShape=this.normalizeChecker(PropTypes.oneOfType([
-		/** same as {ascii: fontName, hint:"ascii"}*/
+		/** same as {fallback: fontName}*/
 		this.FontShape, 
 		PropTypes.shape({
 			ascii: this.FontShape,
 			ea: this.FontShape,
-			//cs: PropTypes.string,
-			//hansi: PropTypes.string,
+			hansi: this.FontShape,
 			/**fallback font*/
 			fallback: this.FontShape,
-			/** value is scope, such as ea, to indicate all text should use font specified by fonts[hint] */
-			hint: PropTypes.string,
 			//"7F-FF,00-3F":"Arial",
+			$: PropTypes.func,
 		}),
 	],{$type:"FontsShape"}),{
 		normalize:value=>{
 			switch(typeof(value)){
 				case "string":
-					return {ascii:value, hint:"ascii"}
+					return {fallback:value}
 				default:
 					return value
 			}

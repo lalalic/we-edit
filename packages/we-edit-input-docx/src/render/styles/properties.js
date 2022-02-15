@@ -156,7 +156,7 @@ export class Properties{
 			hint="ea"
 
 		if(ea=="Times New Roman" && ascii && ascii==hansi){
-			hint="ascii"
+			ea=ascii
 		}
 
 		return {ascii,cs,ea,hansi,hint}

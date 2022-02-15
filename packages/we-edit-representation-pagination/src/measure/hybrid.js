@@ -16,7 +16,8 @@ export default class HybridMeasure extends FontMeasure{
     static displayName="SVG Measure"
     
     fontExists(family){
-        return !!Array.from(document.fonts).find(a=>a.family==family && a.status=="loaded")
+        family=super.fontExists(family)?.familyName || family
+        return Array.from(document.fonts).find(a=>a.family==family && a.status=="loaded")
     }
 
     lineHeight(size=this.size){

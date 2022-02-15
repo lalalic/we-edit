@@ -87,7 +87,7 @@ export default class Dashboard extends PureComponent{
 							})}
 						</Menu>
 				</Paper>
-				<div style={{flex:"1 100%", backgroundColor:"lightgray",display:"flex",flexDirection:"column",padding:10}}>
+				<div style={{flex:"1 100%", backgroundColor:"lightgray",display:"flex",flexDirection:"column",padding:10, overflow:"auto"}}>
 					{action && React.cloneElement(action, {done}) || 
 					<div onClick={done} flex="1 100%" style={{height:"100%"}} children={children}/>}
 				</div>
