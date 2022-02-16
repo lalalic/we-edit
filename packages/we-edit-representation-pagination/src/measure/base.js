@@ -104,6 +104,8 @@ export class Measure{
 
 		const {namedUnicodeScopeChecks,unicodeSegmentCheckFactory}=this.constructor
 		const resolveCharFontFunctions=Object.keys(fonts).map(segments=>{
+			if(segments=="fallback")
+				return A=>({segments})
 			const font=fonts[segments]
 			if("$"===segments && typeof(font)=="function"){
 				return A=>{
@@ -118,7 +120,7 @@ export class Measure{
 			}
 		})
 			
-		const fontFamily=this.getCharFontFamily=(A="A",nested)=>{
+		const fontFamily=this.getCharFontFamily=(A,nested)=>{
 			A=typeof(A)=="string" ? A.charCodeAt(0) : A
 			//1. segmented font
 			let reason=1

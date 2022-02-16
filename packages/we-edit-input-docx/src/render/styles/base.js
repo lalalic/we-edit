@@ -135,9 +135,12 @@ export default class Style extends Linkable{
 		let pr=target ? node.children.find(a=>a.name==target) : node
 		if(pr){
 			return pr.children.reduce((style,a)=>{
-				let key=map[a.name]
-				if(key)
-					style[key]=selector.selectValue(a)
+				const key=map[a.name]
+				if(key){
+					const value=selector.selectValue(a)
+					if(value!==undefined)
+						style[key]=value
+				}
 				return style
 			},{})
 		}
@@ -155,7 +158,8 @@ export default class Style extends Linkable{
 				delete o[k]
 			}
 		}
-		return o
+		if(Object.keys(o).length>0)
+			return o
 	}
 
 	getLink(){

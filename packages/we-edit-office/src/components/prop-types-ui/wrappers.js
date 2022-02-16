@@ -84,7 +84,7 @@ export class ShapeTree extends Component{
             if(type.isPrimitive?.(a, this.context)){
                 props.value=React.cloneElement(a,{isPrimitive:true})
             }else {
-                const link=host.isLink(a)
+                const link=a.type.isLink && a || host.isLink(a)
                 if(link){
                     props.value=React.cloneElement(link,{isPrimitive:true})
                 }

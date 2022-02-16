@@ -135,7 +135,7 @@ function createTheme(){
             }
         },
         link:{
-            Dialog:React.createElement(({host:{$props:{label,style={marginRight:5},icon}},onClick})=><button {...{onClick,style,children:label}}/>),
+            Dialog:React.createElement(({host:{$props:{label,style={marginRight:5,width:150},icon}},onClick})=><button {...{onClick,style,children:label}}/>),
             Menu:React.createElement(({host:{$props:{label,style,icon}},onClick})=><MenuItem {...{onClick,style,leftIcon:icon,primaryText:label}}/>),
             Tree:React.createElement(({host:{$props:{label,style={fontSize:"smaller",padding:0,border:0,background:"transparent"},icon}},onClick})=><button {...{onClick,style,title:label,children:"..."}}/>),
             Ribbon:React.createElement(({host:{$props:{label,style,icon}},onClick})=><CheckIconButton {...{onClick,style,icon,title:label}}/>)

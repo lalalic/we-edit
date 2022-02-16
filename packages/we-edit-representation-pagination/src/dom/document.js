@@ -30,10 +30,7 @@ class Document extends Locatable.Locatorize(HasChild(dom.Document)){
         editable: PropTypes.any,
         precision: PropTypes.number,
         activeDocStore: PropTypes.any,
-        hintMeasure: PropTypes.shape({
-			defaultStyle: PropTypes.object.isRequired,
-			stringWidth: PropTypes.func.isRequired
-		})
+        hintMeasure: PropTypes.instanceOf(Measure),
     }
 
     constructor(){

@@ -59,8 +59,6 @@ export default {
         }
     },
     Paragraph:{
-        tabs:<link dialog="tabs" children={React.createElement(({host,onClick})=>(
-                <button onClick={onClick} style={{width:150,margin:"0px auto"}}>Tabs...</button>
-            ))}/>
+        tabs:<link dialog="tabs" label="tabs"/>
     }
 }

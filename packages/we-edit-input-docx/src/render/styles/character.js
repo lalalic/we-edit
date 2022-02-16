@@ -28,6 +28,14 @@ export default class Character extends Base{
 		return fromJS(this.flat()).hashCode()
 	}
 
+	_convert(){
+		const r=super._convert(...arguments)
+		if(r?.vertAlign=="baseline"){
+			delete r.vertAlign
+		}
+		return r
+	}
+
 	static Direct=class __$1 extends Character{
 		constructor(node, styles, selector){
 			super(node, styles, selector)

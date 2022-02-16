@@ -273,6 +273,7 @@ class Paragraph extends HasParentAndChild(dom.Paragraph){
 		let atom=null
 		if(typeof(label)=="string"){
 			const measure=new Measure({...defaultStyle,...style})
+			measure.stringWidth(label)
 			const {height,descent,x,y}=measure.defaultStyle
 			if(!this.computed.numbering)
 				this.computed.numbering=this.constructor.NumberingAtom.observable(label)

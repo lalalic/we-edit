@@ -1,5 +1,18 @@
 import getTheme from "./theme"
 
+const clear=o=>{
+	if(typeof(o)!="object"){
+		return o
+	}
+	return Object.keys(o).reduce((o,k, i, all)=>{
+		if(o[k]==undefined)
+			delete o[k]
+		if(i==all.length-1 && Object.keys(o).length==0)
+			return 
+		return o
+	},o)
+}
+
 export class Properties{
 	constructor(docx){
 		this.docx=docx
@@ -13,17 +26,22 @@ export class Properties{
 	
 	select(nodes, keyMap={}){
 		return nodes.reduce((props,x)=>{
-			let name=x.name.split(":").pop()
-			if(this[name])
-				props[keyMap[x.name]||keyMap[name]||name]=this[name](x)
+			const name=x.name.split(":").pop()
+			if(this[name]){
+				const value=clear(this[name](x))
+				if(typeof(value)!=='undefined'){
+					props[keyMap[x.name]||keyMap[name]||name]=value
+				}
+			}
 			return props
 		},{})
 	}
 
 	selectValue(x){
 		let name=x.name.split(":").pop()
-		if(this[name])
-			return this[name](x)
+		if(this[name]){
+			return clear(this[name](x))
+		}
 	}
 
 	pgSz(x){
@@ -158,6 +176,9 @@ export class Properties{
 		if(ea=="Times New Roman" && ascii && ascii==hansi){
 			ea=ascii
 		}
+
+		if(hint=="default")
+			hint=undefined
 
 		return {ascii,cs,ea,hansi,hint}
 	}
