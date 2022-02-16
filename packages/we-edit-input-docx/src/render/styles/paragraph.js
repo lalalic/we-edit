@@ -4,13 +4,13 @@ import {fromJS} from "immutable"
 const attribs={
 	"w:spacing":"spacing",
 	"w:ind":"indent",
-	"w:numPr":"num",
 	"w:jc":"align",
 	"w:outlineLvl":"heading",
 	"w:widowControl":"widow",
 	"w:keepNext":"keepWithNext",
 	"w:keepLines":"keepLines",
 	"w:tabs":"tabs",
+	"w:numPr":"num",
 }
 export default class Paragraph extends Base{
 	constructor(node,styles,selector){
@@ -28,48 +28,32 @@ export default class Paragraph extends Base{
 		getLink(){
 			return this.styles[this.basedOn]?.getLink()
 		}
-
-		flat(...inherits){
-			return super.flat(true, ...inherits)
-		}
 	}
 
 	flat4Character(){
 		return super.flat(...arguments)
 	}
 
-	flat(numIndentHigherPriorityThanMe, ...inherits){
-		if(numIndentHigherPriorityThanMe!==true)
-			inherits.splice(0,0,numIndentHigherPriorityThanMe)
+	flat(...inherits){
 		const targets=[this,...inherits].filter(a=>!!a)
-		const props=Object.values(attribs)
-				.reduce((props, k)=>{
-					if(targets.find(a=>(props[k]=a.get(`p.${k}`))!==undefined)){
-						if(k==="num"){
-							this.applyNumbering(props, numIndentHigherPriorityThanMe)
-							delete props.num
-						}
-					}
-					return props
-				},{})
+		const props=Object.values(attribs).reduce((props, k)=>{
+			const target=targets.find(a=>(props[k]=a.get(`p.${k}`))!==undefined)
+			if(target && k==="num"){
+				this.applyNumbering(props, target)
+			}
+			return props
+		},{})
 		return this.__clear(props,undefined)
 	}
 
-	applyNumbering(props, numIndentHigherPriorityThanMe) {
+	applyNumbering(props, style) {
 		const { numId, ilvl: level = 0 } = props.num
 		const numStyle = this.styles[`_num_${numId}`]
-		const {left, hanging=left } = numStyle.get(`${level}.p.indent`)
-		const indent={left, hanging}
-		if(numIndentHigherPriorityThanMe===true){
-			props.indent = {
-				...indent,
-				...props.indent,
-			}
-		}else{
-			props.indent = {
-				...props.indent,
-				...indent,
-			}
+		const indent=numStyle.get(`${level}.p.indent`)
+		props.indent={
+			...props.indent,
+			...indent,
+			...style.p?.indent
 		}
 
 		props.numbering = {
@@ -82,9 +66,11 @@ export default class Paragraph extends Base{
 			label: numStyle.parent[level].lvlText,
 			start: numStyle.parent[level].start,
 		}
+
+		delete props.num
 	}
 
 	hashCode(){
-		return fromJS(this.flat()).hashCode()
+		return fromJS(this.flat()||{}).hashCode()
 	}
 }

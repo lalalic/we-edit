@@ -5,7 +5,7 @@ import {ReactQuery,connect, getUI, dom} from "we-edit"
 import memoize from "memoize-one"
 import {shallowEqual} from "recompose"
 
-export default ({Paragraph,Text, Frame})=>class DocxParagraph extends Component{
+export default ({Paragraph, Group, Frame,})=>class DocxParagraph extends Component{
 	static displayName="paragraph"
 	static propTypes={
 		style: PropTypes.object.isRequired,
@@ -97,7 +97,7 @@ export default ({Paragraph,Text, Frame})=>class DocxParagraph extends Component{
 				...super.propTypes,
 				tabs: dom.Unknown.arrayOf(dom.Unknown.shape({
 					pos: dom.Unknown.UnitShape,
-					align: dom.Unknown.oneOf(["left","right","center","decimal","bar"]),
+					align: dom.Unknown.oneOf(["left","right","center","decimal","bar","clear"]),
 					leader: dom.Unknown.oneOf(["hyphen","dot","underscore","middleDot"],{labels:["-",".","_",String.fromCharCode(0xB7)].map(a=>a.repeat(5))})
 				},{$type:"TabShape"}),{$type:"TabsShape"})
 			}
@@ -118,6 +118,19 @@ export default ({Paragraph,Text, Frame})=>class DocxParagraph extends Component{
 					return {...this.context.defaultTab, pos:Math.ceil((x+0.1)/this.context.defaultTab.pos)*this.context.defaultTab.pos}		 
 				})();
 				return {...tab, pos:tab.pos-lineLeadingSpace}
+			}
+
+			createNumberingAtom(){
+				const atom=super.createNumberingAtom()
+				//const {defaultStyle:{size:defaultSize}, numbering:{, style:{size=defaultSize}}}=this.props
+				if(atom.props.x>0){
+					this.atoms.splice(0,0,
+						<Group {...{tokenizeOpportunity:dom.Text.Tab,"data-numberingTab":true}}>
+							<Group {...{"data-type":"text","data-content":"unknown",children:dom.Text.Tab,fontSize:0}}/>
+						</Group>
+					)
+				}
+				return atom
 			}
 
 			createParagraphEndAtom(){
@@ -141,20 +154,20 @@ export default ({Paragraph,Text, Frame})=>class DocxParagraph extends Component{
 					editable: PropTypes.any,
 					hintMeasure: PropTypes.object
 				}
+				
 				render(){
-					const {leader, width, id, pilcrow}=this.props
-					const textComposer=this.context.getComposer(id)
+					const {leader, size, width, pilcrow}=this.props
+					const measure=(leader || pilcrow) && new this.context.Measure({fonts:this.context.hintMeasure.style.fonts,size})
 					return (
 						<Fragment>
-							{!leader ? null : leader.repeat(Math.floor(width/textComposer.measure.stringWidth(leader)))}
+							{!leader ? null : leader.repeat(Math.floor(width/measure.stringWidth(leader)))}
 							{pilcrow && this.context.editable && (()=>{
-								const measure=new this.context.Measure({fonts:this.context.hintMeasure.style.fonts,size:textComposer.props.size})
 								const text=String.fromCharCode(0x2192)
 								const tabWidth=measure.stringWidth(text)
 								const props={}
 								if(width<tabWidth){
 									props.x=width-tabWidth
-									props.clipPath=`inset(0 0 0 ${tabWidth-width})`
+									props.clipPath=`inset(0 0 0 ${width})`
 								}else if(width>tabWidth){
 									props.x=(width-tabWidth)/2
 								}
@@ -268,7 +281,11 @@ export default ({Paragraph,Text, Frame})=>class DocxParagraph extends Component{
 								$atom.replace($tab, 
 									React.cloneElement(
 										$tab.get(0),
-										{width,children:[<WordParagraph.Tab {...{key:0,width,leader,id:$tab.attr('data-content'),"data-nocontent":true}}/>]}
+										{width,children:[<WordParagraph.Tab {...{
+											key:0,width,leader,
+											"data-nocontent":true, 
+											size: parseInt($tab.attr('fontSize'))
+										}}/>]}
 									)
 								).get(0),
 								{width,atom}
@@ -290,6 +307,11 @@ export default ({Paragraph,Text, Frame})=>class DocxParagraph extends Component{
 							},
 							set(width){
 								inlineSegments.replace(this.atom,this.atom=resetWidth(this.__w=width))
+							}
+						},
+						align:{
+							get(){
+								return atom.props["data-numberingTab"] ? "left" : tab.align
 							}
 						}
 					})

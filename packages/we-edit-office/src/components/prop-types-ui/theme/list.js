@@ -70,7 +70,7 @@ class Li extends React.Component{
     }
 
     render(){
-        const {state:{width=0},props:{indent=0,hanging=0,label,pStyle, style:{fonts,size}={}}}=this
+        const {state:{width=0},props:{indent=0,hanging=0,label,pStyle, style:{fonts,size, underline, color}={}}}=this
         const ind=UnitShape.normalize(indent), han=UnitShape.normalize(hanging)
         const marginLeft=Math.max(ind,ind-han+width)
         return (
@@ -78,7 +78,12 @@ class Li extends React.Component{
                 <span ref={this.label} style={{
                     position:"absolute",
                     left:marginLeft==ind ? -han : -width,
-                    top:0,fontFamily:fonts,fontSize:size}}>{label}</span>
+                    top:0,
+                    fontFamily:toFont(fonts),
+                    fontSize:size,
+                    color,
+                    textDecoration:underline ? "underline" : "none"
+                    }}>{label}</span>
                 <i>&nbsp;</i>
             </Line>
         )
@@ -96,17 +101,18 @@ class Li extends React.Component{
 
 export const BulletWrapper1=({value:{label,style:{fonts}}, onClick, checked})=>(
     <span onClick={onClick} 
-        style={{cursor:"default", font:fonts,width:40,height:40,lineHeight:"40px",margin:4,border:"1px solid lightgray",textAlign:"center", background:checked ? "lightblue" : "none"}}>
+        style={{cursor:"default", font:`${toFont(fonts)}`,width:40,height:40,lineHeight:"40px",margin:4,border:"1px solid lightgray",textAlign:"center", background:checked ? "lightblue" : "none"}}>
         {label}
     </span>
 )
 
-export const NumberingWrapper1=({value:{format="decimal", label="%1"}, onClick, checked})=>(
+export const NumberingWrapper1=({value:{format="decimal", label="%1", style}, onClick, checked})=>(
     <div style={{width:50,height:50,border:"1px solid lightgray",overflow:"hidden",fontSize:9, background:checked ? "lightblue" : "none"}} 
         padding={2} onClick={onClick}>
-        <Li indent={10} label={label.replace('%1',numberings[format]?.(0))} pStyle={{marginTop:0,background:"lightgray"}}/>
-        <Li indent={10} label={label.replace('%1',numberings[format]?.(1))} pStyle={{background:"lightgray"}}/>
-        <Li indent={10} label={label.replace('%1',numberings[format]?.(2))} pStyle={{background:"lightgray"}}/>
+        <Li indent={10} label={label.replace('%1',numberings[format]?.(0))} style={style} pStyle={{marginTop:0,background:"lightgray",}}/>
+        <Li indent={10} label={label.replace('%1',numberings[format]?.(1))} style={style} pStyle={{background:"lightgray"}}/>
+        <Li indent={10} label={label.replace('%1',numberings[format]?.(2))} style={style} pStyle={{background:"lightgray"}}/>
     </div>
 )
                 
+const toFont=({ascii,ea,hansi}={})=>[ascii,ea,hansi].filter(a=>!!a).join(",")

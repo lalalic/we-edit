@@ -156,7 +156,7 @@ export class Measure{
 				family=this.fontExists(family)?.family||family
 				charFamilyCache.set(A,family)
 				if(!isFallbackFontsMeasure)
-					console.debug(`Font: ${segments}.'${String.fromCharCode(A)}'[${family}] with ${JSON.stringify(fonts)}`)
+					console.debug(`Font: ${segments}.'${String.fromCharCode(A)}'[${family}]`)// with ${JSON.stringify(fonts)}`)
 				return family
 			}
 		}

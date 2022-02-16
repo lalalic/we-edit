@@ -30,7 +30,7 @@ export default class Group extends PureComponent{
 			transform="",
 			margin,minWidth, width, height, index, childIndex,geometry,baseline,lineDescent,isLastRankOfRow,isFirstRowInPage,atom,pgNumType,hasPage,hasNumpages,
 			contentWidth,wrap,pagination,anchor,blockOffset,named,descent,tokenizeOpportunity, mergeOpportunity, spaceHeight,editable,dispatch,tabWidth,
-			"data-nocontent":noContent,
+			"data-nocontent":noContent,"data-numberingTab":_1,
 			//className,id,
 			_inspector,
 			I,
