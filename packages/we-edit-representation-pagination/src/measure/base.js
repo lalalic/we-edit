@@ -103,25 +103,36 @@ export class Measure{
 		}
 
 		const {namedUnicodeScopeChecks,unicodeSegmentCheckFactory}=this.constructor
-		const resolveCharFontFunctions=Object.keys(fonts).map(segments=>{
-			if(segments=="fallback")
-				return A=>({segments})
-			const font=fonts[segments]
-			if("$"===segments && typeof(font)=="function"){
-				return A=>{
-					segments=font(A,fonts,FontManager)
-					return {font:fonts[segments],segments}
+		const {hansi, ascii, ea, $, fallback, ...others}=fonts
+		const resolveCharFontFunctions=['$', ...Object.keys(others),"ascii","ea","hansi"].filter(a=>!!fonts[a])
+			.map(segments=>{
+				const font=fonts[segments]
+				if("$"===segments && typeof(font)=="function"){
+					return A=>{
+						segments=font(A,fonts,FontManager)
+						if(fonts[segments]){
+							return {font:fonts[segments],segments}
+						}
+					}
 				}
-			}
-			if(segments in namedUnicodeScopeChecks){ 
-				return A=>namedUnicodeScopeChecks[segments](A) && {font,segments}
-			}else{
-				return A=>unicodeSegmentCheckFactory(segments)(A) && {font,segments}
-			}
-		})
-			
+				if(segments=="hansi"){
+					return A=>!namedUnicodeScopeChecks.ascii(A) && !namedUnicodeScopeChecks.ea(A) && {font, segments}
+				}
+
+				if(segments in namedUnicodeScopeChecks){ 
+					return A=>namedUnicodeScopeChecks[segments](A) && {font,segments}
+				}else{
+					return A=>unicodeSegmentCheckFactory(segments)(A) && {font,segments}
+				}
+			})
+		let charFamilyCache=new Map(), hit=0
 		const fontFamily=this.getCharFontFamily=(A,nested)=>{
 			A=typeof(A)=="string" ? A.charCodeAt(0) : A
+			if(charFamilyCache.has(A)){
+				const family=charFamilyCache.get(A)
+				console.debug(`Font: cache.'${String.fromCharCode(A)}'[${family}], cache hit:${++hit}`)
+				return family
+			}
 			//1. segmented font
 			let reason=1
 			let {font:family,segments}=resolveCharFontFunctions.reduce((font,resolveCharFont)=>font||resolveCharFont(A), "")
@@ -129,6 +140,7 @@ export class Measure{
 			//3.fallback
 			if((!family || !this.fontExists(family,A)) && fonts.fallback){
 				reason=3
+				segments=Object.keys(fonts).length==1 ? "*": "fallback"
 				family=fonts.fallback
 			}
 			
@@ -136,15 +148,16 @@ export class Measure{
 				//find in system fallbacks
 				if((!family||!this.fontExists(family,A))){
 					reason=5
+					segments="system fallback"
 					family=this.fallbackFontsMeasure.getCharFontFamily(A,reason)
 				}
 			}
 			if(family){
 				family=this.fontExists(family)?.family||family
-				console.debug(`Font: ${segments}.'${String.fromCharCode(A)}'[${family}] ${["by segment","by hint","by fallback","by system fallbacks.hint", ""][reason-1]} ${nested>3 ? "in system fallback" : ""} with ${JSON.stringify(fonts)}`)
+				charFamilyCache.set(A,family)
+				if(!isFallbackFontsMeasure)
+					console.debug(`Font: ${segments}.'${String.fromCharCode(A)}'[${family}] with ${JSON.stringify(fonts)}`)
 				return family
-			}else if(!isFallbackFontsMeasure){
-				throw new Error(`Font: can't select font for '${String.fromCharCode(A)}' in both ${JSON.stringify(fonts)} and ${JSON.stringify(this.fallbackFonts)}`)
 			}
 		}
 
@@ -254,9 +267,6 @@ export class Measure{
 					1100 - 11FF,2F00 - 2FDF,2FF0 - 2FFF,3000 - 303F,3040 - 309F,30A0 - 30FF,3100 - 312F,3130 - 318F,
 					3190 - 319F,3200 - 32FF,3300 - 33FF,3400 - 4DBF,4E00 - 9FAF,A000 - A48F,A490 - A4CF,AC00 - D7AF,
 					D800 - DB7F,DB80 - DBFF,DC00 - DFFF,F900 - FAFF,FE30 - FE4F,FE50 - FE6F,FF00 - FFEF
-				`),
-		hansi: this.unicodeSegmentCheckFactory(`
-					00A0 – 00FF,0100 – 017F,0180 – 024F,0250 – 02AF,1E00 – 1EFF,FB00 – FB4F
 				`)
 	}
 

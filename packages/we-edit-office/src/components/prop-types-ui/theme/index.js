@@ -520,7 +520,8 @@ function createTheme(){
                 hanging:{
                     label:"hanging at"
                 }
-            }
+            },
+            Tree: <Link dialog="bullet"/>
         },
         NumberListShape:{
             id:false,
@@ -573,7 +574,9 @@ function createTheme(){
                 start:{
                     label:"start at"
                 }
-            }
+            },
+
+            Tree: <Link dialog="numbering"/>
         },
         OutlineListShape:{
             Ribbon:<OneOf label="Outline list" values={Outlines} icon={<IconListOutline/>}
@@ -606,7 +609,8 @@ function createTheme(){
                                 <div style={{flex:"auto"}}>{active}</div>
                             </div>
                         )}/>
-            }
+            },
+            Tree: <Link dialog="outline"/>
         },
         Text:{
             color: {

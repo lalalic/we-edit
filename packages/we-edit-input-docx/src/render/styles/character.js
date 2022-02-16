@@ -25,7 +25,7 @@ export default class Character extends Base{
 	}
 
 	hashCode(){
-		return fromJS(this.flat()).hashCode()
+		return fromJS(this.flat()||{}).hashCode()
 	}
 
 	_convert(){
