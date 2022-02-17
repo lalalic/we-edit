@@ -18,6 +18,19 @@ export default class Base extends Component{
 	static numberings=numberings
 	static Geometry=Geometry
 
+	static clear=o=>{
+		if(typeof(o)!="object"){
+			return o
+		}
+		return Object.keys(o).reduce((o,k, i, all)=>{
+			if(o[k]==undefined)
+				delete o[k]
+			if(i==all.length-1 && Object.keys(o).length==0)
+				return 
+			return o
+		},o)
+	}
+	
 	static memorize=types=>{
 		const {string,bool,number}=types;
 		[string,bool,number].forEach(checker=>{
@@ -68,6 +81,8 @@ export default class Base extends Component{
 				validator.Type=React.createElement(asType($type,'shape'),{...props,schema:model,})
 				validator.isRequired.Type=React.cloneElement(validator.Type, {required:true})
 				validator.isRequired.normalize=validator.normalize=function(value){
+					if(!value)
+						return value
 					return Object.keys(value).reduce((normalized,key)=>{
 						if(model[key]?.normalize){
 							normalized[key]=model[key].normalize(value[key])

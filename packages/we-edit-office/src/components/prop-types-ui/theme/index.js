@@ -479,13 +479,9 @@ function createTheme(){
             Ribbon:<OneOf label="Bullet Character" values={Bullets} icon={<IconListBullet/>}
                 wrapper1={<BulletWrapper1/>}
                 equal={(a,b)=>a?.label==b?.label}
-                wrapper={[<Wrappers.DropDownMenu/>,<Wrappers.GridOneOf selector={false} grid={4}/>]}
-                children={
-                    <Fragment>
-                        <Divider key="divider"/>
-                        <Link key="bullet" label="Define New Bullet" dialog='bullet'/>
-                    </Fragment>
-                }/>,
+                wrapper={<Wrappers.GridOneOf grid={4}/>}
+                children={<Fragment><Divider key="divider"/><Link key="bullet" label="Define New Bullet" dialog='bullet'/></Fragment>}
+            />,
 
             Dialog:{
                 $presets:<OneOf label="Bullet Character"  
@@ -533,7 +529,7 @@ function createTheme(){
             Ribbon: <OneOf label="numbering list" values={Numberings} icon={<IconListNumber/>}
                 equal={(a,b)=>a?.format==b?.format}
                 wrapper1={<NumberingWrapper1/>}
-                wrapper={[<Wrappers.DropDownMenu/>,<Wrappers.GridOneOf selector={false} grid={3} style={{gap:5,padding:5}}/>]}
+                wrapper={<Wrappers.GridOneOf grid={3} style={{gap:5,padding:5}}/>}
                 children={<Fragment><Divider key="d"/><Link key="l" label="Define New Number List" dialog="numbering"/></Fragment>}
                 />
             ,
@@ -590,7 +586,7 @@ function createTheme(){
                             </ol>
                         </div>
                     )}
-                    wrapper={[<Wrappers.DropDownMenu/>,<Wrappers.GridOneOf selector={false} grid={3} style={{gap:5,padding:5}}/>]}
+                    wrapper={<Wrappers.GridOneOf grid={3} style={{gap:5,padding:5}}/>}
                     children={<Fragment>
                         <Divider/>
                         <Link label="Define Multiple Level List" dialog="outline"/>

@@ -312,6 +312,9 @@ export default ({Paragraph, Group, Frame,})=>class DocxParagraph extends Compone
 						align:{
 							get(){
 								return atom.props["data-numberingTab"] ? "left" : tab.align
+							},
+							set(value){
+								tab.align=value
 							}
 						}
 					})

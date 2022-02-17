@@ -94,7 +94,7 @@ export class Text extends Base{
 	color(color,a, attr="w:color"){
 		const node=this.got(attr)
 		if(color){
-			node.attr("w:val", color)
+			node.attr("w:val", this.toColor(color))
 		}else{
 			node.remove()
 		}

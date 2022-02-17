@@ -57,4 +57,10 @@ export default class Editor{
     template(props){
         return ``
     }
+
+    toColor(color){
+        if(color[0]=="#")
+            return color.substr(1)
+        return color
+    }
 }

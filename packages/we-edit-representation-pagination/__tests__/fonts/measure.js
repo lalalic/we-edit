@@ -20,22 +20,43 @@ describe("measure",()=>{
                 .toMatchObject(["AB C","中间","gre",unknown," at"])
         })
 
-        it("hint priority: fonts[..]>fonts.fallback>fallbackMeasure.fonts[...]>fallbackMeasure.fonts.fallback ",()=>{
+        fdescribe("priority: fonts[..]>fonts.fallback>fallbackMeasure.fonts[...]>fallbackMeasure.fonts.fallback ",()=>{
             const FontMeasure1=FontMeasure.createMeasureClassWithFallbackFonts({ea:"FFB",acsii:"FFA",fallback:"FFF"})
-            const measure=new FontMeasure1({fonts:{ea:"FB",ascii:"FA",fallback:"FF"},size:5})
-            measure.fontExists=jest.fn(()=>true)
-            expect(measure.getCharFontFamily("A")).toBe("FA")
-            expect(measure.getCharFontFamily("中")).toBe("FB")
-            expect(measure.getCharFontFamily(0xFFFE)).toBe("FF")
+            let measure=null
+            beforeEach(()=>measure=new FontMeasure1({fonts:{ea:"FB",ascii:"FA",fallback:"FF"},size:5}))
 
-            measure.fontExists=jest.fn(a=>a!="FB")
-            expect(measure.getCharFontFamily("中")).toBe("FF")
+            it("segments",()=>{
+                measure.fontExists=jest.fn(()=>true)
+                expect(measure.getCharFontFamily("A")).toBe("FA")
+                expect(measure.getCharFontFamily("中")).toBe("FB")
+                expect(measure.getCharFontFamily(0xFFFE)).toBe("FF")
+            })
 
-            measure.fontExists=measure.fallbackFontsMeasure.fontExists=jest.fn(a=>!["FB","FF"].includes(a))
-            expect(measure.getCharFontFamily("中")).toBe("FFB")
+            it("current fallback",()=>{
+                measure.fontExists=jest.fn(a=>a!="FB")
+                expect(measure.getCharFontFamily("中")).toBe("FF")
+            })
 
-            measure.fontExists=measure.fallbackFontsMeasure.fontExists=jest.fn(a=>!["FB","FF","FFB"].includes(a))
-            expect(measure.getCharFontFamily(0xFFFE)).toBe("FFF")
+
+            it("system fallback segment",()=>{
+                measure.fontExists=measure.fallbackFontsMeasure.fontExists=jest.fn(a=>!["FB","FF"].includes(a))
+                expect(measure.getCharFontFamily("中")).toBe("FFB")
+            })
+
+            it("system fallback",()=>{
+                measure.fontExists=measure.fallbackFontsMeasure.fontExists=jest.fn(a=>!["FB","FF","FFB"].includes(a))
+                expect(measure.getCharFontFamily(0xFFFE)).toBe("FFF")
+            })
+
+            it("cache",()=>{
+                measure.fontExists=jest.fn(()=>true)
+                expect(measure.getCharFontFamily("中")).toBe("FB")
+                expect(measure.getCharFontFamily("A")).toBe("FA")
+                measure.fontExists.mockClear()
+                expect(measure.getCharFontFamily("中")).toBe("FB")
+                expect(measure.getCharFontFamily("A")).toBe("FA")
+                expect(measure.fontExists).toHaveBeenCalledTimes(0)
+            })
         })
 
         it.each([
