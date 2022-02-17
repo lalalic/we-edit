@@ -14,100 +14,102 @@ export default class Paragraph extends Editor{
 	}
 
 	numbering(props){
-		props=dom.Paragraph.ListShape.normalize(props)
 		const numPr=this.got("w:numPr")
 		if(!props){
 			numPr.remove()
-		}else{
-			if(!this.file.doc.officeDocument.numbering){
-				this.file.doc.officeDocument.addNumberingPart()
-			}
-			
-			this.makeStyleReady()
+			return 
+		}
 
-			const $=this.file.doc.officeDocument.numbering
+		props=dom.Paragraph.ListShape.normalize(props)
+	
+		if(!this.file.doc.officeDocument.numbering){
+			this.file.doc.officeDocument.addNumberingPart()
+		}
+		
+		this.makeStyleReady()
 
-			const numIdLevel=numPr=>({
-				numId:numPr.children("w\\:numId").attr("w:val"),
-				level:parseInt(numPr.children("w\\:ilvl").attr("w:val")||0),
-			})
+		const $=this.file.doc.officeDocument.numbering
 
-			const getLevelNode=(numId,level,aNumId=$(`w\\:num[w\\:numId="${numId}"]>w\\:abstractNumId`).attr("w:val"))=>
-				$(`w\\:abstractNum[w\\:abstractNumId="${aNumId}"]>w\\:lvl[w\\:ilvl="${level}"]`)
+		const numIdLevel=numPr=>({
+			numId:numPr.children("w\\:numId").attr("w:val"),
+			level:parseInt(numPr.children("w\\:ilvl").attr("w:val")||0),
+		})
 
-			const isList=numPr.children("w\\:numId").length>0
-			if(!isList){
-				const prevNumbering=this.node.prev(`w\\:p:has(w\\:numPr>w\\:numId)`)
-				if(prevNumbering.length==1){
-					const prev=numIdLevel(prevNumbering.children("w\\:pPr").children("w\\:numPr"))
-					const canFollowPrev=(({format:type,label:text},{numId,level})=>{
-						const nLevel=getLevelNode(numId,level)
-						if(nLevel.is(`:has(w\\:numFmt[w\\:val="${type}"])`)){
-							return text ? nLevel.is(`:has(w\\:lvlText[w\\:val="${text}"])`) : true
-						}
-						return false
-					})(props,prev);
+		const getLevelNode=(numId,level,aNumId=$(`w\\:num[w\\:numId="${numId}"]>w\\:abstractNumId`).attr("w:val"))=>
+			$(`w\\:abstractNum[w\\:abstractNumId="${aNumId}"]>w\\:lvl[w\\:ilvl="${level}"]`)
 
-					if(canFollowPrev){
-						numPr.append(`<w:ilvl w:val="${prev.level}"/>`)
-						numPr.append(`<w:numId w:val="${prev.numId}"/>`)
-						return
-					}else{
-						//createNumbering(props)
+		const isList=numPr.children("w\\:numId").length>0
+		if(!isList){
+			const prevNumbering=this.node.prev(`w\\:p:has(w\\:numPr>w\\:numId)`)
+			if(prevNumbering.length==1){
+				const prev=numIdLevel(prevNumbering.children("w\\:pPr").children("w\\:numPr"))
+				const canFollowPrev=(({format:type,label:text},{numId,level})=>{
+					const nLevel=getLevelNode(numId,level)
+					if(nLevel.is(`:has(w\\:numFmt[w\\:val="${type}"])`)){
+						return text ? nLevel.is(`:has(w\\:lvlText[w\\:val="${text}"])`) : true
 					}
+					return false
+				})(props,prev);
+
+				if(canFollowPrev){
+					numPr.append(`<w:ilvl w:val="${prev.level}"/>`)
+					numPr.append(`<w:numId w:val="${prev.numId}"/>`)
+					return
 				}else{
 					//createNumbering(props)
 				}
-				{//createNumbering(props)
-					const aNums=$("w\\:abstractNum")
-					const aNumId=Math.max(-1,...(aNums.map((i,a)=>parseInt(a.attribs["w:abstractNumId"])).get()))+1
-					const aNum=$(this.trim(Numbering[props.format=="bullet" ? "Bullet" : "Numeric"](aNumId)))
-					if(aNums.length>0){
-						aNum.insertAfter(aNums.last())
-					}else{
-						aNum.appendTo($("w\\:numbering"))
-					}
-
-					const level=0
-					const numId=Math.max(-1,...($("w\\:num").map((i,a)=>parseInt(a.attribs["w:numId"])).get()))+1
-					const num=$(this.trim(Numbering.Template(numId, aNumId))).appendTo($("w\\:numbering"))
-
-					numPr.append(`<w:ilvl w:val="${level}"/>`)
-					numPr.append(`<w:numId w:val="${numId}"/>`)
-					this.file.renderChanged($(`w\\:num[w\\:numId="${numId}"]`))
+			}else{
+				//createNumbering(props)
+			}
+			{//createNumbering(props)
+				const aNums=$("w\\:abstractNum")
+				const aNumId=Math.max(-1,...(aNums.map((i,a)=>parseInt(a.attribs["w:abstractNumId"])).get()))+1
+				const aNum=$(this.trim(Numbering[props.format=="bullet" ? "Bullet" : "Numeric"](aNumId)))
+				if(aNums.length>0){
+					aNum.insertAfter(aNums.last())
+				}else{
+					aNum.appendTo($("w\\:numbering"))
 				}
+
+				const level=0
+				const numId=Math.max(-1,...($("w\\:num").map((i,a)=>parseInt(a.attribs["w:numId"])).get()))+1
+				const num=$(this.trim(Numbering.Template(numId, aNumId))).appendTo($("w\\:numbering"))
+
+				numPr.append(`<w:ilvl w:val="${level}"/>`)
+				numPr.append(`<w:numId w:val="${numId}"/>`)
+				this.file.renderChanged($(`w\\:num[w\\:numId="${numId}"]`))
+			}
+		}
+
+		//applyChangeToAbstractNumberingLevel(props, aNumId, level)
+		;(({format:type="bullet",label:text,start,indent,hanging,style:font,tabs},{numId,level},nLevel=getLevelNode(numId, level))=>{
+			if(type!=undefined)
+				nLevel.find("w\\:numFmt").attr("w:val",type)
+			if(text!=undefined)
+				nLevel.find("w\\:lvlText").attr("w:val",text)
+			if(start!=undefined)
+				nLevel.find("w\\:start").attr("w:val",start)
+			
+			if(indent!=undefined){
+				const p=new Paragraph(this.reducer)
+				p.node=nLevel
+				p.indent({left:indent})
 			}
 
-			//applyChangeToAbstractNumberingLevel(props, aNumId, level)
-			;(({format:type="bullet",label:text,start,indent,hanging,style:font,tabs},{numId,level},nLevel=getLevelNode(numId, level))=>{
-				if(type!=undefined)
-					nLevel.find("w\\:numFmt").attr("w:val",type)
-				if(text!=undefined)
-					nLevel.find("w\\:lvlText").attr("w:val",text)
-				if(start!=undefined)
-					nLevel.find("w\\:start").attr("w:val",start)
-				
-				if(indent!=undefined){
-					const p=new Paragraph(this.reducer)
-					p.node=nLevel
-					p.indent({left:indent})
-				}
+			if(hanging!=undefined){
+				const p=new Paragraph(this.reducer)
+				p.node=nLevel
+				p.indent({firstLine:-hanging})
+			}
 
-				if(hanging!=undefined){
-					const p=new Paragraph(this.reducer)
-					p.node=nLevel
-					p.indent({firstLine:-hanging})
-				}
+			if(font!=undefined){
+				const text=new Text(this.reducer)
+				text.node=nLevel
+				text.apply(font)
+			}
 
-				if(font!=undefined){
-					const text=new Text(this.reducer)
-					text.node=nLevel
-					text.apply(font)
-				}
-
-				this.file.renderChanged($(`w\\:abstractNum[w\\:abstractNumId="${nLevel.closest("w\\:abstractNum").attr("w:abstractNumId")}"]`))
-			})(props,numIdLevel(numPr))
-		}
+			this.file.renderChanged($(`w\\:abstractNum[w\\:abstractNumId="${nLevel.closest("w\\:abstractNum").attr("w:abstractNumId")}"]`))
+		})(props,numIdLevel(numPr))
 	}
 
 	numDemote(){

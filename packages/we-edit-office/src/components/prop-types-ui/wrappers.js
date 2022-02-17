@@ -40,15 +40,21 @@ export const RibbonInputField=({children, host:{$props:{name,label=name, style, 
 )
 
 
-export const DropDownMenu=({children, host:{$props:{name,label=name,status, icon, onClick}}})=>(
-    <DropDownButton
-        status={status}
-        onClick={onClick}
-        icon={icon}
-        hint={label}>
-        {children}
-    </DropDownButton>
-)
+export const DropDownMenu=({children, host})=>{
+    let {name,label=name,status, icon, onClick}=host.$props
+    if(status=="checked" && onClick==undefined){
+        onClick=()=>host.set(host.path, null)
+    }
+    return (
+        <DropDownButton
+            status={status}
+            onClick={onClick}
+            icon={icon}
+            hint={label}>
+            {children}
+        </DropDownButton>
+    )
+}
 
 export const ShapeGrid=({host:{$props:{name,label:label1=name,bottomBorder=true, grid:_=2}}, style, label=label1, children, grid=_})=>(
     <div style={{borderBottom:bottomBorder&&"1px solid lightgray"||"", marginTop:5, ...style}}>

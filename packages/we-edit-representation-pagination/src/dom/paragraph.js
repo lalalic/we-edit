@@ -299,8 +299,11 @@ class Paragraph extends HasParentAndChild(dom.Paragraph){
 
 	updateCalculationWhenUseCached(){
 		const {numbering,id}=this.props
-		if(numbering && !numbering.label && this.computed.numbering){
-			this.computed.numbering.next(this.context.numbering.get(numbering,`${id}-cached`))
+		if(numbering && this.computed.numbering){
+			const {format="bullet", label}=numbering
+			if(format!="bullet" || !label){
+				this.computed.numbering.next(this.context.numbering.get(numbering,`${id}-cached`))
+			}
 		}
 	}
 
