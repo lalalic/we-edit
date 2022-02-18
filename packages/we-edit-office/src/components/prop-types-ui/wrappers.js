@@ -176,6 +176,7 @@ export class GridOneOf extends Component{
             
         switch(uiContext){
             case "Tree":
+            case "Panel":
             case "Dialog":{
                 const {values, value}=this.props.host.$props
                 const i=values.indexOf(value)

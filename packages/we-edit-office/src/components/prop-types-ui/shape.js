@@ -12,6 +12,7 @@ export default class shape extends base{
     }
     static defaultWrappers={
         Dialog:<ShapeGrid/>,
+        Panel: <ShapeGrid/>,
         Tree:<ShapeTree/>,
     }
     get schema(){
@@ -33,13 +34,18 @@ export default class shape extends base{
         
         const schema=this.schema
         const content=Object.keys(schema).map((key,i)=>{
-            if((theme[key]===false || theme[key]?.[uiContext]===false)||(theme['*']===false && theme[key]===undefined))
-                return null
-
             let keyTheme=theme[key]
-
+            if((theme['*']===false && keyTheme===undefined) ||
+                keyTheme===false || 
+                (typeof(keyTheme)=="object" && (
+                    keyTheme[uiContext]===false ||
+                    (uiContext=="Panel" && keyTheme.Panel==undefined && keyTheme.Dialog===false)))
+                ){
+                return null
+            }
+            
             const {type, props,value=this.value[key]}=(()=>{
-                if(React.isValidElement(theme[key])){
+                if(React.isValidElement(keyTheme)){
                     keyTheme=null
                     return theme[key]
                 }

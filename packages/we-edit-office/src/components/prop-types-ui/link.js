@@ -24,7 +24,7 @@ export default class link extends base{
     }
 
     render(){
-        const {uiContext,  props:{children=this.Theme.link[uiContext]} }=this
+        const {children=this.theme[this.uiContext]}=this.props
 
         if(typeof(children)=="function")
             return children(this.context.setting,this)

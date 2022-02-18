@@ -58,7 +58,7 @@ export default class base extends PureComponent{
     }
 
     get $props(){
-        const {Dialog, Ribbon, Tree, Tab, name, path, key, label, ...theme}=this.theme
+        const {Dialog, Ribbon, Tree, Tab, Panel, name, path, key, label, ...theme}=this.theme
         if(label?.notUILabel || label?.props?.notUILabel || label===false){
             return {...theme,...this.props}
         } 
@@ -81,30 +81,30 @@ export default class base extends PureComponent{
         const Theme=this.Theme
         const reviver=PropTypesUI.reviver
         let merged=fromJS({},reviver)
-        if(Theme[this.constructor.displayName]){
-            const shapeTheme=Theme[this.constructor.displayName]
-            merged=merged.mergeDeep(fromJS(shapeTheme,reviver))
-            if(!React.isValidElement(shapeTheme?.[this.uiContext])){
-                merged=merged.mergeDeep(fromJS(shapeTheme?.[this.uiContext]||{}))
+
+        const merge=(shapeTheme)=>{
+            merged = merged.mergeDeep(fromJS(shapeTheme||{}, reviver))
+            let uiContext=this.uiContext
+            uiContext=(uiContext=="Panel"&& shapeTheme.Panel==undefined && "Dialog") || uiContext
+            if (!React.isValidElement(shapeTheme?.[uiContext])) {
+                merged = merged.mergeDeep(fromJS(shapeTheme?.[uiContext] || {}))
             }
+        }
+
+        if(Theme[this.constructor.displayName]){
+            merge(Theme[this.constructor.displayName])
         }
 
         if(Theme[this.props.typedShape]){
-            const typedShapeTheme=Theme[this.props.typedShape]
-            merged=merged.mergeDeep(fromJS(typedShapeTheme||{},reviver))
-            if(!React.isValidElement(typedShapeTheme?.[this.uiContext])){
-                merged=merged.mergeDeep(fromJS(typedShapeTheme?.[this.uiContext]||{}))
-            }
+            merge(Theme[this.props.typedShape])
         }
 
         if(theme){
-            merged=merged.mergeDeep(fromJS(theme,reviver))
-            if(!React.isValidElement(theme?.[this.uiContext])){
-                merged=merged.mergeDeep(theme?.[this.uiContext]||{})
-            }
+            merge(theme)
         }
-        const {Dialog,Tree,Menu,Tab,Ribbon, ...mergedTheme}=merged.toJS()
-        const context={Dialog,Tree,Menu,Tab,Ribbon}[this.uiContext]
+
+        const {Dialog,Tree,Menu,Tab,Ribbon,Panel=Dialog, ...mergedTheme}=merged.toJS()
+        const context={Dialog,Tree,Menu,Tab,Ribbon,Panel}[this.uiContext]
         if(React.isValidElement(context)){
             mergedTheme[this.uiContext]=context
         }
@@ -216,6 +216,7 @@ export default class base extends PureComponent{
 
     getDefaultWrapper(){
         switch(this.uiContext){
+            case "Panel":
             case "Dialog":
                 if(this.$props.isPrimitive){
                     return <LabelField/>
@@ -243,5 +244,9 @@ export default class base extends PureComponent{
 
     renderRibbon(){
         return this.renderTree()
+    }
+
+    renderPanel(){
+        return this.renderDialog()
     }
 }

@@ -11,9 +11,19 @@ export default Object.assign(Active,{Create})
 export const Setting=({})=>(
     <SelectStyle target="shape">
         {({style,dispatch})=>(
-            <PropTypesUI theme="Shape" uiContext="Dialog" props={style} 
-                propTypes={(({fill,outline})=>({fill,outline}))(dom.Shape.propTypes)} 
+            <PropTypesUI theme="Shape" props={style} 
+                propTypes={dom.Shape.propTypes} 
                 onChange={change=>dispatch(ACTION.Entity.UPDATE({shape:change}))}/>
+        )}
+    </SelectStyle>
+)
+
+export const TextFrameSetting=({})=>(
+    <SelectStyle target="frame">
+        {({style,dispatch})=>(
+            <PropTypesUI theme="Frame" props={style} 
+                propTypes={(({vertAlign,margin,allowOverflow})=>({vertAlign,margin,allowOverflow}))(dom.Frame.propTypes)} 
+                onChange={change=>dispatch(ACTION.Entity.UPDATE({frame:change}))}/>
         )}
     </SelectStyle>
 )

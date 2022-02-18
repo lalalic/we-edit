@@ -44,7 +44,7 @@ export default class PropTypesUI extends PureComponent{
     });
     
     static childContextTypes={
-        uiContext: PropTypes.oneOf(["Ribbon","Dialog","Tree","Tab"]),
+        uiContext: PropTypes.oneOf(["Ribbon","Dialog","Tree","Tab", "Panel"]),
         set: PropTypes.func,
     }
     static contextTypes={
@@ -93,7 +93,7 @@ export default class PropTypesUI extends PureComponent{
     }
 
     get uiContext(){
-        return this.props.uiContext||this.context.uiContext   
+        return this.props.uiContext||this.context.uiContext 
     }
 
     getChildContext(){

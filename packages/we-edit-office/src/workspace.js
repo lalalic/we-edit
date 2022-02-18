@@ -57,9 +57,9 @@ export default class Workspace extends PureComponent{
 		channel: PropTypes.string,
 		layout: PropTypes.node,
 		tests: PropTypes.node,
-		theme: PropTypes.object,
-		contextMenu: PropTypes.element,
 		propTypesUITheme: PropTypes.object,
+		contextMenu: PropTypes.element,
+		theme: PropTypes.object,
 	}
 
 	static defaultProps={
@@ -205,6 +205,10 @@ export default class Workspace extends PureComponent{
 			panelManager: PropTypes.any
 		}
 
+		static childContextTypes={
+			uiContext: PropTypes.string
+		}
+
 		constructor(...args){
 			super(...args)
 			this.state={panels:React.Children.toArray(this.props.children)}
@@ -217,6 +221,10 @@ export default class Workspace extends PureComponent{
 				return {active:panels[0].props.title}
 			}
 			return null
+		}
+
+		getChildContext(){
+			return {uiContext:"Panel"}
 		}
 
 		render(){
@@ -241,8 +249,8 @@ export default class Workspace extends PureComponent{
 						tabTemplateStyle={{height:"100%"}}
 						>
 						{panels.map((a,i)=>{
-							const title=a.props.title
-							return <Tab key={title} label={title} value={title} onActive={()=>this.setState({active:title})}>{a}</Tab>
+							const {title, label=title}=a.props
+							return <Tab key={title} label={label} value={title} onActive={()=>this.setState({active:title})}>{a}</Tab>
 						})}
 					</Tabs>
 					<Resizer style={{order:reverse}}

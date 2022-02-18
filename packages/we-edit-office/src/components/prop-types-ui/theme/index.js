@@ -46,7 +46,7 @@ import IconDropDown from 'material-ui/svg-icons/navigation/arrow-drop-down'
 import { IconColumn, Column, IconTextBorder, IconSubscript, IconSuperscript, IconSize, IconOrientation, IconMargin } from "./icons"
 import {FontSetting} from "../../../text"
 import {ParagraphSetting, ListSetting} from "../../../paragraph"
-import {Setting as ShapeSetting} from "../../../shape"
+import {Setting as ShapeSetting, TextFrameSetting} from "../../../shape"
 import {Setting as PictureSetting} from "../../../picture"
 import DocumentTree from "../../../developer/filter-document-tree"
 import Tester from "../../../developer/tester"
@@ -70,8 +70,6 @@ import UnitShape from "../unit-shape"
 
 export let uuid=new Date().getTime()
 
-const Li=({indent, hanging, format, style, label, i=1})=><li style={{}}></li>
-
 function createTheme(){
     const Theme={
         $Types:{
@@ -88,7 +86,11 @@ function createTheme(){
             listStyle: <div/>,
         },
         $settingPanels:{
-            format:<FormatPanel children={[<ShapeSetting key="shape" title="Format Shape"/>,<PictureSetting key="picture" title="Format Picture"/>]}/>,
+            format:<FormatPanel title="Format" children={[
+                <ShapeSetting target="shape" icon={<IconOutlineShape/>}/>,
+                <PictureSetting target="image" icon={<IconImage/>}/>,
+                <TextFrameSetting target="shape" icon={<IconTextBorder/>}/>
+            ]}/>,
             documentTree: <DocumentTree title="Document Tree" toNodeProps={({ id, type }) => ({ name: `${type}(${id.split("{")[0]})` })} />,
             tester: <Tester title="Test" />,
         },
@@ -441,7 +443,7 @@ function createTheme(){
                             path.pop()
                             host.set(path.join("."),{style:{fonts:font},label:char})
                         }}>
-                        <PropTypesUI uiContext="Dialog"
+                        <PropTypesUI
                             propTypes={{
                                 font:dom.Unknown.FontShape,
                                 char:dom.Unknown.string,
@@ -894,6 +896,12 @@ function createTheme(){
                 focusable:false,
                 async:false,
                 space:false,
+            },
+            Panel:{
+                '*':false,
+                margin:true,
+                allowOverflow:true,
+                vertAlign:true,
             }
         },
         Anchor:{
@@ -959,6 +967,7 @@ function createTheme(){
                 },
             },
             Dialog:{
+                '*':false,
                 wrapper:null,
                 fill:{
                     i:1
