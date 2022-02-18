@@ -20,8 +20,6 @@ export default class Paragraph extends Editor{
 			return 
 		}
 
-		props=dom.Paragraph.ListShape.normalize(props)
-	
 		if(!this.file.doc.officeDocument.numbering){
 			this.file.doc.officeDocument.addNumberingPart()
 		}
@@ -40,9 +38,9 @@ export default class Paragraph extends Editor{
 
 		const isList=numPr.children("w\\:numId").length>0
 		if(!isList){
-			const adjacentNumbering=this.node.prev(`w\\:p:has(w\\:numPr>w\\:numId)`)
+			let adjacentNumbering=this.node.prev(`w\\:p:has(w\\:numPr>w\\:numId)`)
 			if(adjacentNumbering.length==0)
-				adjacentNumbering.add(this.node.next(`w\\:p:has(w\\:numPr>w\\:numId)`))
+				adjacentNumbering=this.node.next(`w\\:p:has(w\\:numPr>w\\:numId)`)
 			if(adjacentNumbering.length==1){
 				const adjacentNumPr=numIdLevel(adjacentNumbering.children("w\\:pPr").children("w\\:numPr"))
 				const canFollowAdjacent=(({format:type,label:text},{numId,level})=>{

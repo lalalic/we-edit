@@ -40,25 +40,25 @@ export default {
     update_at_image(props){
         const editor=new Image(this)
         editor.node=this.target
-        editor.update(props)
+        editor.update(dom.Image.normalizeProps(props))
     },
 
     update_at_table(props){
         const editor=new Table(this)
         editor.node=this.target
-        editor.update(props)
+        editor.update(dom.Table.normalizeProps(props))
     },
 
     update_at_section(props){
         const editor=new Section(this)
         editor.node=this.target
-        editor.update(props)
+        editor.update(dom.Section.normalizeProps(props))
     },
 
     update_at_shape(props){
         const editor=new Shape(this)
         editor.node=this.target
-        editor.update(props)
+        editor.update(dom.Shape.normalizeProps(props))
     },
 
     update_at_field(props){

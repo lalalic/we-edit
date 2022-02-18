@@ -53,9 +53,7 @@ export class Text extends Base{
 	}
 
 	fonts(fonts){
-		if(typeof(fonts)=='string')
-			fonts={ascii:fonts} 
-		const {ascii, ea, hint,cs,hansi}=fonts
+		const {fallback, ascii=fallback, ea=fallback, hint,cs=fallback,hansi=fallback}=fonts
 		if(ascii){
 			this.got("w:rFonts").attr("w:ascii",ascii)
 		}
