@@ -29,14 +29,14 @@ export default class oneOfType extends base{
     }
 
     get choices(){
-        let {choices=true, i}=this.$props
+        let {choices, i}=this.$props
         if(i!=undefined)
             return
         
-        if(choices===true){
+        if(choices==undefined){
             choices=this.types.map(({Type:{props:{choice}}})=>choice).filter(a=>!!a)
             if(choices.length==0)
-                return true
+                return false
         }
 
         return choices
@@ -96,7 +96,7 @@ export default class oneOfType extends base{
     }
 
     renderForShortcut(){
-        const {i=({"Dialog":this.types.length-1}[this.uiContext])||0}=this.$props
+        const {i=this.types.length-1}=this.$props
         const type=this.getType(i)
         return type ? this.renderForType(type) : null
     }
@@ -119,8 +119,6 @@ export default class oneOfType extends base{
         const choices=this.choices
         if(!choices){
             return this.renderForShortcut()
-        }else if(choices===true){
-            return this.iterate()
         }
 
         const {value, $choice}=this.$props

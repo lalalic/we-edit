@@ -129,19 +129,20 @@ export default class Base extends Component{
 
 		/**
 		 * 2 usages:
-		 * * shortcut: $shape
-		 * * different shapes
+		 * * shortcut: last type is the full shape
+		 * * different shapes: $choice
+		 * * or mixed
 		 */
 		this.oneOfType=types.oneOfType=(fn=>{
 			return function(types,{$type,$shape,...props}={}){
 				const validator=fn(types)
 				
 				if(typeof($shape)=="function"){
-					props.$choice=value=>$shape(value)?.Type.props.choice
+					props.$choice=value=>$$shape(value)?.Type.props.choice
 				}
 
 				const $$shape=value=>{
-					let i=$shape
+					let i=$shape||types.length-1
 					if(typeof($shape)=="function"){
 						i=$shape(value)
 					}
@@ -179,7 +180,7 @@ export default class Base extends Component{
 					return normalized
 				}
 
-				validator.Type=React.createElement(asType($type,'oneOfType'),{...props,types,})
+				validator.Type=React.createElement(asType($type,'oneOfType'),{...props,types})
 				validator.isRequired.Type=React.cloneElement(validator.Type, {required:true})
 				
 				return validator
@@ -342,7 +343,7 @@ export default class Base extends Component{
 			top: this.UnitShape,
 			bottom: this.UnitShape
 		},{$type:"MarginShape"}),
-	],{$shape:1}),{
+	]),{
 		default:{left:0,right:0,top:0,bottom:0},
 		normalize:(value)=>{
 			if(this.UnitShape.is(value)){
@@ -439,7 +440,7 @@ export default class Base extends Component{
 			height: this.UnitShape,//whole line height
 			offset: this.UnitShape,//text start layout from top offset 
 		}),
-	],{$shape:1}),{
+	]),{
 		normalize:value=>{
 			if(typeof(value)=="object")
 				return this.LineHeightShape.$shape.normalize(value)
@@ -474,7 +475,7 @@ export default class Base extends Component{
 			sketched: PropTypes.string.$({$type:"LineSketchedShape"}),
 			compound: PropTypes.string,
 		},{$type:"LineShape"}),
-	],{$shape:2}),{
+	]),{
 		default:{width:1,color:"black"},
 		normalize:(value)=>{
 			if(this.UnitShape.is(value)){
@@ -525,7 +526,7 @@ export default class Base extends Component{
 			}),
 			margin:this.MarginShape,
 		},{$type:"FillPictureShape"})
-	],{$shape:1}),{
+	]),{
 		normalize:(value)=>{
 			if(this.BlobShape.is(value)){
 				return {url:value}
@@ -727,7 +728,16 @@ export default class Base extends Component{
 			PropTypes.shape({
 				url: this.BlobShape,
 			})
-		])
+		],{
+			$shape(value){
+				switch(typeof(value)){
+					case "string":
+						return 0
+					case "object":
+						return 1
+				}
+			}
+		})
 	},{$type:"BulletListShape",choice:"bullet"})
 
 	static NumberListShape=PropTypes.shape({
@@ -769,7 +779,7 @@ export default class Base extends Component{
 
 	static WrapModeShape=PropTypes.oneOf(["square", "tight", "clear","no"],{$type:"WrapModeShape"})
     static WrapSideShape=PropTypes.oneOf(["both","left","right","largest"],{$type:"WrapSideShape"})
-    static AnchorBaseShape=PropTypes.oneOf(["character","line","paragraph","page","frame","margin", "closest"],{$type:"AnchorBaseShape"})
+    static AnchorBaseShape=PropTypes.oneOf(["character","line","paragraph","page","frame","margin","column","closest"],{$type:"AnchorBaseShape"})
 	
 	static ColumnShape=this.normalizeChecker(PropTypes.shape({
 		x:this.UnitShape,

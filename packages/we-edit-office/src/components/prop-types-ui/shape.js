@@ -12,7 +12,7 @@ export default class shape extends base{
     }
     static defaultWrappers={
         Dialog:<ShapeGrid/>,
-        Panel: <ShapeGrid/>,
+        Panel: <ShapeGrid grid={1}/>,
         Tree:<ShapeTree/>,
     }
     get schema(){

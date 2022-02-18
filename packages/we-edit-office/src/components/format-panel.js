@@ -15,7 +15,7 @@ export default whenSelectionChangeDiscardable(({selection,children})=>{
     if(children.length<2)
         return children
     return (
-        <Tabs>
+        <Tabs inkBarStyle={{backgroundColor:"gray"}}>
             {children.map(a=>{
                 const {target, label=target, icon}=a.props
                 return <Tab key={target} label={!icon ? label : null} icon={icon}>{a}</Tab>

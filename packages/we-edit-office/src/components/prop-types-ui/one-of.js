@@ -47,8 +47,8 @@ export default class oneOf extends base{
         const {
             values, defaultValue,value=defaultValue,style, icons=[],
             name, label=name, icon,children,
-            onClick=()=>this.set(this.path, values[0]), 
             status=values.find((a,i)=>this.equal(a,value,i,values)) ? "checked":"unchecked",
+            onClick=()=>this.set(this.path, status=="checked" ? null : values[0]), 
         }=this.$props
         
         return (

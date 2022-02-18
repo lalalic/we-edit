@@ -42,7 +42,7 @@ export default class SelectionStyle{
             const composer = this.getComposer(typed)
             if (composer) {
                 let {__unnormalized, ...props}=composer.props
-                if(this.precision){
+                if(this.precision!=1){
                     props=dom.deprecision(props,this.precision, composer.constructor.propTypes)
                 }
                 props= __unnormalized ? {...__unnormalized,...props} : props

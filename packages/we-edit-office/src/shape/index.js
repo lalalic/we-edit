@@ -22,7 +22,7 @@ export const TextFrameSetting=({})=>(
     <SelectStyle target="frame">
         {({style,dispatch})=>(
             <PropTypesUI theme="Frame" props={style} 
-                propTypes={(({vertAlign,margin,allowOverflow})=>({vertAlign,margin,allowOverflow}))(dom.Frame.propTypes)} 
+                propTypes={dom.Frame.propTypes} 
                 onChange={change=>dispatch(ACTION.Entity.UPDATE({frame:change}))}/>
         )}
     </SelectStyle>

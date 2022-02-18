@@ -119,9 +119,9 @@ export default class PropTypesUI extends PureComponent{
     }
 
     componentDidUpdate({onChange, props}, prevState){
-        if(onChange){
-            const newProps=fromJS(this.props.props)
-            if(!newProps.equals(fromJS(props))){
+        if(onChange && props!=this.props.props){
+            const newProps=fromJS(this.props.props||{})
+            if(!newProps.equals(fromJS(props||{}))){
                 this.setState({props:newProps})
             }
         }
