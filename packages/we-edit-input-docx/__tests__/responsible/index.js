@@ -74,8 +74,6 @@ export default ({doc, tick,every,describe,it,xdescribe,xit,fit,fdescribe,expect,
         },TIMEOUT)
     })
 
-
-
     describe("image",()=>{
         const id=doc.querySelector().findFirst('image').attr('id'), type="image"
         beforeEach(()=>

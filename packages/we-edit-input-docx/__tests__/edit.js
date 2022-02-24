@@ -65,12 +65,14 @@ describe('edit',()=>{
             ])("change %s",(name,origin, props)=>{
                 const {numbering,level}=test()
                 const p0=numbering(0,origin)
-                numbering(0,props)
+                const p1=numbering(0,props)
                 expect(level(p0).find("w\\:lvlText").attr("w:val")).toBe(props.label)
                 expect(level(p0).find("w\\:numFmt").attr("w:val")).toBe(props.format||origin.format)
                 if(props.start||origin.start){
                     expect(parseInt(level(p0).find("w\\:start").attr("w:val"))).toBe(props.start||origin.start)
                 }
+                //numId should not be changed during change
+                expect(p0.node.find("w\\:numPr>w\\:numId").attr('w:val')).toBe(p1.node.find("w\\:numPr>w\\:numId").attr('w:val'))
             })
 
             it.each([

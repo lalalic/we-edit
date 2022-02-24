@@ -64,7 +64,7 @@ import OneOf from "../one-of"
 import SizableIconButton from "../../size-icon-button"
 import FormatPanel from "../../format-panel"
 
-import {Numberings, Bullets, Outlines, DemoList, BulletWrapper1,NumberingWrapper1} from "./list"
+import {NumberingFormats, Numberings, Bullets, Outlines, DemoList, BulletWrapper1,NumberingWrapper1,OutlineWrapper1,OutlineLayout} from "./list"
 import { LineWeights, LineDashes, LineSketches, FillGradients, Gradient, FillPatterns, Pattern, FillTextures } from "./geometry"
 import UnitShape from "../unit-shape"
 
@@ -80,7 +80,7 @@ function createTheme(){
             paragraph: <ParagraphSetting/>,
             bullet: <ListSetting shape={dom.Paragraph.BulletListShape} title="Create Bullet List" defaultValue={Bullets[0]}/>,
             numbering: <ListSetting shape={dom.Paragraph.NumberListShape} title="Create Number List" defaultValue={Numberings[0]}/>,
-            outline: <ListSetting shape={dom.Paragraph.OutlineListShape} title="Create Multiple Level List" defaultValue={Outlines[0]}/>,
+            outline: <ListSetting shape={dom.Paragraph.OutlineListShape} title="Create Multiple Level List" defaultValue={Outlines[0]} contentStyle={{width:800}}/>,
             diff: <Diff.Setting portalContainer={document.body}/>,
             color: <ColorSelector/>,
             listStyle: <div/>,
@@ -541,7 +541,7 @@ function createTheme(){
                         <div style={{flex:1}}>
                             <div>
                                 <h3>Number Format</h3>
-                                <div style={{display:"grid", gridTemplateColumns:"repeat(2,1fr)", rowGap:5}}>
+                                <div style={{display:"grid", gridTemplateColumns:"repeat(2,1fr)", rowGap:5, columnGap:2}}>
                                     <a id="label"/><a id="style"/>
                                     <a id="format"/><a id="start"/>    
                                 </div>
@@ -566,9 +566,13 @@ function createTheme(){
                 hanging:{
                     label:"hanging at"
                 }, 
-                format:{
-                    label: "number style"
-                },
+                format: <OneOf label="number style" 
+                    values={NumberingFormats} 
+                    labels={NumberingFormats.map(k=>{
+                        const a=i=>dom.Unknown.numberings[k](i)
+                        return [a(0),a(1),a(2),"..."].join(",")
+                    })}
+                    />,
                 start:{
                     label:"start at"
                 }
@@ -578,16 +582,7 @@ function createTheme(){
         },
         OutlineListShape:{
             Ribbon:<OneOf label="Outline list" values={Outlines} icon={<IconListOutline/>}
-                    wrapper1={React.createElement(({value:[l1,l2,l3],onClick})=>
-                        <div style={{width:50,height:50,border:"1px solid lightgray",overflow:"hidden",fontSize:9}} 
-                            onClick={onClick}>
-                            <ol style={{paddingLeft:0}}>
-                                <Li {...l1}/>
-                                <Li {...l2}/>
-                                <Li {...l3}/>
-                            </ol>
-                        </div>
-                    )}
+                    wrapper1={<OutlineWrapper1/>}
                     wrapper={<Wrappers.GridOneOf grid={3} style={{gap:5,padding:5}}/>}
                     children={<Fragment>
                         <Divider/>
@@ -598,15 +593,7 @@ function createTheme(){
             Dialog:{
                 size:9,
                 label1:(value,i)=>parseInt((value.level||i)+1),
-                wrapper:<Wrappers.ArrayOf layout={({actions,collection,active})=>(
-                            <div style={{display:"flex",flexDirection:"row"}}>
-                                <div style={{width:50,marginRight:10}}>
-                                    <h3>Level</h3>
-                                    {collection}
-                                </div>
-                                <div style={{flex:"auto"}}>{active}</div>
-                            </div>
-                        )}/>
+                wrapper:<Wrappers.ArrayOf layout={<OutlineLayout/>}/>
             },
             Tree: <Link dialog="outline"/>
         },

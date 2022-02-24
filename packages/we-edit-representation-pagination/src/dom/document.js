@@ -5,7 +5,7 @@ import {HasChild, Locatable,editable} from "../composable"
 import {dom,getSelection,ACTION, createEmptyStore} from "we-edit"
 import {Canvas} from "../composed"
 import Responsible from "../composed/responsible-canvas"
-import Measure from "../measure/font"
+import FontMeasure from "../measure/font"
 
 class Document extends Locatable.Locatorize(HasChild(dom.Document)){
     static propTypes={
@@ -15,6 +15,7 @@ class Document extends Locatable.Locatorize(HasChild(dom.Document)){
     static defaultProps={
         ...super.defaultProps,
         canvas:<Canvas/>,
+        FontMeasure,
     }
 
     static contextTypes={
@@ -27,10 +28,8 @@ class Document extends Locatable.Locatorize(HasChild(dom.Document)){
         ...super.childContextTypes,
         Measure: PropTypes.func,
         prevLayout: PropTypes.func,
-        editable: PropTypes.any,
         precision: PropTypes.number,
         activeDocStore: PropTypes.any,
-        hintMeasure: PropTypes.instanceOf(Measure),
     }
 
     constructor(){
@@ -60,7 +59,6 @@ class Document extends Locatable.Locatorize(HasChild(dom.Document)){
 
     getChildContext(){
         const self=this
-        const {hintStyle={fonts:this.Measure.fallbackFonts.ascii,size:12}}=this.props
         return {
             ...super.getChildContext(),
             prevLayout(ref){
@@ -68,12 +66,10 @@ class Document extends Locatable.Locatorize(HasChild(dom.Document)){
                 const i=pages.indexOf(ref)
                 return pages[i-1]
             },
-            editable: self.state.editable,
             precision: this.props.precision,
             activeDocStore: this.activeDocStore,
             Measure: this.Measure,
             numbering: this.numbering,
-            hintMeasure:new this.Measure(hintStyle),
         }
     }
 
@@ -128,7 +124,12 @@ export default class extends editable(Document,{continuable:true}){
 		...super.defaultProps,
         canvas:<Responsible/>,
         editable: false,
-        Measure,
+    }
+
+    static childContextTypes={
+        ...super.childContextTypes,
+        editable: PropTypes.any,
+        hintMeasure: PropTypes.object,
     }
 
 	static getDerivedStateFromProps({hash,editable},state){
@@ -140,6 +141,16 @@ export default class extends editable(Document,{continuable:true}){
         this.state={mode:"content", ...this.state}
         this.computed.shouldContinueCompose=true//cache for shouldContinueCompose
         this.composeAll=this.composeAll.bind(this)
+    }
+
+    getChildContext(){
+        const self=this
+        const {hintStyle={fonts:this.Measure.fallbackFonts.ascii,size:12}}=this.props
+        return {
+            ...super.getChildContext(),
+            editable: self.state.editable,
+            hintMeasure:new this.Measure(hintStyle),
+        }
     }
     
     /**

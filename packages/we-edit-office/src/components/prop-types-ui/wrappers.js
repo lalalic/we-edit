@@ -13,7 +13,7 @@ export const LabelField=({host:{$props:{name,label:_l=name}},label=_l,children,
         return children
     }
     return (
-        <div style={{marginBottom:4}}>
+        <div style={{marginBottom:4, whiteSpace:"nowrap"}}>
             <span style={style}>
                 {label}
             </span>
@@ -122,6 +122,7 @@ export const ShapeSummary=({host:{$props:{name,label=name}}, children})=>(
 )
 
 export const ShapeLayout=({host,children, layout,idSelector="a[id]",othersSelector="[role='others']"})=>{
+
     let $=new ReactQuery(<Fragment>{layout}</Fragment>), source=$.findFirst(idSelector)
     while(source.length){
         const id=source.attr('id')
@@ -193,6 +194,6 @@ export class GridOneOf extends Component{
     }
 }
 
-export const ArrayOf=({layout, children:{props:{children:[actions,collection,active]}}})=>layout({actions,collection,active})
+export const ArrayOf=({layout, host, children:{props:{children:[actions,collection,active]}}})=>React.cloneElement(layout,{host, actions,collection,active})
 
 export const Nest=({host,children,wrappers})=>[...wrappers].reverse().reduce((nested,a)=>React.cloneElement(a,{host,children:nested}),children)
