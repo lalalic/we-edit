@@ -126,7 +126,7 @@ export class Measure{
 				}
 			})
 		let charFamilyCache=new Map(), hit=0
-		const fontFamily=this.getCharFontFamily=(A,nested)=>{
+		const fontFamily=this.getCharFontFamily=A=>{
 			A=typeof(A)=="string" ? A.charCodeAt(0) : A
 			if(charFamilyCache.has(A)){
 				const family=charFamilyCache.get(A)

@@ -15,7 +15,7 @@ class Document extends Locatable.Locatorize(HasChild(dom.Document)){
     static defaultProps={
         ...super.defaultProps,
         canvas:<Canvas/>,
-        FontMeasure,
+        Measure:FontMeasure,
     }
 
     static contextTypes={
@@ -145,7 +145,7 @@ export default class extends editable(Document,{continuable:true}){
 
     getChildContext(){
         const self=this
-        const {hintStyle={fonts:this.Measure.fallbackFonts.ascii,size:12}}=this.props
+        const {hintStyle={fonts:this.Measure.fallbackFonts.fallback,size:12}}=this.props
         return {
             ...super.getChildContext(),
             editable: self.state.editable,

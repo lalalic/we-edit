@@ -7,8 +7,10 @@ export default class FontMeasure extends Measure{
 	}
 
 	fontExists(family, char){
+		if(typeof(char)=="string")
+			char=char.charCodeAt(0)
 		const font=FontManager.get(family)
-		if(font && char && !font.hasGlyphForCodePoint(char.charCodeAt(0))){
+		if(font && char && !font.hasGlyphForCodePoint(char)){
 			return
 		}
 		return font

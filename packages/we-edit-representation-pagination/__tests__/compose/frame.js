@@ -81,4 +81,25 @@ define("Frame", ({dom:{Document, Page, Anchor, Frame, Paragraph, Text}, WithText
     describe("autofit",()=>{
 
     })
+
+    describe("readonly",()=>{
+        fit("",()=>{
+            const rendered=render(
+                <Document canvas={React.createElement(({document})=>document.pages[0].createComposed2Parent())} 
+                    editable={false}>
+                    <Page size={"A4"} margin={10}>
+                        <Paragraph>
+                            <Text>hello</Text>
+                        </Paragraph>
+                        <Paragraph>
+                            <Text>world</Text>
+                        </Paragraph>
+                    </Page>
+                </Document>
+            )
+            const doc=rendered.getInstance()
+            const html=new ReactQuery(doc.pages[0].createComposed2Parent())
+            console.log(rendered.toJSON())
+        })
+    })
 })

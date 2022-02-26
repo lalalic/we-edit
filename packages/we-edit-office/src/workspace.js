@@ -350,10 +350,7 @@ const Channels=connect((state,props)=>({channel:getOffice(state).channel||props.
 	}
 )
 
-const UIDialog=connect(state=>{
-	const {dialog}=getUI(state)
-	return {dialog}
-})(class extends PureComponent{
+const UIDialog=connect(state=>({dialog:getUI(state)?.dialog}))(class UIDialog extends PureComponent{
 	static getDerivedStateFromError(error){
 		return {error}
 	}

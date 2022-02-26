@@ -1,53 +1,39 @@
 import React,{Component} from "react"
+import {Viewers} from "we-edit-representation-pagination"
 
-import PropTypes from "prop-types"
-import {Representation, dom} from "we-edit"
 
-const {Document}=dom
 export default class Previewer extends Component{
     render(){
-        const {children}=this.props
-        return (
-            <Representation type="pagination" domain="viewer">
-                <WeDocument>
-                    <Document id="root">
-                        {children}
-                    </Document>
-                </WeDocument>
-            </Representation>
-        )
+        const {children, style}=this.props
+        const doc=this.transform(children)
+        return React.cloneElement(doc, {canvas:<Canvas style={style}/>, id:"root"})
+    }
+
+    transform(el,id=0){
+        if(!el)
+            return el
+
+        if(Array.isArray(el))
+            return el.map(a=>this.transform(a,id))
+        
+        if(React.isValidElement(el)){
+            const {type, props:{children}}=el
+            if(typeof(type)=="string"){
+                const Type=type[0].toUpperCase()+type.substring(1)
+                if(Viewers[Type]){
+                    return React.createElement(Viewers[Type],{id: id++,...el.props, children:this.transform(children,id)})
+                }
+            }
+        }
+        return el
     }
 }
 
-class WeDocument extends Component{
-    static contextTypes={
-        ModelTypes: PropTypes.object
-    }
-
+class Canvas extends Component{
     render(){
-        return <div>hello composer</div>
-        const document=this.modelize(this.props.children)
-        return document
-    }
-
-    modelize(node){
-        if(!node)
-            return node
-        const {ModelTypes}=this.context
-        
-        const {props:{children}, type:{displayName}}=node
-        const type=displayName ? `${displayName.charAt(0).toUpperCase()}${displayName.substr(1)}` : displayName
-
-        const transformedChildren=(()=>{
-            if(React.isValidElement(children)){
-                return this.modelize(children)
-            }else if(Array.isArray(children)){
-                return children.map(a=>this.modelize(a))
-            }else{
-                return children
-            }
-        })();
-
-        return  React.createElement(ModelTypes[type], {children:transformedChildren}, node.props)
+        const {document, style}=this.props
+        const composed=document.pages[0].createComposed2Parent()
+        const {width,height}=composed.props
+        return <svg style={{...style}} viewBox={`0 0 ${parseInt(width)} ${parseInt(height)}`}>{composed}</svg>
     }
 }
