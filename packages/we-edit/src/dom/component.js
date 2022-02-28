@@ -76,7 +76,7 @@ export default class Base extends Component{
 		})(types.oneOf);
 
 		this.shape=types.shape=(fn=>{
-			return function(model,{$type,...props}={}){
+			return function(model,{$type,is,...props}={}){
 				let validator=fn(model)
 				validator.Type=React.createElement(asType($type,'shape'),{...props,schema:model,})
 				validator.isRequired.Type=React.cloneElement(validator.Type, {required:true})
@@ -112,6 +112,8 @@ export default class Base extends Component{
 					}
 					return false
 				}
+
+				is && (validator.isRequired.is=validator.is=is);
 
 				if(Object.keys(model).find(k=>model[k].deprecision)){
 					validator.isRequired.deprecision=validator.deprecision=function(props,precision){
@@ -736,9 +738,13 @@ export default class Base extends Component{
 					case "object":
 						return 1
 				}
-			}
+			},
 		})
-	},{$type:"BulletListShape",choice:"bullet"})
+	},{
+		$type:"BulletListShape",
+		choice:"bullet",
+		is:value=>value.format=="bullet" || !value.format
+	})
 
 	static NumberListShape=PropTypes.shape({
 		...this.CommonListShape,
@@ -746,7 +752,11 @@ export default class Base extends Component{
 		start: PropTypes.number,
 		align: PropTypes.oneOf(["left","center","right"]),
 		label: PropTypes.string,
-	},{$type:"NumberListShape", choice:"numbering"})
+	},{
+		$type:"NumberListShape", 
+		choice:"numbering",
+		is:value=>value.format!="bullet"
+	})
 
 	static OutlineListShape=PropTypes.arrayOf(this.NumberListShape,{$type:"OutlineListShape"})
 

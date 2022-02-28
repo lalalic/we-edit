@@ -96,6 +96,13 @@ export function ListSetting({shape=dom.Paragraph.propTypes.numbering, value, def
 				if(onSubmit==undefined){
 					onSubmit=paragraph=>dispatch(ACTION.Selection.UPDATE({paragraph}))
 				}
+				if(!value && style.numbering){
+					value=style.numbering
+				}
+
+				if(value && !shape.is?.(value)){
+					value=defaultValue
+				}
 				
 				return (
 					<Dialog 
@@ -104,7 +111,7 @@ export function ListSetting({shape=dom.Paragraph.propTypes.numbering, value, def
 						>
 						<PropTypesUI
 							propTypes={{numbering:shape}}
-							props={{numbering:value||style.numbering||defaultValue}}
+							props={{numbering:value||defaultValue}}
 							wrapper={null}
 							ref={refSetting}
 							/>
