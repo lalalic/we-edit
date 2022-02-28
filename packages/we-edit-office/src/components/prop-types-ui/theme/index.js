@@ -826,7 +826,7 @@ function createTheme(){
         Table:{
             Ribbon:{
                 '*':false,
-                children:<span>hello</span>,
+                //children:<span>hello</span>,
             }
         },
         Row:{

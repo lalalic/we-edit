@@ -133,11 +133,14 @@ export default class Query{
 					origin:parent,
 				}
 			default:
-				let i=children.indexOf(origin)
+				const i=children.indexOf(origin)
 				children.splice(i,1,cloned)
-				return {
+                return {
 					origin:parent,
-					cloned:React.cloneElement(parent,{children,...props}),
+					cloned:React.cloneElement(parent,{
+                        children:children.map((a,i)=>(a && !a.key) ? React.cloneElement(a,{key:`_replaced${i}`}) : a),
+                        ...props
+                    }),
 				}
 			}
 
