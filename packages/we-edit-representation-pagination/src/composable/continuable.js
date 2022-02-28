@@ -1,5 +1,11 @@
 import PropTypes from "prop-types"
 
+/**
+ * Decide when layout can be stopped, such as 
+ * Document: by canvas viewport
+ * Row: can't be stopped
+ * Frame: check parent's on last column
+ */
 export default A=>class __$1 extends A{
     static displayName=`continuable-${A.displayName}`
 

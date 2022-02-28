@@ -44,7 +44,7 @@ export const Outlines=[
     ],
 ]
 
-export const DemoList=Object.assign(({host:{$props:{value}}, label=a=>a?.label},{outline})=>{
+export const DemoList=Object.assign(({defaultValue, host:{$props:{value=defaultValue}},  label=a=>a?.label},{outline})=>{
     if(outline)
         return <OutlineDemo host={outline}/>
     const lineStyle={marginLeft:value?.indent}

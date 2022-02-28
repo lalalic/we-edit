@@ -505,7 +505,7 @@ function createTheme(){
                             <div><a id="hanging"/></div>
                             <div><a id="align"/></div>
                         </div>
-                        <DemoList role="others"/>
+                        <DemoList role="others" defaultValue={Bullets[0]}/>
                     </div>
                 }/>,
                 label:{
@@ -553,7 +553,9 @@ function createTheme(){
                             <div><a id="hanging"/></div>
                             <div><a id="align"/></div>
                         </div>
-                        <DemoList role="others" label={({label,format},i)=>label.replace('%1',dom.Unknown.numberings[format]?.(i))}/>
+                        <DemoList role="others" 
+                            defaultValue={Numberings[0]}
+                            label={({label,format},i)=>label.replace('%1',dom.Unknown.numberings[format]?.(i))}/>
                     </div>
                 }/>,
                 label:{

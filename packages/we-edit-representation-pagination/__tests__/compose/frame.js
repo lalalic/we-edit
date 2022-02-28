@@ -83,7 +83,7 @@ define("Frame", ({dom:{Document, Page, Anchor, Frame, Paragraph, Text}, WithText
     })
 
     describe("readonly",()=>{
-        fit("",()=>{
+        it("",()=>{
             const rendered=render(
                 <Document canvas={React.createElement(({document})=>document.pages[0].createComposed2Parent())} 
                     editable={false}>
@@ -97,9 +97,7 @@ define("Frame", ({dom:{Document, Page, Anchor, Frame, Paragraph, Text}, WithText
                     </Page>
                 </Document>
             )
-            const doc=rendered.getInstance()
-            const html=new ReactQuery(doc.pages[0].createComposed2Parent())
-            console.log(rendered.toJSON())
+            expect()
         })
     })
 })
