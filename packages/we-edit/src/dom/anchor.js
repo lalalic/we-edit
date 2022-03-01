@@ -13,14 +13,14 @@ import Component from "./component"
 export default class Anchor extends Component{
     static displayName="anchor"
     static propTypes={
-        x: this.normalizeChecker(PropTypes.oneOfType([
+        x: PropTypes.oneOfType([
             this.UnitShape,//base is closest parent frame
             PropTypes.shape({
                 base: this.AnchorBaseShape,
                 offset: this.UnitShape,
                 align: this.AlignShape,
             }),
-        ]),{
+        ],{
             normalize:value=>{
                 if(typeof(value)=="object"){
                     const {offset,...x}=value
@@ -53,21 +53,21 @@ export default class Anchor extends Component{
             }
         }),
 
-        y: this.normalizeChecker(PropTypes.oneOfType([
+        y: PropTypes.oneOfType([
             this.UnitShape,//base is closest parent frame
             PropTypes.shape({
                 base: this.AnchorBaseShape,
                 offset: this.UnitShape,
                 align: this.VertAlignShape,
             }),
-        ]),{
+        ],{
             normalize:value=>this.propTypes.x.normalize(value),
             denormalize:(value, normalized)=>this.propTypes.x.denormalize(value,normalized)
         }),
 
         z: PropTypes.number,
 
-        wrap:this.normalizeChecker(PropTypes.oneOfType([
+        wrap:PropTypes.oneOfType([
             PropTypes.shape({
                 mode: this.WrapModeShape,
                 side: this.WrapSideShape,
@@ -80,7 +80,7 @@ export default class Anchor extends Component{
                 ])
             }),
             PropTypes.func,
-        ]),{
+        ],{
             normalize:value=>{
                 switch(typeof(value)){
                     case "object":{

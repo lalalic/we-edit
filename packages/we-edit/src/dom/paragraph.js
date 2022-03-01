@@ -6,17 +6,17 @@ import Component from "./component"
 export default class Paragraph extends Component{
 	static displayName="paragraph"
 	static propTypes={
-		spacing: this.normalizeChecker(PropTypes.shape({
+		spacing: PropTypes.shape({
 			top:this.UnitShape,
 			bottom:this.UnitShape,
 			lineHeight: this.LineHeightShape,
-		})).isRequired,
+		}).isRequired,
 
-		indent: this.normalizeChecker(PropTypes.shape({
+		indent: PropTypes.shape({
 			left:this.UnitShape,
 			right:this.UnitShape,
 			firstLine:this.UnitShape,
-		})).isRequired,
+		}).isRequired,
 
 		align:this.AlignShape,
 		

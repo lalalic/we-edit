@@ -19,7 +19,7 @@ export default class Frame extends Component{
 		/**margin is in frame box*/
 		margin:this.MarginShape,
 		
-		cols:this.normalizeChecker(PropTypes.arrayOf(this.ColumnShape)),
+		cols:PropTypes.arrayOf(this.ColumnShape),
 		
 		x: this.UnitShape,
 		y: this.UnitShape,
