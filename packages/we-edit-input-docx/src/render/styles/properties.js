@@ -16,12 +16,15 @@ const clear=o=>{
 export class Properties{
 	constructor(docx){
 		this.docx=docx
-		this.theme=getTheme(docx)
+		this.theme=docx && getTheme(docx)
 		this.rStyle=this.pStyle=this.tblStyle=this.type=this._val
 		this.wrapSquare=this.wrapTight=this.wrapThrough=this.wrapTopAndBottom=this.wrapNone=this.wrap
 		this.vAlign=this.vertAlign
 		this.ext=this.extent
 		this.requireFonts=new Set()
+	}
+	_bool(){
+		return true
 	}
 	
 	select(nodes, keyMap={}){
@@ -42,6 +45,13 @@ export class Properties{
 		if(this[name]){
 			return clear(this[name](x))
 		}
+	}
+
+	$(props){
+		const cloned=new this.constructor(this.docx)
+		cloned.requireFonts=this.requireFonts
+		cloned.theme=this.theme
+		return Object.assign(cloned,props)
 	}
 
 	pgSz(x){
