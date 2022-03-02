@@ -62,16 +62,6 @@ class DocxType extends Input.Editable{
 		const settings=officeDocument.settings
 
 		const styles=new (class{})();//keep as raw object in state
-		
-		const createStylesElement=()=>{
-			return null
-			createElement(
-				components.Styles,
-				{styles, updatedAt: Date.now()},
-				null,
-				{id:"styles"}
-			)
-		}
 
 		const buildFactory=createElement=>(type,{node,key:_1,type:_2, ...props},children)=>{
 			children=children.reduce((merged,a)=>{
@@ -109,19 +99,18 @@ class DocxType extends Input.Editable{
 				}
 				if(style){
 					styles[style.id]=style
-					return createStylesElement()
 				}
 				return null
 			}
 			case "num":{
 				let style=new Style.Num(node,styles,selector)
 				styles[style.id]=style
-				return createStylesElement()
+				return null
 			}
 			case "abstractNum":{
 				let style=new Style.AbstractNum(node,styles,selector)
 				styles[style.id]=style
-				return createStylesElement()
+				return null
 			}
 			case "document":{
 				return createElement(
@@ -312,8 +301,6 @@ class DocxType extends Input.Editable{
 			build=buildFactory(createElement)
 			return docx.officeDocument.renderNode(this._unwrap(node),build,identify)
 		}
-
-		this.refreshStyles=createStylesElement
 
 		this.getFontList=()=>Array.from(selector.requireFonts).filter(a=>!!a)
 

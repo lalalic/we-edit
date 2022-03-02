@@ -159,14 +159,24 @@ export class HorizontalOneOf extends Component{
 
 export class GridOneOf extends Component{
     render(){
-        const {host:{$props:{grid:_=4,selectorStyle:$1}, uiContext}, children:menu, grid=_, style, selector=true, selectorStyle=$1 }=this.props
+        const {host:{$props:{grid:_=4,selectorStyle:$1}, uiContext},label, children:menu, grid=_, style, selector=true, selectorStyle=$1 }=this.props
         
         const [items, children]=menu.props[uiContext=="Ribbon" ? 'children' : 'menuItems']
-        const gridItems=(
+        let gridItems=(
             <div key="grid" className="grid" style={{width:"100%",display:"grid", gridTemplateColumns:`repeat(${grid}, 1fr)`,...style}}>
                 {items}
             </div>
         )
+
+        if(label){
+            gridItems=(
+                <div>
+                    <div style={{fontSize:"smaller",background:"lightgray",padding:2}}>{label}</div>
+                    {gridItems}
+                </div>
+            )
+        }
+
 
         if(uiContext=="Menu")
             return React.cloneElement(menu,{menuItems:[gridItems,children]})
@@ -196,4 +206,4 @@ export class GridOneOf extends Component{
 
 export const ArrayOf=({layout, host, children:{props:{children:[actions,collection,active]}}})=>React.cloneElement(layout,{host, actions,collection,active})
 
-export const Nest=({host,children,wrappers})=>[...wrappers].reverse().reduce((nested,a)=>React.cloneElement(a,{host,children:nested}),children)
+export const Nest=({host,children,wrappers})=>wrappers.reduceRight((nested,a)=>React.cloneElement(a,{host,children:nested}),children)

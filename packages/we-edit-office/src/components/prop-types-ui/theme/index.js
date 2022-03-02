@@ -481,8 +481,12 @@ function createTheme(){
             Ribbon:<OneOf label="Bullet Character" values={Bullets} icon={<IconListBullet/>}
                 wrapper1={<BulletWrapper1/>}
                 equal={(a,b)=>a?.label==b?.label}
-                wrapper={<Wrappers.GridOneOf grid={4}/>}
-                children={<Fragment><Divider key="divider"/><Link key="bullet" label="Define New Bullet" dialog='bullet'/></Fragment>}
+                wrapper={<Wrappers.GridOneOf grid={4} label="Bullet Library"/>}
+                children={
+                    <Fragment>
+                        <Divider key="divider"/>
+                        <Link key="bullet" label="Define New Bullet" dialog='bullet'/>
+                    </Fragment>}
             />,
 
             Dialog:{
@@ -531,7 +535,7 @@ function createTheme(){
             Ribbon: <OneOf label="numbering list" values={Numberings} icon={<IconListNumber/>}
                 equal={(a,b)=>a?.format==b?.format}
                 wrapper1={<NumberingWrapper1/>}
-                wrapper={<Wrappers.GridOneOf grid={3} style={{gap:5,padding:5}}/>}
+                wrapper={<Wrappers.GridOneOf grid={3} style={{gap:5,padding:5}} label="Numbering Library"/>}
                 children={<Fragment><Divider key="d"/><Link key="l" label="Define New Number List" dialog="numbering"/></Fragment>}
                 />
             ,
