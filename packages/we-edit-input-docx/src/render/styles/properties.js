@@ -102,7 +102,7 @@ export class Properties{
 	}
 
 	_val(x){
-		return x.attribs["w:val"]
+		return x.attribs ? x.attribs["w:val"] : x
 	}
 
 	jc(x){
