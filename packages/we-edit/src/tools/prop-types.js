@@ -11,7 +11,7 @@ function asType($type,base){
 	return base
 }
 
-function $({$type,...props}={}, base){debugger
+function $({$type,...props}={}, base){
     const {Type, isRequired}=this
     const cloned=(...args)=>this(...args)
     cloned.isRequired=(...args)=>isRequired(...args);
@@ -85,7 +85,7 @@ export default function memorize(PropTypes){
         },'shape')
     })(PropTypes.shape)
 
-    const oneOfType=PropTypes.oneOfType=(factory=>(types, {$shape, ...props}={})=>{debugger
+    const oneOfType=PropTypes.oneOfType=(factory=>(types, {$shape, ...props}={})=>{
         if(typeof($shape)=="function"){
             props.$choice=value=>$$shape(value)?.Type.props.choice
         }
