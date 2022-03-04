@@ -1,19 +1,10 @@
 import React, {PureComponent} from "react"
 import PropTypes from "prop-types"
-import {immutableReviver} from "we-edit"
+import {immutableReviver,clean} from "we-edit"
 import {fromJS} from "immutable"
 import PropTypesUI from "."
 import { LabelField, Nest } from "./wrappers"
 
-function clean(ob, keys=[]){
-    const cloned={...ob}
-    Object.keys(cloned).forEach(k=>{
-        if(typeof(cloned[k])=="undefined" || keys.includes(k)){
-            delete cloned[k]
-        }
-    })
-    return cloned
-}
 export default class base extends PureComponent{
     static displayName="any"
     static contextTypes={
@@ -41,7 +32,7 @@ export default class base extends PureComponent{
         path: PropTypes.string,
     }
 
-    static clean=clean
+    static clean=(ob, removeKeys)=>clean(ob,{removeKeys,clone:true})
 
     get Types(){
         return {...PropTypesUI.Types,...this.Theme.$Types}

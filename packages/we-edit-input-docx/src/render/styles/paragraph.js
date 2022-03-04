@@ -1,5 +1,6 @@
 import Base from "./character"
 import {fromJS} from "immutable"
+import {clean} from "we-edit"
 
 const attribs={
 	"w:spacing":"spacing",
@@ -43,7 +44,7 @@ export default class Paragraph extends Base{
 			}
 			return props
 		},{})
-		return this.__clear(props,undefined)
+		return clean(props)
 	}
 
 	applyNumbering(props, style={}) {

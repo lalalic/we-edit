@@ -288,7 +288,7 @@ describe("propTypes UI",()=>{
             it.each(
                 Object.values(dom)
                 .map(a=>([a.getType(),a]))
-                .filter(a=>a[0]=="paragraph")
+                //.filter(a=>a[0]=="paragraph")
             )("PropTypesUI for %s", (type, A)=>{
                 const Type=type.replace(/(^\w)/,(a,b)=>a.toUpperCase())
                 expect(()=>test(<PropTypesUI propTypes={A.propTypes||{}} uiContext={uiContext} theme={Type}/>)).not.toThrow()

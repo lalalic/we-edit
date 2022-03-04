@@ -1,5 +1,6 @@
 import Style from "./base"
 import {fromJS} from "immutable"
+import {clean} from "we-edit"
 
 export default class extends Style{
     constructor(node, styles, selector){
@@ -31,17 +32,8 @@ export default class extends Style{
 
     flat(){
         const {distance,x,y,wrap,width,height,effectExtent}=this
-        return this.__clear({distance,x,y,wrap,width,height,effectExtent},undefined)
+        return clean({distance,x,y,wrap,width,height,effectExtent})
     }
-
-    __clear(o,v=undefined){
-		for(let k in o){
-			if(o[k]===v){
-				delete o[k]
-			}
-		}
-		return o
-	}
 
     hashCode(){
 		return fromJS(this.flat()).hashCode()

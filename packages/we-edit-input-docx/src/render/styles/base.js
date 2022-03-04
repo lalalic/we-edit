@@ -152,16 +152,6 @@ export default class Style extends Linkable{
 		return Object.assign(cloned,{basedOn, p, r, next})
 	}
 
-	__clear(o,v=undefined){
-		for(let k in o){
-			if(o[k]===v){
-				delete o[k]
-			}
-		}
-		if(Object.keys(o).length>0)
-			return o
-	}
-
 	getLink(){
 		return this.styles[this._link]
 	}

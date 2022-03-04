@@ -15,6 +15,7 @@ export {default as ReactQuery} from "./tools/react-query"
 export {default as uuid} from "./tools/uuid"
 export {default as transactifyCheerio} from "./tools/cheerio"
 export {default as immutableReviver} from "./tools/immutable-reviver"
+export {default as clean} from "./tools/clean-object"
 
 export {default as ContentQuery} from "./state/selector/query"
 

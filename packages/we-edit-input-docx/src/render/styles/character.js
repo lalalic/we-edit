@@ -1,5 +1,6 @@
 import Base from "./base"
 import {fromJS} from "immutable"
+import {clean} from "we-edit"
 import {Measure} from "we-edit-representation-pagination"
 
 const attribs={
@@ -95,8 +96,8 @@ export default class Character extends Base{
 				targets.find(a=>(props[k]=a.get(`r.${k}`))!==undefined)
 				return props
 			},{})
-		props.fonts=this.__clear({ascii,ea,cs,hansi},undefined)
-		return this.__clear(props,undefined)
+		props.fonts=clean({ascii,ea,cs,hansi},{emptyAsUndefined:true})
+		return clean(props)
 	}
 }
 
