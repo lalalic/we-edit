@@ -1,6 +1,7 @@
 import React, {PureComponent} from "react"
 import PropTypes from "prop-types"
-import {Map, fromJS, Iterable} from "immutable"
+import { immutableReviver } from "we-edit"
+import {Map, fromJS} from "immutable"
 
 import any from "./base"
 import string from "./string"
@@ -21,15 +22,6 @@ import * as wrappers from "./wrappers"
  * <PropTypesUI component={this}/>
  */
 export default class PropTypesUI extends PureComponent{
-    static reviver=function(key,value){
-        if(React.isValidElement(this[key])){
-            return this[key]
-        }
-        if(this[key].isGeometry){
-            return this[key]
-        }
-        return Iterable.isKeyed(value) ? value.toMap() : value.toList()
-    }
     static Theme=BaseTheme
     static wrappers=wrappers
 
@@ -84,7 +76,7 @@ export default class PropTypesUI extends PureComponent{
                     if(!isProp){
                         const domain=Object.keys(theme)[0]
                         return fromJS(BaseTheme[domain]||{})
-                            .mergeDeep(fromJS({[this.uiContext]:theme[domain]},this.constructor.reviver)).toJS()
+                            .mergeDeep(fromJS({[this.uiContext]:theme[domain]},immutableReviver)).toJS()
                     }
                 }
                 return theme

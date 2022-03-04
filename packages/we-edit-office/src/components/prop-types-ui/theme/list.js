@@ -262,6 +262,6 @@ class Span extends Component{
     }
 
     componentDidMount(){
-        this.setState({width:this.label.current.getBoundingClientRect().width}, ()=>this.props.onSetWidth?.(this.state.width))
+        this.setState({width:this.label.current?.getBoundingClientRect()?.width||1}, ()=>this.props.onSetWidth?.(this.state.width))
     }
 }

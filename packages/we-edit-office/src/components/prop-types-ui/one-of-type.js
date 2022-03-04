@@ -1,5 +1,6 @@
 import React from "react"
 import PropTypes from "prop-types"
+import {immutableReviver} from "we-edit"
 import base from "./base"
 import Shape from "./shape"
 import {fromJS} from "immutable"
@@ -69,7 +70,7 @@ export default class oneOfType extends base{
                 if(React.isValidElement(choice)){
                     return choice
                 }else if(typeof(choice)=="object"){
-                    theme=fromJS(theme,this.constructor.reviver).mergeDeep(fromJS(choice,this.constructor.reviver)).toJS()
+                    theme=fromJS(theme,immutableReviver).mergeDeep(fromJS(choice,immutableReviver)).toJS()
                 }
             }
 

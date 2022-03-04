@@ -1,5 +1,6 @@
 import React, {PureComponent} from "react"
 import PropTypes from "prop-types"
+import {immutableReviver} from "we-edit"
 import {fromJS} from "immutable"
 import PropTypesUI from "."
 import { LabelField, Nest } from "./wrappers"
@@ -93,11 +94,10 @@ export default class base extends PureComponent{
      */
     getShapeTheme(theme){
         const Theme=this.Theme
-        const reviver=PropTypesUI.reviver
-        let merged=fromJS({},reviver)
+        let merged=fromJS({},immutableReviver)
 
         const merge=(shapeTheme)=>{
-            merged = merged.mergeDeep(fromJS(shapeTheme||{}, reviver))
+            merged = merged.mergeDeep(fromJS(shapeTheme||{}, immutableReviver))
             let uiContext=this.uiContext
             uiContext=(uiContext=="Panel"&& shapeTheme.Panel==undefined && "Dialog") || uiContext
             if (!React.isValidElement(shapeTheme?.[uiContext])) {

@@ -3,7 +3,7 @@ import simplify from "simplify-path"
 import contours from "svg-path-contours"
 
 class Shape extends Path{
-	get isGeometry(){
+	get skipImmutable(){
 		return true
 	}
 	toJSON(){

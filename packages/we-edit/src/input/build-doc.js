@@ -13,6 +13,7 @@ import * as reducer from "../state/reducer"
 import uuid from "../tools/uuid"
 import {validateId} from "../tools/content-id"
 import ContextProvider from "./context-provider"
+import immutableReviver from "../tools/immutable-reviver"
 
 export default function buildDoc(doc,inputTypeInstance){
 	const id=inputTypeInstance.props?.id || uuid()
@@ -159,7 +160,7 @@ const createElementFactoryBuilder=inputTypeInstance=>content=>(type, props, chil
 		node.parent=content.getIn([id,"parent"])
 	}
 
-	content.set(id, Immutable.fromJS(node))
+	content.set(id, Immutable.fromJS(node,immutableReviver))
 
 	if(Array.isArray(children)){
 		//set parent make map as a double direction tree structure

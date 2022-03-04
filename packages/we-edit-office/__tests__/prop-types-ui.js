@@ -1,6 +1,7 @@
 import React,{Fragment} from "react"
+import ReactDOM from "react-dom"
 import PropTypes from "prop-types"
-import {dom} from "we-edit"
+import {dom, immutableReviver} from "we-edit"
 import PropTypesUI from "../src/components/prop-types-ui"
 import TestRenderer from "react-test-renderer"
 import {fromJS} from "immutable"
@@ -10,7 +11,7 @@ jest.mock("material-ui/internal/Tooltip",()=>props=><span/>)
 jest.mock("material-ui/MenuItem/MenuItem",()=>props=><span/>)
 jest.mock("../src/components/prop-types-ui/theme/textures",()=>[])
 jest.mock("../src/developer/diff",()=>class{static Setting=props=>null})
-            
+ReactDOM.createPortal = jest.fn(node => node)
 
 describe("propTypes UI",()=>{
     beforeAll(()=>dom.Unknown.memorize(PropTypes))
@@ -20,7 +21,7 @@ describe("propTypes UI",()=>{
     })
 
     it("react element and json should be replaced each other when merge",()=>{
-        const fromJS1=props=>fromJS(props,PropTypesUI.reviver)
+        const fromJS1=props=>fromJS(props,immutableReviver)
         const element={a:<div/>}, json={a:{b:1}}
         expect(fromJS1(element).mergeDeep(fromJS1(json)).toJS()).toMatchObject(json)
         expect(fromJS1(element).mergeDeep(fromJS1(json)).toJS().a.type).toBe(undefined)
@@ -282,7 +283,7 @@ describe("propTypes UI",()=>{
             ["Tab"],
             ["Panel"]
         ]
-        .filter(a=>a[0]=="Dialog")
+        //.filter(a=>a[0]=="Panel")
         )("%s", (uiContext)=>{
             it.each(
                 Object.values(dom)

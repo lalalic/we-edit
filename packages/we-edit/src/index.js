@@ -1,5 +1,7 @@
 import "fetch-any"
 import "./tools/array-find-last"
+import * as timeout from "./tools/timeout"
+export {timeout}
 
 export * from "./components"
 
@@ -12,7 +14,7 @@ export {default as shallowEqual} from "./tools/shallow-equal"
 export {default as ReactQuery} from "./tools/react-query"
 export {default as uuid} from "./tools/uuid"
 export {default as transactifyCheerio} from "./tools/cheerio"
-import * as timeout from "./tools/timeout"
+export {default as immutableReviver} from "./tools/immutable-reviver"
 
 export {default as ContentQuery} from "./state/selector/query"
 
@@ -22,4 +24,3 @@ export {default as dom} from "./dom"
 
 export {default as render} from "./render"
 
-export {timeout}
