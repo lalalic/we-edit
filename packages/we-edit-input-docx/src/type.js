@@ -61,7 +61,56 @@ class DocxType extends Input.Editable{
 		const $=officeDocument.content
 		const settings=officeDocument.settings
 
-		const styles=new (class{})();//keep as raw object in state
+		const styles=this.styles=new (class{
+			toJSON(){
+				return {}
+			}
+
+			get all(){
+				return Object.keys(this).filter(a=>this.hasOwnProperty(a))
+			}
+
+			getNumberingList(){
+				return officeDocument.numbering("w\\:num").filter((i,el)=>{
+					const abstractNumId=officeDocument.numbering(el).children("w\\:abstractNumId").attr("w:val")
+					const a=officeDocument.numbering(`w\\:abstractNum[w\\:abstractNumId=${abstractNumId}]`)
+						.has("w\\:multiLevelType[w\\:val=singleLevel],w\\:multiLevelType[w\\:val=hybridMultilevel]")
+						.find("[w\\:ilvl=0]>w\\:numFmt[w\\:val!=bullet]")
+					return a.length==1
+				}).map((i,el)=>{
+					const numId=el.attribs["w:numId"]
+					return styles.Normal.applyNumbering({num:{numId,level:0}})
+				}).toArray()
+			}
+
+			getBulletList(){
+				return officeDocument.numbering("w\\:num").filter((i,el)=>{
+					const abstractNumId=officeDocument.numbering(el).children("w\\:abstractNumId").attr("w:val")
+					const a=officeDocument.numbering(`w\\:abstractNum[w\\:abstractNumId=${abstractNumId}]`)
+						.has("w\\:multiLevelType[w\\:val=singleLevel],w\\:multiLevelType[w\\:val=hybridMultilevel]")
+						.find("[w\\:ilvl=0]>w\\:numFmt[w\\:val=bullet]")
+					return a.length==1
+				}).map((i,el)=>{
+					const numId=el.attribs["w:numId"]
+					return styles.Normal.applyNumbering({num:{numId,ilvl:0}})
+				}).toArray()
+			}
+
+			getOutlineList(){
+				const styleList=officeDocument.numbering('w\\:abstractNum>w\\:styleLink').map((i,a)=>a.attribs["w:val"]).toArray()
+					.map(styleId=>officeDocument.styles(`w\\:style[w\\:styleId=${styleId}] w\\:numId`).attr('w:val'))
+
+				const docList=officeDocument.numbering(`w\\:abstractNum`)
+					.has("w\\:multiLevelType[w\\:val=multilevel]")
+					.filter((i,a)=>officeDocument.numbering(a).children("w\\:styleLink").length==0)
+					.map((i,a)=>a.attribs["w:abstractNumId"]).toArray()
+				return {
+					styleList:styleList.map(numId=>({levels:styles[`_num_${numId}`].flat()})), 
+					docList:docList.map(abstractNumId=>({levels:styles[`_abstractNum_${abstractNumId}`].flat()}))
+				}
+			}
+		})();//keep as raw object in state
+
 
 		const buildFactory=createElement=>(type,{node,key:_1,type:_2, ...props},children)=>{
 			children=children.reduce((merged,a)=>{
@@ -318,6 +367,8 @@ class DocxType extends Input.Editable{
     refreshStyles(){
         //injected implementation by render
     }
+
+
 
 	_unwrap(n){
 		return n && ("cheerio" in n) && n.get(0) || n

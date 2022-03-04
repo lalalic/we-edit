@@ -559,7 +559,9 @@ export default class Base extends Component{
 		is:value=>value.format!="bullet"
 	})
 
-	static OutlineListShape=PropTypes.arrayOf(this.NumberListShape,{$type:"OutlineListShape"})
+	static OutlineListShape=PropTypes.shape({
+		levels:PropTypes.arrayOf(this.NumberListShape),
+	},{$type:"OutlineListShape"})
 
 	static ListShape=PropTypes.oneOfType([
 		this.BulletListShape,
@@ -569,7 +571,7 @@ export default class Base extends Component{
 		$shape:value=>{
 			if(!value)
 				return 
-			if(Array.isArray(value))
+			if(Array.isArray(value.levels))
 				return this.OutlineListShape
 			if(value.format=="bullet" || !value.format)
 				return this.BulletListShape

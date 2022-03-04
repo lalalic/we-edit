@@ -64,7 +64,7 @@ import OneOf from "../one-of"
 import SizableIconButton from "../../size-icon-button"
 import FormatPanel from "../../format-panel"
 
-import {NumberingFormats, Numberings, Bullets, Outlines, DemoList, BulletWrapper1,NumberingWrapper1,OutlineWrapper1,OutlineLayout} from "./list"
+import {NumberingFormats, Numberings, Bullets, Outlines, DemoList, BulletWrapper1,NumberingWrapper1,OutlineWrapper1,OutlineLayout, DocumentLists} from "./list"
 import { LineWeights, LineDashes, LineSketches, FillGradients, Gradient, FillPatterns, Pattern, FillTextures } from "./geometry"
 import UnitShape from "../unit-shape"
 
@@ -80,7 +80,7 @@ function createTheme(){
             paragraph: <ParagraphSetting/>,
             bullet: <ListSetting shape={dom.Paragraph.BulletListShape} title="Create Bullet List" defaultValue={Bullets[0]}/>,
             numbering: <ListSetting shape={dom.Paragraph.NumberListShape} title="Create Number List" defaultValue={Numberings[0]}/>,
-            outline: <ListSetting shape={dom.Paragraph.OutlineListShape} title="Create Multiple Level List" defaultValue={Outlines[0]} contentStyle={{width:800}}/>,
+            outline: <ListSetting shape={dom.Paragraph.OutlineListShape} title="Create Multiple Level List" defaultValue={Outlines[0]}/>,
             diff: <Diff.Setting portalContainer={document.body}/>,
             color: <ColorSelector/>,
             listStyle: <div/>,
@@ -484,6 +484,7 @@ function createTheme(){
                 wrapper={<Wrappers.GridOneOf grid={4} label="Bullet Library"/>}
                 children={
                     <Fragment>
+                        <DocumentLists type="Bullet" />
                         <Divider key="divider"/>
                         <Link key="bullet" label="Define New Bullet" dialog='bullet'/>
                     </Fragment>}
@@ -535,8 +536,8 @@ function createTheme(){
             Ribbon: <OneOf label="numbering list" values={Numberings} icon={<IconListNumber/>}
                 equal={(a,b)=>a?.format==b?.format}
                 wrapper1={<NumberingWrapper1/>}
-                wrapper={<Wrappers.GridOneOf grid={3} style={{gap:5,padding:5}} label="Numbering Library"/>}
-                children={<Fragment><Divider key="d"/><Link key="l" label="Define New Number List" dialog="numbering"/></Fragment>}
+                wrapper={<Wrappers.GridOneOf grid={3} label="Numbering Library"/>}
+                children={<Fragment><DocumentLists type="Numbering"/><Divider key="d"/><Link key="l" label="Define New Number List" dialog="numbering"/></Fragment>}
                 />
             ,
             Dialog:{
@@ -589,17 +590,21 @@ function createTheme(){
         OutlineListShape:{
             Ribbon:<OneOf label="Outline list" values={Outlines} icon={<IconListOutline/>}
                     wrapper1={<OutlineWrapper1/>}
-                    wrapper={<Wrappers.GridOneOf grid={3} style={{gap:5,padding:5}}/>}
+                    wrapper={<Wrappers.GridOneOf grid={3} label="List Library"/>}
                     children={<Fragment>
+                        <DocumentLists type="Outline"/>
                         <Divider/>
                         <Link label="Define Multiple Level List" dialog="outline"/>
                         <Link label="Define List Style" dialog="listStyle"/>
                     </Fragment>}
                 />,
             Dialog:{
-                size:9,
-                label1:(value,i)=>parseInt((value.level||i)+1),
-                wrapper:<Wrappers.ArrayOf layout={<OutlineLayout/>}/>
+                levels:{
+                    size:9,
+                    label1:(value,i)=>parseInt((value.level||i)+1),
+                    wrapper:<Wrappers.ArrayOf layout={<OutlineLayout/>}/>
+                },
+                wrapper:<Wrappers.ShapeGrid label={false}/>
             },
             Tree: <Link dialog="outline"/>
         },

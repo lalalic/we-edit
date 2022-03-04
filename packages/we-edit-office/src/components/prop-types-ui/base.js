@@ -32,6 +32,14 @@ export default class base extends PureComponent{
         label: PropTypes.string
     }
 
+    static childContextTypes={
+        path: PropTypes.string,
+    }
+
+    static contexTypes={
+        path: PropTypes.string,
+    }
+
     static clean=clean
 
     get Types(){
@@ -43,7 +51,7 @@ export default class base extends PureComponent{
     }
 
     get path(){
-        const {path=""}=this.props
+        const {path=this.context.path||""}=this.props
         return path
     }
 
@@ -68,6 +76,12 @@ export default class base extends PureComponent{
 
     get uiContext(){
         return this.props.uiContext||this.context.uiContext||"Dialog"
+    }
+
+    getChildContext(){
+        return {
+            path:this.path
+        }
     }
 
     setting(){

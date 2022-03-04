@@ -52,7 +52,7 @@ export default class arrayOf extends base{
 
     getChildContext(){
         return {
-            ...super.getChildContext?.(),
+            ...super.getChildContext(),
             set: this.set.bind(this),
         }
     }

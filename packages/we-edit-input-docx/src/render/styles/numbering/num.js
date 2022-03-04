@@ -5,9 +5,11 @@ import NUMFMT from "./number-format"
 export default class Num extends Getable{
 	constructor(node, styles, selector){
 		super(...arguments)
-		this.id=`_num_${node.attribs["w:numId"]}`
+		this.type="num"
+		this.numId=node.attribs["w:numId"]
+		this.id=`_num_${this.numId}`
 
-		let levels=new Set()
+		const levels=new Set()
 
 		node.children.forEach(a=>{
 			switch(a.name){
@@ -41,6 +43,10 @@ export default class Num extends Getable{
 				this[i].reset()
 			}
 		}
+	}
+
+	flat(){
+		return new Array(9).fill(0).map((a,i)=>this.styles.Normal.applyNumbering({num:{numId:this.numId,ilvl:i}}))
 	}
 }
 class NumLevel extends Level{

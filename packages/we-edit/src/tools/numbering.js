@@ -3,6 +3,10 @@ export default class {
 		return n+1
 	}
 
+	static decimalZero(n){
+		return `0${this.decimal(n)}`.substr(-2)
+	}
+
 	static lowerLetter(n){
 		return String.fromCharCode("a".charCodeAt(0)+n)
 	}

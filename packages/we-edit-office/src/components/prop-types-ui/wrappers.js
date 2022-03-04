@@ -159,11 +159,11 @@ export class HorizontalOneOf extends Component{
 
 export class GridOneOf extends Component{
     render(){
-        const {host:{$props:{grid:_=4,selectorStyle:$1}, uiContext},label, children:menu, grid=_, style, selector=true, selectorStyle=$1 }=this.props
+        const {host:{$props:{grid:_=4,selectorStyle:$1}, uiContext},label, children:menu, grid=_, style,gap=2, selector=true, selectorStyle=$1 }=this.props
         
         const [items, children]=menu.props[uiContext=="Ribbon" ? 'children' : 'menuItems']
         let gridItems=(
-            <div key="grid" className="grid" style={{width:"100%",display:"grid", gridTemplateColumns:`repeat(${grid}, 1fr)`,...style}}>
+            <div key="grid" className="grid" style={{width:"100%",display:"grid", gridGap:gap, padding:gap, gridTemplateColumns:`repeat(${grid}, 1fr)`,...style}}>
                 {items}
             </div>
         )
@@ -171,7 +171,7 @@ export class GridOneOf extends Component{
         if(label){
             gridItems=(
                 <div>
-                    <div style={{fontSize:"smaller",background:"lightgray",padding:2}}>{label}</div>
+                    <div style={{fontSize:"smaller",background:"lightgray",padding:gap}}>{label}</div>
                     {gridItems}
                 </div>
             )

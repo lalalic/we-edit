@@ -85,7 +85,7 @@ export default connect(state=>({content:state.get("content")}))(class DocumentTr
 
 		return (
 			<Fragment>
-				{doc.props.children}
+				{doc}
 				<Focus/>
 			</Fragment>
 		)

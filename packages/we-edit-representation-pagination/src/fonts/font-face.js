@@ -10,6 +10,8 @@ export function makeFontFace(font, src , variants){
     if(!fontFaces){
         loader=document.body.appendChild(document.createElement('div'))
         loader.id='we_edit_font_loader'
+        loader.style.visibility="hidden"
+        loader.style.height="0px"
         fontFaces=loader.appendChild(document.createElement("style"))
         fontFaces.id="we_edit_font_face"
     }
