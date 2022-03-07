@@ -24,21 +24,24 @@ export default class oneOf extends base{
         isPrimitive:true,
     }
 
-    iterate() {
+    iterate(status) {
         const {values, wrapper1=<MenuItem/>, labels=[], icons=[], value}=this.$props
         return values.map((a, i) => {
             if (a === "-")
                 return <Divider key={i} />
             const checked=this.equal(a, value, i, values)
+            const {
+                onClicker=host=>e=>this.set(this.path,a),
+                onClick=onClicker(this,{status,checked,value:a}), 
+                ...props}=wrapper1.props
             return React.cloneElement(wrapper1, {
+                ...props,
                 key: i,
                 value: a,
-                primaryText: labels[i] || a,
+                primaryText: labels[i] || a+"",
                 leftIcon: !checked ? (icons[i]||<span/>) : null,
                 checked,
-                onClick: e => {
-                    this.set(this.path, a)
-                }
+                onClick
             })
         })
     }
@@ -55,7 +58,7 @@ export default class oneOf extends base{
             <DropDownButton 
                 status={status} 
                 {...{onClick, icon:icons[values.indexOf(value)]||icon, hint:label,style}}>
-                {this.iterate()}
+                {this.iterate(status)}
                 {children}
             </DropDownButton>
         )

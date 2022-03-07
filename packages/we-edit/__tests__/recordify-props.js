@@ -77,4 +77,11 @@ describe("record react component prop types",()=>{
         expect(dom.Unknown.MarginShape.$({$type:"BorderShape"}).Type.type).toMatch("oneOfType(BorderShape)")
         expect(dom.Unknown.MarginShape.Type.type).toMatch("oneOfType")
     })
+
+    it("shape can be extended",()=>{
+        const shape=dom.Unknown.BulletListShape.$extend({name:dom.Unknown.string})
+        const {name, label}=shape.Type.props.schema
+        expect(name).toBe(dom.Unknown.string)
+        expect(label).toBeDefined()
+    })
 })

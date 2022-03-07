@@ -88,10 +88,12 @@ export function ParagraphSetting({value, onSubmit, ...props}){
 	)
 }
 
-export function ListSetting({shape=dom.Paragraph.propTypes.numbering, value, defaultValue, onSubmit, ...props}){
+export function ListSetting({shape, type, title=`Create ${type} List`, value, defaultValue, onSubmit, ...props}){
 	return (
 		<SelectStyle target="paragraph">
 			{({style,dispatch})=>{
+				const Paragraph=style?._composer?.constructor||dom.Paragraph
+				shape=shape||Paragraph[`${type}ListShape`]
 				const refSetting=React.createRef()
 				if(onSubmit==undefined){
 					onSubmit=paragraph=>dispatch(ACTION.Selection.UPDATE({paragraph}))
@@ -105,7 +107,7 @@ export function ListSetting({shape=dom.Paragraph.propTypes.numbering, value, def
 				}
 				
 				return (
-					<Dialog 
+					<Dialog title={title}
 						onSubmit={e=>onSubmit(refSetting.current.value,dispatch)}
 						{...props}
 						>

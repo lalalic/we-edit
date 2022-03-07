@@ -78,12 +78,11 @@ function createTheme(){
         $settingDialogs:{
             font:<FontSetting/>,
             paragraph: <ParagraphSetting/>,
-            bullet: <ListSetting shape={dom.Paragraph.BulletListShape} title="Create Bullet List" defaultValue={Bullets[0]}/>,
-            numbering: <ListSetting shape={dom.Paragraph.NumberListShape} title="Create Number List" defaultValue={Numberings[0]}/>,
-            outline: <ListSetting shape={dom.Paragraph.OutlineListShape} title="Create Multiple Level List" defaultValue={Outlines[0]}/>,
+            bullet: <ListSetting type="Bullet" defaultValue={Bullets[0]}/>,
+            numbering: <ListSetting type="Number" defaultValue={Numberings[0]}/>,
+            outline: <ListSetting type="Outline" title="Create Multiple Level List" defaultValue={Outlines[0]}/>,
             diff: <Diff.Setting portalContainer={document.body}/>,
             color: <ColorSelector/>,
-            listStyle: <div/>,
         },
         $settingPanels:{
             format:<FormatPanel title="Format" children={[
@@ -479,7 +478,7 @@ function createTheme(){
             },
             
             Ribbon:<OneOf label="Bullet Character" values={Bullets} icon={<IconListBullet/>}
-                wrapper1={<BulletWrapper1/>}
+                wrapper1={<BulletWrapper1 onClicker={(host,{status,value})=>e=>host.set(host.path,status=="checked" ? {label:value.label} : value)}/>}
                 equal={(a,b)=>a?.label==b?.label}
                 wrapper={<Wrappers.GridOneOf grid={4} label="Bullet Library"/>}
                 children={
@@ -494,7 +493,7 @@ function createTheme(){
                 $presets:<OneOf label="Bullet Character"  
                         values={Bullets}
                         equal={(a,b)=>a?.label==b?.label}
-                        wrapper1={<BulletWrapper1/>}
+                        wrapper1={<BulletWrapper1 onClicker={(host,{status,value})=>e=>host.set(host.path,status=="checked" ? {label:value.label} : value)}/>}
                         wrapper={<Wrappers.GridOneOf selector={false} style={{display:"auto"}}/>}
                         />,
                 wrapper:<Wrappers.ShapeLayout layout={
@@ -509,8 +508,10 @@ function createTheme(){
                             <h3>Bullet Position</h3>
                             <div><a id="hanging"/></div>
                             <div><a id="align"/></div>
+                            <hr/>
+                            <div role="others"/>
                         </div>
-                        <DemoList role="others" defaultValue={Bullets[0]}/>
+                        <DemoList defaultValue={Bullets[0]}/>
                     </div>
                 }/>,
                 label:{
@@ -535,7 +536,7 @@ function createTheme(){
             
             Ribbon: <OneOf label="numbering list" values={Numberings} icon={<IconListNumber/>}
                 equal={(a,b)=>a?.format==b?.format}
-                wrapper1={<NumberingWrapper1/>}
+                wrapper1={<NumberingWrapper1 onClicker={(host,{status,value})=>e=>host.set(host.path,status=="checked" ? {format:value.format} : value)}/>}
                 wrapper={<Wrappers.GridOneOf grid={3} label="Numbering Library"/>}
                 children={<Fragment><DocumentLists type="Numbering"/><Divider key="d"/><Link key="l" label="Define New Number List" dialog="numbering"/></Fragment>}
                 />
@@ -557,8 +558,10 @@ function createTheme(){
                             <h3>Number Position</h3>
                             <div><a id="hanging"/></div>
                             <div><a id="align"/></div>
+                            <hr/>
+                            <div role="others"/>
                         </div>
-                        <DemoList role="others" 
+                        <DemoList 
                             defaultValue={Numberings[0]}
                             label={({label,format},i)=>label.replace('%1',dom.Unknown.numberings[format]?.(i))}/>
                     </div>
@@ -591,12 +594,14 @@ function createTheme(){
             Ribbon:<OneOf label="Outline list" values={Outlines} icon={<IconListOutline/>}
                     wrapper1={<OutlineWrapper1/>}
                     wrapper={<Wrappers.GridOneOf grid={3} label="List Library"/>}
-                    children={<Fragment>
-                        <DocumentLists type="Outline"/>
-                        <Divider/>
-                        <Link label="Define Multiple Level List" dialog="outline"/>
-                        <Link label="Define List Style" dialog="listStyle"/>
-                    </Fragment>}
+                    children={
+                        <Fragment>
+                            <DocumentLists type="Outline"/>
+                            <Divider/>
+                            <Link label="Define Multiple Level List" dialog="outline"/>
+                            <Link label="Define List Style" dialog="listStyle"/>
+                        </Fragment>
+                    }
                 />,
             Dialog:{
                 levels:{

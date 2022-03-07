@@ -95,12 +95,18 @@ export default ({Paragraph, Group, Frame,})=>class DocxParagraph extends Compone
 
 			static propTypes={
 				...super.propTypes,
-				tabs: dom.Unknown.arrayOf(dom.Unknown.shape({
-					pos: dom.Unknown.UnitShape,
-					align: dom.Unknown.oneOf(["left","right","center","decimal","bar","clear"]),
-					leader: dom.Unknown.oneOf(["hyphen","dot","underscore","middleDot"],{labels:["-",".","_",String.fromCharCode(0xB7)].map(a=>a.repeat(5))})
-				},{$type:"TabShape"}),{$type:"TabsShape"})
+				tabs: super.arrayOf(super.shape({
+					pos: super.UnitShape,
+					align: super.oneOf(["left","right","center","decimal","bar","clear"]),
+					leader: super.oneOf(["hyphen","dot","underscore","middleDot"],{labels:["-",".","_",String.fromCharCode(0xB7)].map(a=>a.repeat(5))})
+				},{$type:"TabShape"}),{$type:"TabsShape"}),
 			}
+
+			static OutlineListShape=super.OutlineListShape.$extend({
+				levels:super.arrayOf(super.NumberListShape.$extend({
+					pStyle:super.string.$({label:"Link Level To"})
+				})),
+			})
 
 			getTabAt(x){
 				const {indent:{left:indentLeft=0,firstLine=0}, numbering,}=this.props

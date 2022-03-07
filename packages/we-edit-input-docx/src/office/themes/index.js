@@ -10,7 +10,7 @@ export default {
     //$Types:{ColorShape}
     $settingDialogs:{
         diff:React.cloneElement(BaseTheme.$settingDialogs.diff,{parseFile}),
-        tabs: <Tabs.Setting/>
+        tabs: <Tabs.Setting/>,
     },
     TextStyleShape:{
         size:{

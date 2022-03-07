@@ -47,7 +47,7 @@ export const Outlines=[
     ]},
 ]
 
-export const DemoList=Object.assign(({defaultValue, host:{$props:{value=defaultValue}},  label=a=>a?.label},{outline})=>{
+export const DemoList=Object.assign(({defaultValue,  label=a=>a?.label},{outline, host:{$props:{value=defaultValue}}})=>{
     if(outline)
         return <OutlineDemo host={outline}/>
     const lineStyle={marginLeft:value?.indent}
@@ -68,7 +68,7 @@ export const DemoList=Object.assign(({defaultValue, host:{$props:{value=defaultV
             <Line background="lightgray"/>
         </div>
     )
-},{contextTypes:{outline:PropTypes.any}})
+},{contextTypes:{outline:PropTypes.any, host: PropTypes.any}})
 
 const Line=({background="gray", style, children=<i>&nbsp;</i>})=><p style={{background,...style}}>{children}</p>
 class Li extends React.Component{

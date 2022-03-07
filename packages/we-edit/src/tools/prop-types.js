@@ -11,11 +11,12 @@ function asType($type,base){
 	return base
 }
 
-function $({$type,...props}={}, base){
+function $({$type,$validator,...props}={}, base){
     const {Type, isRequired}=this
-    const cloned=(...args)=>this(...args)
+    $validator=$validator||this
+    const cloned=(...args)=>$validator(...args)
     cloned.isRequired=(...args)=>isRequired(...args);
-    ["is","equal","normalize","normalizeAll","denormalize","canShorten","deprecision","default"].forEach(k=>{
+    ["is","equal","normalize","normalizeAll","denormalize","canShorten","deprecision","default","$extend"].forEach(k=>{
         if(k in props){
             cloned.isRequired[k]=cloned[k]=props[k]
             delete props[k]
@@ -42,6 +43,9 @@ export default function memorize(PropTypes){
 
     const shape=PropTypes.shape=(factory=>(model, props)=>{
         return $.call(factory(model), {
+            $extend(ex){
+                return shape({...model,...ex}, props)
+            },
             normalize(value){
                 if(!value)
                     return value

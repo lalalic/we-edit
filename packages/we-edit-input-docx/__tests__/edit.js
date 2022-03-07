@@ -282,5 +282,6 @@ describe('edit',()=>{
             p.tab({shiftKey})
             expect(p.node.find("w\\:pStyle").attr("w:val")).toBe(`Heading${pro}`)
         })
+
     })
 })

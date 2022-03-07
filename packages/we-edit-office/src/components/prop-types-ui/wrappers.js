@@ -6,6 +6,7 @@ import ObjectTree from "../object-tree"
 import DropDownButton from "../drop-down-button"
 import CheckIconButton from "../check-icon-button"
 import Select from "../select"
+import { render } from "react-dom"
 
 export const LabelField=({host:{$props:{name,label:_l=name}},label=_l,children, 
     style={width:120,display:"inline-block",textAlign:"right",marginRight:5, whiteSpace:"nowrap"}})=>{
@@ -121,25 +122,35 @@ export const ShapeSummary=({host:{$props:{name,label=name}}, children})=>(
     </details>
 )
 
-export const ShapeLayout=({host,children, layout,idSelector="a[id]",othersSelector="[role='others']"})=>{
+export class ShapeLayout extends Component{
+    static childContextTypes={
+        host:PropTypes.object
+    }
 
-    let $=new ReactQuery(<Fragment>{layout}</Fragment>), source=$.findFirst(idSelector)
-    while(source.length){
-        const id=source.attr('id')
-        const i=children.findIndex(a=>a.props?.name==id || (id=="$presets" && a.props?.isPresets))
-        if(i>-1){
-            const [target]=children.splice(i,1)
-            $=$.replace(source,target)
-        }else if(i==-1){
-            $=$.replace(source,<a role={`missing-${id}`}/>)
+    getChildContext(){
+        return {host:this.props.host}
+    }
+
+    render(){
+        const {host,children, layout,idSelector="a[id]",othersSelector="[role='others']"}=this.props
+        let $=new ReactQuery(<Fragment>{layout}</Fragment>), source=$.findFirst(idSelector)
+        while(source.length){
+            const id=source.attr('id')
+            const i=children.findIndex(a=>a.props?.name==id || (id=="$presets" && a.props?.isPresets))
+            if(i>-1){
+                const [target]=children.splice(i,1)
+                $=$.replace(source,target)
+            }else if(i==-1){
+                $=$.replace(source,<a role={`missing-${id}`}/>)
+            }
+            source=$.findFirst(idSelector)
         }
-        source=$.findFirst(idSelector)
+        const others=$.findFirst(othersSelector).get(0)
+        if(others){
+            $=$.replace(others,React.cloneElement(others,{children}))
+        }
+        return $.root
     }
-    const others=$.findFirst(othersSelector).get(0)
-    if(others){
-        $=$.replace(others,React.cloneElement(others,{children,host}))
-    }
-    return $.root
 }
 
 export class HorizontalOneOf extends Component{
