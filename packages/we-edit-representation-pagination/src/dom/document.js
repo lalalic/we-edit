@@ -32,6 +32,11 @@ class Document extends Locatable.Locatorize(HasChild(dom.Document)){
         activeDocStore: PropTypes.any,
     }
 
+    static getDerivedStateFromError(error){
+        debugger
+        return {error}
+    }
+
     constructor(){
         super(...arguments)
         Object.defineProperties(this,{
@@ -76,6 +81,9 @@ class Document extends Locatable.Locatorize(HasChild(dom.Document)){
     render(){
         const {canvas, canvasProps}=this.props
         this.numbering?.reset?.()
+        if(this.state.error){
+            return <div>Error</div>
+        }
         if(!canvas)
             return super.render()
         const {props:{__sequentialCompose=true}}=this
@@ -238,6 +246,9 @@ export default class extends editable(Document,{continuable:true}){
      * 
 	 **/
 	shouldContinueCompose(composer){
+        if(this.state.error){
+            return false
+        }
         if(this.state.composeAll){
             return true
         }

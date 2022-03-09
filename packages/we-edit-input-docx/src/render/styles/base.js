@@ -10,6 +10,7 @@ import invoke from "lodash.invoke"
 export class Getable{
 	constructor(node, styles, selector){
 		this.styles=styles
+		this.docx=selector?.docx||styles['*'].docx
 	}
 
 	/**@Todo: make real hash for edior to calculate element changes */

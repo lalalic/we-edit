@@ -7,7 +7,7 @@ export default class AbstractNum extends Getable{
 		this.type="abstractNum"
 		this.abstractNumId=node.attribs["w:abstractNumId"]
 		this.id=`_abstractNum_${this.abstractNumId}`
-		const styleLink=node.children.find(a=>a.name=="w:w:numStyleLink")
+		const styleLink=node.children.find(a=>a.name=="w:numStyleLink")
 		if(styleLink){
 			this.basedOn=styleLink.attribs["w:val"]
 		}else{
