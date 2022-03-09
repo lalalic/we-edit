@@ -1,6 +1,7 @@
+//start from n=1
 export default class {
     static decimal(n){
-		return n+1
+		return n
 	}
 
 	static decimalZero(n){
@@ -8,23 +9,23 @@ export default class {
 	}
 
 	static lowerLetter(n){
-		return String.fromCharCode("a".charCodeAt(0)+n)
+		return String.fromCharCode("a".charCodeAt(0)+n-1)
 	}
 	
 	static upperLetter(n){
-		return String.fromCharCode("A".charCodeAt(0)+n)
+		return String.fromCharCode("A".charCodeAt(0)+n-1)
 	}
 	
 	static lowerRoman(n){
-		return Roman[n].toLowerCase()
+		return Roman[n-1].toLowerCase()
 	}
 	
 	static upperRoman(n){
-		return Roman[n]
+		return Roman[n-1]
 	}
 
     static chinese(n){
-        return Chinese[n]
+        return Chinese[n-1]
     }
 }
 

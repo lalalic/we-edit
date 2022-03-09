@@ -117,18 +117,18 @@ export const NumberingWrapper1=({value:{format="decimal", label="%1", style}, on
     <div onClick={onClick}
         style={{
             ...toStyle(style),
-            width:75,height:50, fontSize:9, borderColor:checked ? "lightblue" : undefined
+            width:75,height:75, fontSize:9, borderColor:checked ? "lightblue" : undefined
         }} >
-        <Li indent={10} hanging={10} label={label.replace('%1',numberings[format]?.(0))} pStyle={{marginTop:0,background:"lightgray",}}/>
-        <Li indent={10} hanging={10} label={label.replace('%1',numberings[format]?.(1))} pStyle={{background:"lightgray"}}/>
+        <Li indent={10} hanging={10} label={label.replace('%1',numberings[format]?.(1))} pStyle={{marginTop:0,background:"lightgray",}}/>
         <Li indent={10} hanging={10} label={label.replace('%1',numberings[format]?.(2))} pStyle={{background:"lightgray"}}/>
+        <Li indent={10} hanging={10} label={label.replace('%1',numberings[format]?.(3))} pStyle={{background:"lightgray"}}/>
     </div>
 )
 
 export const OutlineWrapper1=({value:{levels},onClick, checked})=>{
     return (
         <div onClick={onClick}
-            style={{width:75,height:50, fontSize:9, borderColor:checked ? "lightblue" : undefined}} 
+            style={{width:75,height:75, fontSize:9, borderColor:checked ? "lightblue" : undefined}} 
             >
             <Li indent={10} hanging={10} label={outlineLabel(levels,0)} pStyle={{marginTop:0,background:"lightgray",}}/>
             <Li indent={16} hanging={8} label={outlineLabel(levels,1)} pStyle={{background:"lightgray"}}/>
@@ -176,7 +176,7 @@ const OutlineDemo=({host:{$props:{value:levels}, state:{active}}})=>(
 const toFont=({ascii,ea,hansi}={})=>Array.from(new Set([ascii,ea,hansi])).filter(a=>!!a).join(",")
 const outlineLabel=(levels, i)=>{
     const {style}=levels[i]
-    const label=levels[i].label.replace(/\%(\d)/g, (sub,d)=>numberings[levels[parseInt(d)-1].format]?.(0))
+    const label=levels[i].label.replace(/\%(\d)/g, (sub,d)=>numberings[levels[parseInt(d)-1].format]?.(1))
     return (<span style={toStyle(style)}>{label}</span>)
 }
 

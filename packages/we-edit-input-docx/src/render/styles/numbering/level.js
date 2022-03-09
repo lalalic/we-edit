@@ -14,6 +14,8 @@ export default class Level extends Paragraph{
 				this[key]=a.attribs["w:val"]
 			}
 		})
+		if(this.isLgl)
+			this.numFmt="decimal"
 		this.level=parseInt(node.attribs["w:ilvl"])
 		this.start=parseInt(this.start)
 	}

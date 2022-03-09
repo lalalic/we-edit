@@ -580,7 +580,7 @@ function createTheme(){
                     values={NumberingFormats} 
                     labels={NumberingFormats.map(k=>{
                         const a=i=>dom.Unknown.numberings[k](i)
-                        return [a(0),a(1),a(2),"..."].join(",")
+                        return [a(1),a(2),a(3),"..."].join(",")
                     })}
                     />,
                 start:{

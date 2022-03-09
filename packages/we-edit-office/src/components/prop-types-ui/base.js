@@ -14,6 +14,7 @@ export default class base extends PureComponent{
         propTypesUITheme: PropTypes.object,
         setting: PropTypes.func,
         disabled: PropTypes.bool,
+        path: PropTypes.string,
     }
 
     static propTypes={
@@ -25,10 +26,6 @@ export default class base extends PureComponent{
     }
 
     static childContextTypes={
-        path: PropTypes.string,
-    }
-
-    static contexTypes={
         path: PropTypes.string,
     }
 

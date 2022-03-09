@@ -52,11 +52,13 @@ export default class HybridMeasure extends FontMeasure{
                 const names=fonts.map(a=>FontManager.get(a)?.familyName||a)
                 const faces=Array.from(document.fonts).filter(a=>names.includes(a.family))
                 return Promise.all(
-                    faces
-                        .map(a=>new Promise(resolve=>{
-                            return a.loaded
-                            .then(()=>resolve(),()=>resolve(a))
-                        }))
+                    faces.map(a=>new Promise(resolve=>{
+                        const t=setTimeout(() => resolve(a), 1000*10);
+                        return a.loaded.then(
+                            ()=>(clearTimeout(t),resolve()),
+                            ()=>(clearTimeout(t),resolve(a))
+                        )
+                    }))
                 ).then(required=>{
                     let unloaded=required.filter(a=>!!a)
                     if(unloaded.length){

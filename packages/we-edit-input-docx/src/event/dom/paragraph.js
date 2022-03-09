@@ -1,10 +1,38 @@
 import Editor from "./base"
 import Numbering from "./numbering"
-import {dom} from "we-edit"
+import {dom, clean} from "we-edit"
 import {Text} from "./text"
 
 const {UnitShape}=dom.Unknown
 export default class Paragraph extends Editor{
+	get isDirectNumbering(){
+		return this.node.is(":has(w\\:numPr)")
+	}
+
+	get isStyleNumbering(){
+		const styleId=this.node.children("w\\:pPr").children("w\\:pStyle").attr('w:val')
+		if(styleId){
+			const numPr=this.file.doc.officeDocument.styles(`w\\:style[w\\:styleId=${styleId}]>w\\:pPr>w\\:numPr`)
+			if(numPr.length){
+				return true
+			}
+		}
+	}
+
+	get isOutline(){
+		const styleId=this.node.children("w\\:pPr").children("w\\:pStyle").attr('w:val')
+		if(styleId){
+			const outline=this.file.doc.officeDocument.styles(`w\\:style[w\\:styleId=${styleId}]>w\\:pPr>w\\:outlineLvl`)
+			if(outline.length){
+				return true
+			}
+		}
+	}
+
+	get isNumbering(){
+		return this.isDirectNumbering||this.isStyleNumbering
+	}
+
 	got(nodeName){
 		return super.got(nodeName, "w:p", "w:pPr")
 	}
@@ -16,7 +44,11 @@ export default class Paragraph extends Editor{
 	numbering(props){
 		const numPr=this.got("w:numPr")
 		if(!props){
-			numPr.remove()
+			if(this.isDirectNumbering){
+				numPr.remove()
+			}else if(this.isStyleNumbering){
+				numPr.children("w\\:numId").attr("w:val","0")
+			}
 			return 
 		}
 
@@ -36,8 +68,8 @@ export default class Paragraph extends Editor{
 		const getLevelNode=(numId,level,aNumId=$(`w\\:num[w\\:numId="${numId}"]>w\\:abstractNumId`).attr("w:val"))=>
 			$(`w\\:abstractNum[w\\:abstractNumId="${aNumId}"]>w\\:lvl[w\\:ilvl="${level}"]`)
 
-		const isList=numPr.children("w\\:numId").length>0
-		if(!isList){
+		const isDirectList=numPr.children("w\\:numId").length>0
+		if(!isDirectList){
 			let adjacentNumbering=this.node.prev(`w\\:p:has(w\\:numPr>w\\:numId)`)
 			if(adjacentNumbering.length==0)
 				adjacentNumbering=this.node.next(`w\\:p:has(w\\:numPr>w\\:numId)`)
@@ -65,7 +97,7 @@ export default class Paragraph extends Editor{
 		this._applyChangeToAbstractNumberingLevel(getLevelNode(numId, level), props, $)
 	}
 
-	_applyChangeToAbstractNumberingLevel(nLevel,{ format = "bullet", label, start, indent: left, hanging, style: font }, $) {
+	_applyChangeToAbstractNumberingLevel(nLevel,{ format, label, start, indent: left, hanging, style: font }, $) {
 		if (format != undefined)
 			nLevel.find("w\\:numFmt").attr("w:val", format)
 		if (label != undefined)
@@ -73,7 +105,7 @@ export default class Paragraph extends Editor{
 		if (start != undefined)
 			nLevel.find("w\\:start").attr("w:val", start)
 
-		const indent = dom.Unknown.clear({ left, firstLine: -hanging })
+		const indent = clean({ left, firstLine: -hanging }, {nullable:[undefined, NaN], emptyAsUndefined:true})
 		if (indent) {
 			const p = new this.constructor(this.reducer)
 			p.node = nLevel
@@ -126,7 +158,7 @@ export default class Paragraph extends Editor{
 			const last=levels.eq(len-1).find("w\\:ind")
 			last.attr("w:left",String(parseInt(last.attr("w:left"))+2*parseInt(last.attr("w:hanging"))))
 			this.file.renderChanged(aNum)
-		}else{
+		}else{//increase level
 			const nLevel=numPr.children("w\\:ilvl")
 			const level=parseInt(nLevel.attr("w:val"))
 			if(level<8){
@@ -163,7 +195,7 @@ export default class Paragraph extends Editor{
 				first.attr("w:left",String(firstHanging))
 			}
 			this.file.renderChanged(aNum)
-		}else{
+		}else{//decrease level
 			const nLevel=numPr.children("w\\:ilvl")
 			const level=parseInt(nLevel.attr("w:val"))
 			if(level>0){
@@ -172,23 +204,34 @@ export default class Paragraph extends Editor{
 		}
 	}
 
+	outlinePromote(next=l=>Math.max(parseInt(l)-1,0)){
+		//find outline style's abstract numbering next level
+		const prPstyle=this.node.children("w\\:pPr").children("w\\:pStyle")
+		const style=this.file.doc.officeDocument.styles(`w\\:style[w\\:styleId=${prPstyle.attr('w:val')}]`)
+
+		const level=style.find("w\\:ilvl").attr('w:val')||"0"
+		const numId=style.find("w\\:numId").attr('w:val')
+		const absNumId=this.file.doc.officeDocument.numbering(`w\\:num[w\\:numId=${numId}]`).children("w\\:abstractNumId").attr('w:val')
+		const abstractNum=this.file.doc.officeDocument.numbering(`w\\:abstractNum[w\\:abstractNumId="${absNumId}"]`)
+		const styleId=abstractNum.find(`w\\:lvl[w\\:ilvl="${next(level)}"]>w\\:pStyle`).attr("w:val")
+		prPstyle.attr('w:val',styleId)
+	}
+
+	outlineDemote(){
+		this.outlinePromote(l=>Math.min(parseInt(l)+1,8))
+	}
+
 	tab({shiftKey}){
-		if(this.node.is(":has(w\\:numPr)")){
-			this[`num${shiftKey ? "Pro" :"De"}mote`]()
-		}else{
-			const heading=parseInt((/^Heading(\d)$/.exec(this.node.find(`w\\:pStyle`).attr("w:val"))||[])[1])||0
-			if(heading){
-				if(!shiftKey && heading<9){
-					this.node.find(`w\\:pStyle`).attr("w:val",`Heading${heading+1}`)
-				}else if(shiftKey && heading>1){
-					this.node.find(`w\\:pStyle`).attr("w:val",`Heading${heading-1}`)
-				}
-			}else {
-				const ind=this.got("w:ind")
-				const left=parseInt(ind.attr("w:left"))||0
-				ind.attr("w:left",String(shiftKey ? Math.max(0,left-360) : left+360))
-			}
+		if(this.isOutline){
+			return this[`outline${shiftKey ? "Pro" :"De"}mote`]()
+		}else if(this.isDirectNumbering){
+			return this[`num${shiftKey ? "Pro" :"De"}mote`]()
+		}else if(this.isStyleNumbering){
+
 		}
+		const ind=this.got("w:ind")
+		const left=parseInt(ind.attr("w:left"))||0
+		ind.attr("w:left",String(shiftKey ? Math.max(0,left-360) : left+360))
 	}
 
 	indent({left,right,firstLine}){

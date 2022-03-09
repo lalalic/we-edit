@@ -1,6 +1,9 @@
+import Paragraph from "./dom/paragraph"
 export default {
     tab_at_beginning_of_up_to_paragraph(e){
-        this.update_at_paragraph({id:this.$target.closest("paragraph").attr('id'),tab:e})
+        const p=new Paragraph(this)
+        p.node=this.target.closest("w\\:p")
+        p.update({tab:e})
     },
 
     tab_at_text(){

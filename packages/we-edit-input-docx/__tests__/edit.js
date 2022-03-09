@@ -265,23 +265,42 @@ describe('edit',()=>{
                 p0.tab({shiftKey:true})
                 expect(parseInt(p0.got("w:ind").attr("w:left"))==0).toBe(true)
             })
+
+            it("can only change label",()=>{
+                const {numbering,level}=test(1)
+                const p=numbering(0,{format:"decimal", label:"%1."})
+                expect(level(p).find("w\\:numFmt").attr("w:val")).toBe("decimal")
+                numbering(0,{label:"%1"})
+                expect(level(p).find("w\\:numFmt").attr("w:val")).toBe("decimal")
+                expect(level(p).find("w\\:lvlText").attr("w:val")).toBe("%1")
+            })
+
+            describe("numbering style",()=>{
+                xit.each([
+                    [1,2,false],[1,2],[9,9],
+                    [1,1,true],[4,3,true],[9,8,true]
+                ])("tab Heading%d->Heading%d with shiftKey:%s",(pre,pro,shiftKey=undefined)=>{
+                    const weDoc=createDocument(
+                        new Array(9).fill(0)
+                            .map((a,i)=>`<w:p><w:pPr><w:pStyle w:val="Heading${i+1}"/></w:pPr><w:r><w:t>hello</w:t></w:r></w:p>`)
+                            .join("")
+                    )
+                    const p=new Paragraph({file:weDoc})
+                    p.node=p.$("w\\:p").eq(pre-1)
+                    p.tab({shiftKey})
+                    expect(p.node.find("w\\:pStyle").attr("w:val")).toBe(`Heading${pro}`)
+                })
+            })
         })
 
-        it.each([
-            [1,2,false],[1,2],[9,9],
-            [1,1,true],[4,3,true],[9,8,true]
-        ])("tab Heading%d->Heading%d with shiftKey:%s",(pre,pro,shiftKey=undefined)=>{
-            const weDoc=createDocument(
-                new Array(9).fill(0)
-                    .map((a,i)=>`<w:p><w:pPr><w:pStyle w:val="Heading${i+1}"/></w:pPr><w:r><w:t>hello</w:t></w:r></w:p>`)
-                    .join("")
-            )
-            const p=new Paragraph({file:weDoc})
-            p.node=p.$("w\\:p").eq(pre-1)
-            debugger
-            p.tab({shiftKey})
-            expect(p.node.find("w\\:pStyle").attr("w:val")).toBe(`Heading${pro}`)
+        
+
+        it("StyleLink numbering change should be reflected to abstractNumber",()=>{
+
         })
 
+        it("change bullet should make all list items changed in canvas",()=>{
+            
+        })
     })
 })

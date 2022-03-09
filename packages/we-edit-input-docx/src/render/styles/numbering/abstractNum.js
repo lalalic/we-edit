@@ -7,12 +7,16 @@ export default class AbstractNum extends Getable{
 		this.type="abstractNum"
 		this.abstractNumId=node.attribs["w:abstractNumId"]
 		this.id=`_abstractNum_${this.abstractNumId}`
-		
-		node.children.filter(a=>a.name=="w:lvl").forEach(lvl=>{
-			this[parseInt(lvl.attribs["w:ilvl"])]=new Level(lvl,styles,selector,this)
-		})
+		const styleLink=node.children.find(a=>a.name=="w:w:numStyleLink")
+		if(styleLink){
+			this.basedOn=styleLink.attribs["w:val"]
+		}else{
+			node.children.filter(a=>a.name=="w:lvl").forEach(lvl=>{
+				this[parseInt(lvl.attribs["w:ilvl"])]=new Level(lvl,styles,selector,this)
+			})
 
-		this.level=i=>this[i]
+			this.level=i=>this[i]
+		}
 	}
 
 	flat(){

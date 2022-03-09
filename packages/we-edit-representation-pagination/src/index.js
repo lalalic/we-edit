@@ -118,10 +118,10 @@ class FontLoader extends Component{
 		const {props:{service, fonts, Measure, onFinished, doc}}=this
 		this.setState({loading:`checking if document has embedded fonts`})
 		Promise.resolve(doc.fonts)
-			.then(fonts=>{
-				if(fonts && Array.isArray(fonts)){
-					this.setState({loading:`document has ${fonts.length} embedded fonts ...`})
-					return Promise.all(fonts.map(a=>Promise.resolve(a).then(Measure.applyFont)))
+			.then(embedFonts=>{
+				if(embedFonts && Array.isArray(embedFonts)){
+					this.setState({loading:`document has ${embedFonts.length} embedded fonts ...`})
+					return Promise.all(embedFonts.map(a=>Promise.resolve(a).then(Measure.applyFont)))
 				}
 			})
 			.then((loadedEmbededFonts=[])=>{

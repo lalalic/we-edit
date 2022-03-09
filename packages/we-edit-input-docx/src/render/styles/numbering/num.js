@@ -71,7 +71,7 @@ class NumLevel extends Level{
 		return lvlText.replace(/%(\d+)/g, (a,level)=>{
 			level=parseInt(level)-1
 			if(level==this.level){
-				return (NUMFMT[numFmt]||NUMFMT['decimal'])(start+this.current++)
+				return (NUMFMT[numFmt]||NUMFMT['decimal']).call(NUMFMT, start+this.current++)
 			}else
 				return this.num.level(level).currentValue()
 		})
@@ -83,7 +83,7 @@ class NumLevel extends Level{
 				p[k]=this[k]||this.num.parent.get(`${this.level}.${k}`)
 				return p
 			},{})
-		return (NUMFMT[numFmt]||NUMFMT['decimal'])(start+Math.max(0,i))
+		return (NUMFMT[numFmt]||NUMFMT['decimal']).call(NUMFMT,start+Math.max(0,i))
 	}
 
 	reset(){

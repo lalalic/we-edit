@@ -50,6 +50,10 @@ export default class Paragraph extends Base{
 	applyNumbering(props, style={}) {
 		const { numId, abstractNumId, ilvl: level = 0 } = props.num
 		const numStyle = this.styles[`_num_${numId}`]||this.styles[`_abstractNum_${abstractNumId}`]
+		if(!numStyle){
+			delete props.num
+			return 
+		}
 		const indent=numStyle.get(`${level}.p.indent`)
 		props.indent={
 			...props.indent,

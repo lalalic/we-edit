@@ -156,13 +156,19 @@ const FontManager={
     load(data,cache=true){
         const fontsData=ttc2ttf(data)
         const loaded=fontsData.map(a=>{
-            const font=FontKit.create(Buffer.from(a))
-            if(!font)
-                return 
-            const familyName=font.familyName
-            if(familyName && familyName[0]!="."){
-                cache && service?.active.postMessage({familyName, data:a, scope:new URL(service.scope).pathname})
-                return fonts.put(font)
+            try{
+                const font=FontKit.create(Buffer.from(a))
+                if(!font){
+                    debugger
+                    return
+                } 
+                const familyName=font.familyName
+                if(familyName && familyName[0]!="."){
+                    cache && service?.active.postMessage({familyName, data:a, scope:new URL(service.scope).pathname})
+                    return fonts.put(font)
+                }
+            }catch(e){
+                debugger
             }
         }).filter(a=>!!a)
         switch(loaded.length){
