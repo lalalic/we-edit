@@ -65,10 +65,10 @@ export default class Paragraph extends Base{
 			nextValue: () => numStyle.level(level).nextValue(),
 			style: numStyle.get(`${level}.r`),
 			format: numStyle.get(`${level}.numFmt`),
-			numId,
+			id:numId,
 			level,
 			indent,
-			label: numStyle.get(`${level}.lvlText`),
+			label: numStyle.get(`${level}.label`),
 			start: numStyle.get(`${level}.start`),
 		}
 

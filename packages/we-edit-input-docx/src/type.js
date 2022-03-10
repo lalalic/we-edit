@@ -53,7 +53,13 @@ class DocxType extends Input.Editable{
 
 	render(createElement,components){
 		const self=this
-		const identify=this.doc.constructor.OfficeDocument.identify.bind(this.doc.constructor.OfficeDocument)
+		const ignores=["w:style", "w:num", "w:abstractNum"]
+		const identify=(identify=>(node,officeDocument)=>{
+			if(ignores.includes(node.parent?.name) || node.name=="w:del"){
+				return 
+			}
+			return identify(node,officeDocument)
+		})(this.doc.constructor.OfficeDocument.identify.bind(this.doc.constructor.OfficeDocument));
 
 		const docx=this.doc
 		const selector=new Style.Properties(docx)
@@ -84,16 +90,11 @@ class DocxType extends Input.Editable{
 			}
 
 			getBulletList(){
-				return officeDocument.numbering("w\\:num").filter((i,el)=>{
-					const abstractNumId=officeDocument.numbering(el).children("w\\:abstractNumId").attr("w:val")
-					const a=officeDocument.numbering(`w\\:abstractNum[w\\:abstractNumId=${abstractNumId}]`)
-						.has("w\\:multiLevelType[w\\:val=singleLevel],w\\:multiLevelType[w\\:val=hybridMultilevel]")
-						.find("[w\\:ilvl=0]>w\\:numFmt[w\\:val=bullet]")
-					return a.length==1
-				}).map((i,el)=>{
-					const numId=el.attribs["w:numId"]
-					return styles.Normal.applyNumbering({num:{numId,ilvl:0}})
-				}).toArray()
+				return officeDocument.numbering(`w\\:lvl:has(w\\:numFmt[w\\:val=bullet])`)
+					.map((i,el)=>{
+						const abstractNumId=el.parent.attribs["w:abstractNumId"]
+						return styles.Normal.applyNumbering({num:{abstractNumId,ilvl:el.attribs["w:ilvl"]}})
+					}).toArray()
 			}
 
 			getOutlineList(){
@@ -105,8 +106,8 @@ class DocxType extends Input.Editable{
 					.filter((i,a)=>officeDocument.numbering(a).children("w\\:styleLink").length==0)
 					.map((i,a)=>a.attribs["w:abstractNumId"]).toArray()
 				return {
-					styleList:styleList.map(numId=>({levels:styles[`_num_${numId}`].flat()})), 
-					docList:docList.map(abstractNumId=>({levels:styles[`_abstractNum_${abstractNumId}`].flat()}))
+					styleList:styleList.map(numId=>({id:numId, levels:styles[`_num_${numId}`].flat()})), 
+					docList:docList.map(abstractNumId=>({abstractNumId,levels:styles[`_abstractNum_${abstractNumId}`].flat()}))
 				}
 			}
 		})();//keep as raw object in state
@@ -152,13 +153,32 @@ class DocxType extends Input.Editable{
 				return null
 			}
 			case "num":{
-				let style=new Style.Num(node,styles,selector)
+				const style=new Style.Num(node,styles,selector)
 				styles[style.id]=style
 				return null
 			}
 			case "abstractNum":{
-				let style=new Style.AbstractNum(node,styles,selector)
+				const style=new Style.AbstractNum(node,styles,selector)
 				styles[style.id]=style
+				return null
+			}
+			case "numPicBullet":{
+				const $node=officeDocument.numbering(node)
+				const rid=$node.find("v\\:imagedata").attr('r:id')
+				const numRid=officeDocument.rels(`Relationship[Type$="numbering"]`).attr('Id')
+				const numberingPart=officeDocument.getRelPart(numRid)
+				const {url}=numberingPart.getRel(rid);
+				const {UnitShape}=dom.Unknown
+				debugger
+				const prop={}
+				$node.find("v\\:shape").attr('style').split(";").forEach(a=>{
+					const [key,value]=a.split(":")
+					if(key=="width" || key=="height"){
+						prop[key]=UnitShape.normalize(value)
+					}
+				})
+
+				;(styles.picBullets||(styles.picBullets={}))[$node.attr("w:numPicBulletId")]={url,...prop}
 				return null
 			}
 			case "document":{
@@ -339,7 +359,7 @@ class DocxType extends Input.Editable{
 		let build=buildFactory(createElement)
 		const renderNode=node=>docx.officeDocument.renderNode(node,build,identify)
 
-		const rendered=docx.render(build)
+		const rendered=docx.render(build, identify)
 
 
 		/**

@@ -4,6 +4,13 @@ export default class{
           <w:abstractNumId w:val="${abstractId}"/>
         </w:num>
     `
+
+    static Template_StyleLink=(id,styleName)=>`
+        <w:abstractNum w:abstractNumId="${id}" w15:restartNumberingAfterBreak="0">
+            <w:multiLevelType w:val="multilevel"/>
+            <w:numStyleLink w:val="${styleName}"/>
+        </w:abstractNum>
+    `
     static Numeric=id=>`
         <w:abstractNum w:abstractNumId="${id}" w15:restartNumberingAfterBreak="0">
           <w:nsid w:val="4EB77DE4"/>

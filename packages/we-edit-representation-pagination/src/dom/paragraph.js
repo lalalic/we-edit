@@ -285,7 +285,8 @@ class Paragraph extends HasParentAndChild(dom.Paragraph){
 				</Group>
 			)
 		}else if(typeof(label)=="object"){
-			atom=<Group><Shape fill={{picture:label}}/></Group>
+			const {url, width,height, w=parseInt(width), h=parseInt(height)}=label
+			atom=<Group y={-h}><Shape fill={{picture:{url}}} d={`M0 0 h${w} v${h} h${-w}z`} color="transparent"/></Group>
 		}
 		props.width=-props.x//to make first atom at x=0
 		return React.cloneElement(atom,props)

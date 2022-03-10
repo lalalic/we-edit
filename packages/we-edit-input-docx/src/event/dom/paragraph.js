@@ -6,7 +6,7 @@ import {Text} from "./text"
 const {UnitShape}=dom.Unknown
 export default class Paragraph extends Editor{
 	get isDirectNumbering(){
-		return this.node.is(":has(w\\:numPr)")
+		return this.node.is(":has(w\\:numPr>w\\:numId)")
 	}
 
 	get isStyleNumbering(){
@@ -51,6 +51,9 @@ export default class Paragraph extends Editor{
 			}
 			return 
 		}
+		if(props.levels){
+			props=props.levels[0]
+		}
 
 		if(!this.file.doc.officeDocument.numbering){
 			this.file.doc.officeDocument.addNumberingPart()
@@ -68,15 +71,22 @@ export default class Paragraph extends Editor{
 		const getLevelNode=(numId,level,aNumId=$(`w\\:num[w\\:numId="${numId}"]>w\\:abstractNumId`).attr("w:val"))=>
 			$(`w\\:abstractNum[w\\:abstractNumId="${aNumId}"]>w\\:lvl[w\\:ilvl="${level}"]`)
 
-		const isDirectList=numPr.children("w\\:numId").length>0
-		if(!isDirectList){
+		const getNumStyleLink=numId=>{
+			const absId=$(`w\\:num[w\\:numId=${numId}]`).children("w\\:abstractNumId").attr('w:val')
+			return $(`w\\:abstractNum[w\\:abstractNumId=${absId}]`).children("w\\:styleLink, w\\:numStyleLink").attr('w:val')
+		}
+
+		if(!this.isDirectNumbering){
 			let adjacentNumbering=this.node.prev(`w\\:p:has(w\\:numPr>w\\:numId)`)
 			if(adjacentNumbering.length==0)
 				adjacentNumbering=this.node.next(`w\\:p:has(w\\:numPr>w\\:numId)`)
 			if(adjacentNumbering.length==1){
 				const adjacentNumPr=numIdLevel(adjacentNumbering.children("w\\:pPr").children("w\\:numPr"))
-				const canFollowAdjacent=(({format:type,label:text},{numId,level})=>{
+				const canFollowAdjacent=(({format:type,label:text,id},{numId,level})=>{
 					const nLevel=getLevelNode(numId,level)
+					if(nLevel.length==0){//numStyleLink
+						return getNumStyleLink(numId)==getNumStyleLink(id)
+					}
 					if(nLevel.is(`:has(w\\:numFmt[w\\:val="${type}"])`)){
 						return text ? nLevel.is(`:has(w\\:lvlText[w\\:val="${text}"])`) : true
 					}
@@ -89,12 +99,14 @@ export default class Paragraph extends Editor{
 					return
 				}
 			}
-			
-			this._createNumbering($, props, numPr)
+
+			this._createNumbering($, props, numPr, getNumStyleLink)
 		}
 
-		const {numId, level}=numIdLevel(numPr)
-		this._applyChangeToAbstractNumberingLevel(getLevelNode(numId, level), props, $)
+		if(!props.id){
+			const {numId, level}=numIdLevel(numPr)
+			this._applyChangeToAbstractNumberingLevel(getLevelNode(numId, level), props, $)
+		}
 	}
 
 	_applyChangeToAbstractNumberingLevel(nLevel,{ format, label, start, indent: left, hanging, style: font }, $) {
@@ -123,22 +135,33 @@ export default class Paragraph extends Editor{
 		this.file.renderChanged($(`w\\:abstractNum[w\\:abstractNumId="${nLevel.closest("w\\:abstractNum").attr("w:abstractNumId")}"]`))	
 	}
 
-	_createNumbering($, props, numPr) {
+	_createNumbering($, {id, format="bullet"}, numPr, getNumStyleLink) {
 		const aNums = $("w\\:abstractNum")
 		const aNumId = Math.max(-1, ...(aNums.map((i, a) => parseInt(a.attribs["w:abstractNumId"])).get())) + 1
-		const aNum = $(this.trim(Numbering[props.format == "bullet" ? "Bullet" : "Numeric"](aNumId)))
+		const level = 0
+		const numId = Math.max(-1, ...($("w\\:num").map((i, a) => parseInt(a.attribs["w:numId"])).get())) + 1
+		
+		const styleName=getNumStyleLink(id)
+
+		let aNum=null
+		if(styleName){
+			//add <num/> and <abstractNum><w:numStyleLink w:val=""/>
+			aNum=$(this.trim(Numbering.Template_StyleLink(aNumId, styleName)))
+		}else{
+			aNum = $(this.trim(Numbering[format == "bullet" ? "Bullet" : "Numeric"](aNumId)))
+		}
 		if (aNums.length > 0) {
 			aNum.insertAfter(aNums.last())
 		} else {
 			aNum.appendTo($("w\\:numbering"))
 		}
 
-		const level = 0
-		const numId = Math.max(-1, ...($("w\\:num").map((i, a) => parseInt(a.attribs["w:numId"])).get())) + 1
-		const num = $(this.trim(Numbering.Template(numId, aNumId))).appendTo($("w\\:numbering"))
+		$(this.trim(Numbering.Template(numId, aNumId))).appendTo($("w\\:numbering"))
 
 		numPr.append(`<w:ilvl w:val="${level}"/>`)
 		numPr.append(`<w:numId w:val="${numId}"/>`)
+
+		this.file.renderChanged($(`w\\:abstractNum[w\\:abstractNumId=${aNumId}]`))
 		this.file.renderChanged($(`w\\:num[w\\:numId="${numId}"]`))
 	}
 
