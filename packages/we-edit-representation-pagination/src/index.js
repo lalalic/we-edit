@@ -131,8 +131,8 @@ class FontLoader extends Component{
 				}
 				this.setState({loading:`loading fonts from ${typeof(service)=="string" ? service : "customized interface"}`})
 				Measure.requireFonts(service,fonts)
-					.then(({unloaded, errors})=>{
-						this.setState({errors, unloaded, loaded:true},()=>onFinished({unloaded}))
+					.then(({unloaded})=>{
+						this.setState({unloaded, loaded:true, loading:undefined},()=>onFinished({unloaded}))
 					})
 			})	
 	}

@@ -169,7 +169,7 @@ class DocxType extends Input.Editable{
 				const numberingPart=officeDocument.getRelPart(numRid)
 				const {url}=numberingPart.getRel(rid);
 				const {UnitShape}=dom.Unknown
-				debugger
+				
 				const prop={}
 				$node.find("v\\:shape").attr('style').split(";").forEach(a=>{
 					const [key,value]=a.split(":")

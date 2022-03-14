@@ -5,6 +5,9 @@
  */
 var fontFaces=null, loader=null
 export function makeFontFace(font, src , variants){
+    if(font?.familyName=="Leelawadee UI Web"){
+        debugger
+    }
     if(!document?.createElement || !FontFace)
         return 
     if(!fontFaces){

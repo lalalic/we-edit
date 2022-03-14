@@ -53,7 +53,7 @@ export default class HybridMeasure extends FontMeasure{
                 const faces=Array.from(document.fonts).filter(a=>names.includes(a.family))
                 return Promise.all(
                     faces.map(a=>new Promise(resolve=>{
-                        const t=setTimeout(() => resolve(a), 1000*10);
+                        const t=setTimeout(() => resolve(a), 1000);
                         return a.loaded.then(
                             ()=>(clearTimeout(t),resolve()),
                             ()=>(clearTimeout(t),resolve(a))
@@ -67,8 +67,7 @@ export default class HybridMeasure extends FontMeasure{
                         })
                         unloaded=Array.from(new Set(unloaded.map(a=>[a.family,a.style,a.weight].filter(a=>a!=="normal").join("/"))))
                     }
-                    const errors=unloaded.filter(a=>locals.includes(a))
-                    return {FontManager,unloaded, errors}
+                    return {FontManager,unloaded}
                 })
             }))
     }

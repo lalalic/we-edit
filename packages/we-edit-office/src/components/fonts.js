@@ -34,6 +34,7 @@ export default class FontList extends Component{
 					name="font" 
 					value={open?filter:value} 
 					autoComplete="off"
+					spellCheck="false"
 					onFocus={e=>{
 						this.setState({open:true})
 						e.target.select()
@@ -74,7 +75,7 @@ export default class FontList extends Component{
 
 	getMenuItems(){
 		const {state:{fonts, filter},props:{value, onChange}}=this
-		return Array.from(new Set(fonts.map(({family})=>family))).sort()
+		return Array.from(new Set(fonts.filter(a=>a.status=="loaded").map(({family})=>family))).sort()
 			.reduce((menus, a)=>{
 				if(filter && !a.startsWith(filter)){
 					return menus

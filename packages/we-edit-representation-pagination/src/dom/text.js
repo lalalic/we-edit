@@ -10,6 +10,7 @@ import {Text as ComposedText} from "../composed"
 
 /**
  * fonts make composing complex
+ * *tokenizeOpportunity is a shortcut for line-break algorithm
  */
 class Text extends NoChild(dom.Text){
     static contextTypes={
@@ -142,5 +143,10 @@ export default class EditableText extends editable(Text){
             return null
         }
         return super.render()
+    }
+
+
+    static getDerivedStateFromError(error){
+        return {error}
     }
 }

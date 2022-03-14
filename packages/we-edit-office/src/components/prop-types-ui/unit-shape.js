@@ -37,7 +37,7 @@ export default class UnitShape extends base{
             props.disabled=true
         return (
             <span style={{position:"relative", display:"inline-block"}} className="unit-shape">
-                <input {...{...props,title:label,style,value, type:"text",}} 
+                <input {...{...props,title:label,style,value, type:"text",spellCheck:false}} 
                     onFocus={e=>e.target.select()}
                     onChange={e=>this.setState({value:e.target.value})}
                     onBlur={a=>this.set(this.path, value)}
