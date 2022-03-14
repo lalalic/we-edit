@@ -143,7 +143,7 @@ class Row extends HasParentAndChild(dom.Row){
 	
 	
 	nextAvailableSpace({id:cellId, colSpan=1,rowSpan=1, ...required}){
-		const {keepLines, height:exactHeight,minHeight=0}=this.props
+		const {keepLines, minHeight=0}=this.props
 		const col=this.getColumns(this.cols)[cellId]
 		colSpan>1 && (col.colSpan=colSpan);
 		rowSpan>1 && (col.rowSpan=rowSpan);
@@ -215,6 +215,10 @@ class Row extends HasParentAndChild(dom.Row){
 			return this.row.props.id
 		}
 
+		get isFixedHeight(){
+			return !!this.row.props.height
+		}
+
 		get flowableContentHeight(){
 			return this.row.getFlowableContentHeight(this.cells)
 		}
@@ -240,16 +244,21 @@ class Row extends HasParentAndChild(dom.Row){
 			const {cols=this.cols, isLastPageOfRow, isFirstRowInPage,table, row}=this.props
 			const {x,width}=cols[i]
 			
-			const layoutedCell=React.cloneElement(
-				cell.clone({
-					height,
-					colIndex:i,table,row,isLastPageOfRow,isFirstRowInPage//editable edges need the information
-				}).createComposed2Parent(),{
+			const props={
 				x,
 				width,
 				height,
 				key:i,
-			})
+			}
+			if(this.isFixedHeight){
+				props.clipPath=`path("M0,0h${width}v${height}h${-width}z")`
+			}
+
+			const layoutedCell=React.cloneElement(
+				cell.clone({
+					height,
+					colIndex:i,table,row,isLastPageOfRow,isFirstRowInPage//editable edges need the information
+				}).createComposed2Parent(),props)
 			//yield and merge when pageTable.push changed the relationship between pageCell and pageRow
 			return this.row.wrapParentsUntilMe(layoutedCell,cell.cell.closest('row'))
 		}
@@ -269,7 +278,7 @@ class Row extends HasParentAndChild(dom.Row){
 			const {top:{width:top=0}={},left:{width:left=0}={}}=this.border||{}
 			const rowHeight=Math.max(pageTableRowHeight, this.flowableContentHeight)
 			const layoutedCells=cells.map((cell,i)=>{
-					const h=Math.max(rowHeight, (cell?.cellHeight||0)+(cellAppendHeights[i]||0))
+					const h=this.isFixedHeight ? rowHeight : Math.max(rowHeight, (cell?.cellHeight||0)+(cellAppendHeights[i]||0))
 					return this.renderCell(cell,i,h)
 			})
 			return (

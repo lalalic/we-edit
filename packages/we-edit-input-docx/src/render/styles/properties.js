@@ -312,7 +312,8 @@ export class Properties{
 	}
 
 	trHeight(x){
-		return this.docx.dxa2Px(x.attribs['w:val'])
+		if(x.attribs["w:hRule"]=="exact")
+			return this.docx.dxa2Px(x.attribs['w:val'])
 	}
 
 	cantSplit(x){

@@ -145,7 +145,7 @@ export default class TableStyle extends WithBorder{
 
 		this.tc=this._convert(node,"w:tcPr",attribs.tc,selector)
 
-		this.tr=this._convert(node,"w:tblPrEx",attribs.tr,selector)
+		this.tr=this._convert(node,"w:trPr",attribs.tr,selector)
 
 		node.children.filter(a=>a.name=="w:tblStylePr").forEach(a=>{
 			let type=a.attribs["w:type"]
