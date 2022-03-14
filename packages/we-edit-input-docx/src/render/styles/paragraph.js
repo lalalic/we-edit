@@ -24,6 +24,9 @@ export default class Paragraph extends Base{
 		constructor(node,styles,selector){
 			super(node, styles, selector)
 			this.p=this._convert(node, null,attribs, selector)
+			if(!this.basedOn){
+				this.basedOn=`*${this.type}`
+			}
 		}
 
 		getLink(){

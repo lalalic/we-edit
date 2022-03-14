@@ -41,6 +41,9 @@ export default class Character extends Base{
 		constructor(node, styles, selector){
 			super(node, styles, selector)
 			this.r=this._convert(node, null,attribs, selector)
+			if(!this.basedOn){
+				this.basedOn=`*${this.type}`
+			}
 		}
 
 		_convert(node, ...args){
