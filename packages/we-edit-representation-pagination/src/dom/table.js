@@ -76,13 +76,13 @@ class Table extends HasParentAndChild(dom.Table){
 	 * row asking for space, we need know which row is asking, maybe the row already asked, but it need adjust height
 	 * each row should only request once, since max and edge already give each time, row already know how to balance
 	 */
-	nextAvailableSpace(rowId){
+	nextAvailableSpace({row:rowId, ...required}){
 		if(this.lastPage){//a row only happen once in a page
 			if(this.lastPage.lastRow.id==rowId){
 				//to ensure #2a: when calculating cell height matrix, use space height
 				this.lastPage.commit(false)
 			}else{
-				const space=this.currentPage.nextAvailableSpace()
+				const space=this.currentPage.nextAvailableSpace(required)
 				if(space){
 					return space
 				}else if(this.currentPage==this.lastPage){
@@ -93,10 +93,10 @@ class Table extends HasParentAndChild(dom.Table){
 			}
 		}
 
-		const space=super.nextAvailableSpace(...arguments)
+		const space=super.nextAvailableSpace(required)
 		let segments=space.findBlockSegments()
 		if(segments.length==0){
-			space=super.nextAvailableSpace(space.height+1)
+			space=super.nextAvailableSpace({...required,height:space.height+1})
 			segments=space?.findBlockSegments()||[]
 			if(segments.length==0)
 				return false
@@ -109,7 +109,7 @@ class Table extends HasParentAndChild(dom.Table){
 				children:[],
 			},{parent:this})
 		)
-		return this.lastPage.nextAvailableSpace()
+		return this.lastPage.nextAvailableSpace(required)
 	}
 
 	static Page=class extends Component{
@@ -183,6 +183,7 @@ class Table extends HasParentAndChild(dom.Table){
 		}
 
 		relayout(row){
+			console.debug(`Row[${row.props.id}] triggered relayout`)
 			const isBelongToThisTable=l=>{
 				const $line=new ReactQuery(l)
 				const $table=$line.findFirst(`[data-content="${this.table.props.id}"]`)
@@ -235,13 +236,13 @@ class Table extends HasParentAndChild(dom.Table){
 			if(this.rows.includes(row))
 				return false
 			this.rows.push(row)
-			row.onAllChildrenComposed(this.relayout.factory(this))
+			row.setAllDoneListener(this.relayout.factory(this))
 			return true
 		}
 
-		nextAvailableSpace(){
+		nextAvailableSpace({height:requiredHeight=0}){
 			const height=this.flowableContentHeight
-			const available=this.space.height-height
+			const available=this.space.height-height-requiredHeight
 			if(available<=0)
 				return false
 			return this.space.clone({height:available,blockOffset:this.space.blockOffset+height})
@@ -339,7 +340,7 @@ class SpanableTable extends Table{
 				.filter(page=>page.rows[0].id==lastRow.id)//page crossed from same row
 				.forEach(page=>{
 					const yielded=page.rows[0]=page.rows[0].yieldTo(row)
-					yielded.onAllChildrenComposed(this.relayout.factory(page))
+					yielded.setAllDoneListener(this.relayout.factory(page))
 				})
 			return true
 		}

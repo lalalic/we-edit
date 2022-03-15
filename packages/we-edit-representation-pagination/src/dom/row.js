@@ -47,6 +47,15 @@ class Row extends HasParentAndChild(dom.Row){
 	get currentPage(){
 		return this.pages[this.pages.length-1]
 	}
+
+	get header(){
+		return this.props.header
+	}
+
+	get keepLines(){
+		return this.header || this.props.keepLines
+	}
+
 	
 	/**
 	 * support get column by cellid, such as this.getColumns(this.cols)["cellid1"] 
@@ -128,7 +137,7 @@ class Row extends HasParentAndChild(dom.Row){
 				}
 			}
 			//request largest space in current constraint space
-			const space=super.nextAvailableSpace(this.props.id)
+			const space=super.nextAvailableSpace({row:this.props.id})
 			if(!space)//no space any more, stop immediately
 				return 
 			
@@ -143,7 +152,6 @@ class Row extends HasParentAndChild(dom.Row){
 	
 	
 	nextAvailableSpace({id:cellId, colSpan=1,rowSpan=1, ...required}){
-		const {keepLines, minHeight=0}=this.props
 		const col=this.getColumns(this.cols)[cellId]
 		colSpan>1 && (col.colSpan=colSpan);
 		rowSpan>1 && (col.rowSpan=rowSpan);
@@ -157,7 +165,7 @@ class Row extends HasParentAndChild(dom.Row){
 		return space.clone({
 			left:X,
 			right:X+width,
-			height:keepLines ? Number.MAX_SAFE_INTEGER : height,
+			height:this.keepLines ? Number.MAX_SAFE_INTEGER : height,
 		})
 	}
 
@@ -174,6 +182,23 @@ class Row extends HasParentAndChild(dom.Row){
 	}
 
 	onAllChildrenComposed(){
+		if(this.keepLines){
+			const currentPage=this.currentPage
+			if(currentPage.space.height<currentPage.flowableContentHeight){
+				/**
+				 * since rowPage and cellPage haven't appended composed to frame, so it's safe to replace page and space
+				 */
+				const space=super.nextAvailableSpace({height:currentPage.flowableContentHeight})
+				this.pages=[
+					new this.constructor.Page({
+						space, 
+						children:currentPage.props.children,
+					},{parent:this})
+				]
+
+			}
+		}
+
 		this.currentPage.bLastPage=true
 		this.context.parent.appendComposed(this.currentPage)
 		super.onAllChildrenComposed()
@@ -223,7 +248,7 @@ class Row extends HasParentAndChild(dom.Row){
 			return this.row.getFlowableContentHeight(this.cells)
 		}
 
-		onAllChildrenComposed(callback){
+		setAllDoneListener(callback){
 			this.row.allDoneEvent.on('allDone',this.allDoneListener=callback)
 			this.removeAllDoneListener=()=>{
 				this.row.allDoneEvent.removeListener('allDone',callback)
@@ -392,6 +417,16 @@ export default class EditableRow extends editable(SpanableRow,{stoppable:true, c
 		super._cancelAllLastComposed()
 		delete this.computed.cols
 		delete this.computed.allDoneEvent
+	}
+
+	static Page=class extends super.Page{
+		createComposed2ParentWithHeight(...args){
+			const i=this.row.pages.indexOf(this)
+			if(i!=-1){
+				this.row.computed.lastComposed.splice(i)
+			}
+			return super.createComposed2ParentWithHeight(...args)
+		}
 	}
 }
 
