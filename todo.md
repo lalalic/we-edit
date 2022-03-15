@@ -66,8 +66,11 @@ docx:
 * enter in docx problem
 * shape border and text distance
 * use shape for cell to utilize shape feature on cell borders
-* col span, row span
+* col span
+* row span
+* cell colors
 * wrap all table rows in table container, instead of table-row-line [failed]
+    * to remove duplicated cell lines
     * it's very risk, since positioning is based on line
 * make color support svg supported color space
 * CSSUnitValue 
@@ -92,6 +95,12 @@ docx:
 * text fonts maybe a few for different 
 * we-edit-office.fonts nested fonts display problem
 * the target of setting text style on cursor should be the atom
+* **catch layout error on all composer**
+    * text
+    * paragraph
+    * section
+    * page
+    * container
 
 # Notes
 * immutable 4.0 would deadloop
