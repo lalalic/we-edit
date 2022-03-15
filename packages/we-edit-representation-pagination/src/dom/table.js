@@ -39,6 +39,14 @@ class Table extends HasParentAndChild(dom.Table){
 		return this.pages[this.pages.length-1]
 	}
 
+	get headers(){
+		return this.pages[0]?.rows.filter(a=>a.row.header)
+	}
+
+	get footers(){
+		return this.pages[0]?.rows.filter(a=>a.row.header)
+	}
+
 	getChildContext(){
 		return {
 			...super.getChildContext(),
@@ -105,7 +113,11 @@ class Table extends HasParentAndChild(dom.Table){
 		const max=segments.sort((a,b)=>b.height-a.height)[0]
 		this.pages.push(
 			new this.constructor.Page({
-				space:space.clone({height:max.height,blockOffset:max.y, segments}),
+				space:space.clone({
+					height:max.height,//-this.headers.height-this.footers.height,
+					blockOffset:max.y,//+this.headers.height, 
+					segments
+				}),
 				children:[],
 			},{parent:this})
 		)
@@ -151,7 +163,6 @@ class Table extends HasParentAndChild(dom.Table){
 		get flowableContentHeight(){
 			return this.rows.reduce((H,{flowableContentHeight:h})=>H+h,0)
 		}
-
 		/**
 		 * call only once, mainly for page flow
 		 * firstRow should locate dy
@@ -242,8 +253,8 @@ class Table extends HasParentAndChild(dom.Table){
 
 		nextAvailableSpace({height:requiredHeight=0}){
 			const height=this.flowableContentHeight
-			const available=this.space.height-height-requiredHeight
-			if(available<=0)
+			const available=this.space.height-height
+			if(available<=requiredHeight)
 				return false
 			return this.space.clone({height:available,blockOffset:this.space.blockOffset+height})
 		}
