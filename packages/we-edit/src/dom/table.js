@@ -5,8 +5,6 @@ export default class Table extends Component{
 	static displayName="table"
 	static propTypes={
 		width: this.UnitShape,
-		headers: PropTypes.number,
-		footers: PropTypes.number,
 		indent: this.UnitShape,
 		cols: PropTypes.arrayOf(PropTypes.shape({
 				x: this.UnitShape,
@@ -15,7 +13,6 @@ export default class Table extends Component{
 	}
 
 	static defaultProps={
-		headers:0,
 		indent:0
 	}
 

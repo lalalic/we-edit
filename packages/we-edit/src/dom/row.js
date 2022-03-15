@@ -9,6 +9,8 @@ export default class Row extends Component{
 		height: this.UnitShape,
 		minHeight: this.UnitShape,
 		keepLines: PropTypes.bool,
+		header: PropTypes.bool,
+		footer: PropTypes.bool,
 	}
 
 	static contextTypes={
