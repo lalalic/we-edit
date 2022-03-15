@@ -241,12 +241,12 @@ class DocxType extends Input.Editable{
 				return createElement(components.Section,{...style, headers,footers},children,node)
 			}
 			case "tbl":{
-				let cols=selector.select([node.children.find(a=>a.name=="w:tblGrid")]).tblGrid
-				let style=!props.pr ? styles['*table'] : new Style.Table.Direct(props.pr,styles,selector)
+				const cols=selector.select([node.children.find(a=>a.name=="w:tblGrid")]).tblGrid
+				const style=!props.pr ? styles['*table'] : new Style.Table.Direct(props.pr,styles,selector)
 				return createElement(components.Table,{cols,style},children,node)
 			}
 			case "tr":{
-				let style=!props.pr ? undefined : new Style.Table.Direct(props.pr,styles,selector)
+				const  style=!props.pr ? undefined : new Style.Table.Direct(props.pr,styles,selector)
 				return createElement(components.Row,{style},children,node)
 			}
 			case "tc":{

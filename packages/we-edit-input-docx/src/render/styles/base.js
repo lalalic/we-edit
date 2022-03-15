@@ -84,7 +84,8 @@ class Linkable extends Getable{
 	}
 
 	_invokeOnBasedOn(path){
-		let value=super._invokeFromBasedOn(...arguments)
+		const _invokeFromBasedOn=super._invokeOnBasedOn
+		let value=_invokeFromBasedOn.call(this,...arguments)
 		if(value==undefined){
 			value=this.next.reduce((r,a)=>(r==undefined ? a.invoke(...arguments) : r),undefined)
 		}

@@ -332,6 +332,10 @@ export class Properties{
 		return parseInt(x.attribs["w:val"])
 	}
 
+	tblHeader(x){
+		return true
+	}
+
 /**************drawingML********************/
 	positionH(x){
 		return {

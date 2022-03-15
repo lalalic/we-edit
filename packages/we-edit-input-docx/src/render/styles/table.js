@@ -1,5 +1,5 @@
 import Paragraph from "./paragraph"
-import get from "lodash.get"
+import {clean} from "we-edit"
 
 /**
  * conditional formatting: http://officeopenxml.com/WPstyleTableStylesCond.php
@@ -125,6 +125,7 @@ const attribs={
 		"w:cnfStyle":"conditional",
 		"w:trHeight":"height",
 		"w:cantSplit":"keepLines",
+		"w:tblHeader":"header",
 	},
 
 	tc:{
@@ -158,25 +159,30 @@ export default class TableStyle extends WithBorder{
 			super(node, styles, selector)
 			const type=node.name.split(":").pop().replace("Pr","")
 			this[type]=this._convert(node, null, attribs[type],selector)
+			if(!this.basedOn){
+				this.basedOn=styles['*table']?.id
+			}
 		}
 	}
 
 	flat4Table(...inherits){
-		let targets=[this,...inherits]
-		return "indent,background,width,conditional".split(",")
+		const targets=[this,...inherits]
+		const props="indent,background,width,conditional".split(",")
 			.reduce((props,k)=>{
 				targets.find(a=>(props[k]=a.get(`tbl.${k}`))!==undefined)
 				return props
 			},{})
+		return clean(props)
 	}
 
 	flat4Row(...inherits){
-		let targets=[this,...inherits]
-		return "height,cantSplit,keepLines,conditional".split(",")
+		const targets=[this,...inherits]
+		const props="height,keepLines,conditional,header".split(",")
 			.reduce((props,k)=>{
 				targets.find(a=>(props[k]=a.get(`tr.${k}`))!==undefined)
 				return props
 			},{})
+		return clean(props)
 	}
 
 	flat4Cell(conditional, edges=[]){
@@ -184,7 +190,7 @@ export default class TableStyle extends WithBorder{
 				.map((a,i)=>a=="1"&&CNF[i]).filter(a=>a)
 				.sort((a,b)=>PRIORIZED.indexOf(a)-PRIORIZED.indexOf(b))
 
-		let margin="left,right,top,bottom".split(",").reduce((margin,a)=>{
+		const margin="left,right,top,bottom".split(",").reduce((margin,a)=>{
 			let v=this.get(`margin.${a}`)
 			if(v==undefined)
 				v=this.get(`tbl.margin.${a}`,conditions)
@@ -193,7 +199,7 @@ export default class TableStyle extends WithBorder{
 			return margin
 		},{})
 
-		let border="left,right,top,bottom".split(",").reduce((border,a)=>{
+		const border="left,right,top,bottom".split(",").reduce((border,a)=>{
 			let v=this.get(`border.${a}`)
 			if(v==undefined)
 				v=this[a](conditions,edges)
@@ -205,14 +211,14 @@ export default class TableStyle extends WithBorder{
 			return border
 		},{})
 
-		let p="spacing,indent".split(",").reduce((p,k)=>{
+		const p="spacing,indent".split(",").reduce((p,k)=>{
 			let v=this.get(`p.${k}`,conditions)
 			if(v!==undefined)
 				p[k]=v
 			return p
 		},{})
 
-		let r="fonts,size,color".split(",").reduce((r,k)=>{
+		const r="fonts,size,color".split(",").reduce((r,k)=>{
 			let v=this.get(`r.${k}`,conditions)
 			if(v!==undefined)
 				r[k]=v
@@ -224,13 +230,9 @@ export default class TableStyle extends WithBorder{
 			return r
 		},{}))
 
-		let background=this.get('tbl.background',conditions)
+		const background=this.get('tbl.background',conditions);
 		
-		const clean=a=>Object.keys(a).length==0 ? undefined : a
-
-		[margin,border,p,r]=[clean(margin),clean(border),clean(p),clean(r)]
-
-		return {margin,border,background,p,r}
+		return clean({margin:clean(margin),border:clean(border),background,p:clean(p),r:clean(r)})
 	}
 
 	get(path, conditions=[]){
