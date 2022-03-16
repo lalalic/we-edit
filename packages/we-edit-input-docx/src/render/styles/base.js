@@ -96,9 +96,9 @@ class Mixinable extends Getable{
 	mixin(...mixins){
 		if(mixins.length==0)
 			return this
-		let cloned=Object.create(this)
-		cloned.mixins=mixins
-		var i=cloned.mixins.findIndex(a=>a.id=="*")
+		const cloned=Object.create(this)
+		cloned.mixins=mixins.filter(a=>!!a)
+		const i=cloned.mixins.findIndex(a=>a.id=="*")
 		if(i!=-1){
 			cloned.mixins.push(cloned.mixins.splice(i,1)[0])
 		}
