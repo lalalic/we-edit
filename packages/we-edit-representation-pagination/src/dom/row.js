@@ -195,7 +195,6 @@ class Row extends HasParentAndChild(dom.Row){
 						children:currentPage.props.children,
 					},{parent:this})
 				]
-
 			}
 		}
 
@@ -249,12 +248,7 @@ class Row extends HasParentAndChild(dom.Row){
 		}
 
 		setAllDoneListener(callback){
-			this.row.allDoneEvent.on('allDone',this.allDoneListener=callback)
-			this.removeAllDoneListener=()=>{
-				this.row.allDoneEvent.removeListener('allDone',callback)
-				delete this.allDoneListener
-				return callback
-			}
+			this.row.allDoneEvent.once('allDone',callback)
 		}
 
 		renderEmptyBox(i,height){
@@ -386,7 +380,6 @@ class SpanableRow extends Row{
 			shaped.isReshaped=true
 			
 			//clear source
-			this?.removeAllDoneListener()
 			if(this.isReshaped){
 				if(this.row.currentPage!==this){
 					debugger
