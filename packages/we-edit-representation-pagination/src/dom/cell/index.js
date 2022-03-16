@@ -1,4 +1,4 @@
-import React from "react"
+import React, {Component} from "react"
 import {dom} from "we-edit"
 
 import EditableEdges from "./editable-edges"
@@ -10,8 +10,13 @@ import {HasParentAndChild} from "../../composable"
  * commit all when all composed????
  */
 const Cell=HasParentAndChild(dom.Cell)
-export default class extends Section{
+
+export default class TableCell extends Section{
 	static displayName=super.switchTypeTo(Cell)
+
+	static propTypes={
+		...Cell.propTypes
+	}
 	static defaultProps={
 		...Cell.defaultProps,
 		createLayout:Section.defaultProps.createLayout,
@@ -32,13 +37,13 @@ export default class extends Section{
 		 * a cell space border|margin|content|margin|border
 		 */
 		 recomposable_createComposed2Parent(){
-			const {borders,width,height}=this.props
+			const {borders,fill,width,height}=this.props
 			const {table,row,id:cell,colIndex:i,isFirstRowInPage,isLastRankOfRow}=this.props
         
 			const content=super.recomposable_createComposed2Parent(...arguments)
 			return React.cloneElement(
 				content,
-				{width,height},
+				{width,height, clipPath:`path("M0,0h${width}v${height}h${-width}z")`,background:fill?.color},
 				content.props.children,
 				React.cloneElement(borders,{height,width,
 					table,row,cell,i,isFirstRowInPage,isLastRankOfRow//editable edges
@@ -73,7 +78,7 @@ export default class extends Section{
 	 * @param {*} required 
 	 */
 	createLayout(props,context,required={}){
-		const {margin:{right=0,left=0,top=0,bottom=0}={}, vertAlign,border, id, colSpan,rowSpan}=this.props
+		const {margin:{right=0,left=0,top=0,bottom=0}={}, vertAlign,border, id, colSpan,rowSpan, fill}=this.props
 		const space=this.context.parent.nextAvailableSpace({...required,id, colSpan, rowSpan})
 		if(!space)
 			return null
@@ -91,6 +96,7 @@ export default class extends Section{
 			width,
 			height,
 			vertAlign,
+			fill,
 			borders:<this.constructor.Edges {...{
 				...border,width,height,
 				"data-nocontent":true,//ignore search for positioning

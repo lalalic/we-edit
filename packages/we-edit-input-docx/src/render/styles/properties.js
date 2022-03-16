@@ -320,10 +320,6 @@ export class Properties{
 		return true
 	}
 
-	cnfStyle(x){
-		return this._val(x)
-	}
-
 	vMerge(x){
 		return x.attribs["w:val"]||"continue"
 	}

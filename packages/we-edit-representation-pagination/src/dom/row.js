@@ -269,10 +269,7 @@ class Row extends HasParentAndChild(dom.Row){
 				height,
 				key:i,
 			}
-			if(this.isFixedHeight){
-				props.clipPath=`path("M0,0h${width}v${height}h${-width}z")`
-			}
-
+			
 			const layoutedCell=React.cloneElement(
 				cell.clone({
 					height,

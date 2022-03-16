@@ -136,6 +136,7 @@ const attribs={
 		"w:vAlign": "vertAlign",
 		"w:vMerge":"vMerge",
 		"w:gridSpan":"colSpan",
+		"w:shd":"background",
 	}
 }
 export default class TableStyle extends WithBorder{
@@ -160,7 +161,12 @@ export default class TableStyle extends WithBorder{
 			const type=node.name.split(":").pop().replace("Pr","")
 			this[type]=this._convert(node, null, attribs[type],selector)
 			if(!this.basedOn){
-				this.basedOn=styles['*table']?.id
+				const tblParent=this.docx.$(node).closest("w\\:tc,w\\:tr,w\\:tbl")
+				if(tblParent.is("w\\:tbl")){
+					this.basedOn=styles['*table']?.id
+				}else{
+					this.basedOn=tblParent.closest('w\\:tbl').find("w\\:tblPr>w\\:tblStyle").attr("w:val")
+				}
 			}
 		}
 	}
@@ -199,7 +205,8 @@ export default class TableStyle extends WithBorder{
 			return margin
 		},{})
 
-		const border="left,right,top,bottom".split(",").reduce((border,a)=>{
+		
+		const border="left,right,top,bottom".split(",").reduce((border,a)=>{debugger
 			let v=this.get(`border.${a}`)
 			if(v==undefined)
 				v=this[a](conditions,edges)
@@ -230,20 +237,32 @@ export default class TableStyle extends WithBorder{
 			return r
 		},{}))
 
-		const background=this.get('tbl.background',conditions);
+		const fill=this.get('tc.background, tbl.background',conditions);
+		const vMerge=this.get('tc.vMerge',conditions);
 		
-		return clean({margin:clean(margin),border:clean(border),background,p:clean(p),r:clean(r)})
+		return clean({margin:clean(margin),border:clean(border),fill,vMerge,p:clean(p),r:clean(r),conditions})
 	}
 
 	get(path, conditions=[]){
+		path=path.split(",").map(a=>a.trim())
+
 		let value=conditions.reduce((found, condition)=>{
 			if(found!=undefined)
 				return found
-			return super.get(`${condition}.${path}`)
+			return path.reduce((found1,a)=>{
+				if(found1!=undefined)
+					return found1
+				return super.get(`${condition}.${a}`)
+			},undefined) 
 		},undefined)
 
-		if(value==undefined)
-			value=super.get(path)
+		if(value==undefined){
+			value=path.reduce((found1,a)=>{
+				if(found1!=undefined)
+					return found1
+				return super.get(a)
+			},undefined)
+		}
 
 		return value
 	}
