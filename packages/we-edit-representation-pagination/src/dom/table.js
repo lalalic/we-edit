@@ -251,7 +251,7 @@ class Table extends HasParentAndChild(dom.Table){
 			return true
 		}
 
-		nextAvailableSpace({height:requiredHeight=0}){
+		nextAvailableSpace({height:requiredHeight=0}={}){
 			const height=this.flowableContentHeight
 			const available=this.space.height-height
 			if(available<=requiredHeight)
