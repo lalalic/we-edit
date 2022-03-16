@@ -11,6 +11,8 @@ const id=()=>`_${++u}`
 define("table compose",
 ({dom, testing, CONTEXT, Context, WithTextContext, WithParagraphContext, autoID})=>{
     const {Document, Section,Frame, Paragraph, Text,Table,Row,Cell, Container}=dom
+    const End=Paragraph.defaultProps.End
+        
     function test(content,frame={height:20}){
         console.debug=jest.fn()
         const rendered=render(
@@ -115,6 +117,32 @@ define("table compose",
                 </Table>
             )
             expect(doc.pages.length).toBe(3)
+            expect(doc.$page(0).text()).toBe("hello ")
+        })
+
+        it("header row should be cloned to all pages",()=>{
+            const doc=test(
+                <Table id={`${u++}`} width={8} cols={[{x:0,width:7}]}>
+                    <Row id={`${u++}`} header={true}>
+                        <Cell id={`${u++}`}>
+                            <Paragraph id={`${u++}`}>
+                                <Text id={`${u++}`} fonts="arial" size={10}>header</Text>
+                            </Paragraph>
+                        </Cell>
+                    </Row>
+                    <Row id={`${u++}`}  >
+                        <Cell id={`${u++}`}>
+                            <Paragraph id={`${u++}`}>
+                                <Text id={`${u++}`} fonts="arial" size={10}>hello hello hello</Text>
+                            </Paragraph>
+                        </Cell>
+                    </Row>
+                </Table>
+            ,{height:24})
+            expect(doc.pages.length).toBe(3)
+            expect(doc.$page(0).text()).toBe(`header${End}hello `)
+            expect(doc.$page(1).text()).toBe(`header${End}hello `)
+            expect(doc.$page(2).text()).toBe(`header${End}hello${End}`)
         })
 
         it("nested cell can be splitted into pages",()=>{
@@ -211,7 +239,6 @@ define("table compose",
     })
 
     describe("span",()=>{
-
         describe("row.nextColumn with spans",()=>{
             const id="a0", id1="a1"
             function next(cols,id){
@@ -282,7 +309,18 @@ define("table compose",
             it("colspan=2 should create less cells",()=>{
                 const doc=test(
                     <Table id={id()} width={100} cols={[{x:10,width:10},{x:20,width:10},{x:30,width:10}]}>
-                        <Row  id={id()} minHeight={10}><Cell  id={id()} colSpan={2}/><Cell  id={id()}/></Row>
+                        <Row  id={id()} minHeight={10} ><Cell  id={id()} colSpan={2}/><Cell  id={id()}/></Row>
+                        <Row  id={id()} minHeight={10}><Cell  id={id()}/><Cell  id={id()}/><Cell  id={id()}/></Row>
+                    </Table>
+                )
+                expect(doc.pages.length).toBe(1)
+                expect(doc.$page(0).find('[data-type="cell"]').length).toBe(5)
+            })
+
+            it("header row colspan=2 should create less cells",()=>{
+                const doc=test(
+                    <Table id={id()} width={100} cols={[{x:10,width:10},{x:20,width:10},{x:30,width:10}]}>
+                        <Row  id={id()} minHeight={10} header={true}><Cell  id={id()} colSpan={2}/><Cell  id={id()}/></Row>
                         <Row  id={id()} minHeight={10}><Cell  id={id()}/><Cell  id={id()}/><Cell  id={id()}/></Row>
                     </Table>
                 )
@@ -309,6 +347,33 @@ define("table compose",
                 expect(doc.$page(0).text()).toBe("hello world ")
                 expect(doc.$page(1).text().replace(/[^\w\s]/,"")).toBe("hello")
                 expect(doc.$page(1).find('[data-type="cell"]').length).toBe(3+1)
+            })
+
+            it("colspan=2 cross page",()=>{
+                const doc=test(
+                    <Table id={id()} width={100} cols={[{x:10,width:6},{x:20,width:10},{x:30,width:10}]}>
+                        <Row  id={id()} header={true}>
+                            <Cell  id={id()}><Paragraph><Text>Name</Text></Paragraph></Cell>
+                            <Cell  id={id()}/><Cell  id={id()}/>
+                        </Row>
+                        <Row  id={id()}>
+                            <Cell  id={"cell"} colSpan={2}>
+                                <Paragraph>
+                                    <Text>hello world hello</Text>
+                                </Paragraph>
+                            </Cell>
+                            <Cell  id={id()}/>
+                        </Row>
+                        <Row  id={id()}><Cell  id={id()}/><Cell  id={id()}/><Cell  id={id()}/></Row>
+                    </Table>
+                ,{height:24})
+                expect(doc.pages.length).toBe(3)
+                expect(doc.$page(0).find('[data-type="cell"]').length).toBe(3+2)
+                expect(doc.$page(0).text()).toBe(`Name${End}hello world `)
+                expect(doc.$page(1).text()).toBe(`Name${End}hello${End}`)
+                expect(doc.$page(1).find('[data-type="cell"]').length).toBe(3+1)
+                expect(doc.$page(2).text()).toBe(`Name${End}`)
+                expect(doc.$page(2).find('[data-type="cell"]').length).toBe(3+3)
             })
         })
 

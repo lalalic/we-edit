@@ -142,6 +142,7 @@ class Table extends HasParentAndChild(dom.Table){
 					page.relayout(allDoneRow)
 				}
 			}
+			this.table.headers?.forEach(a=>this.rows.push(a))
 		}
 
 		get space(){
