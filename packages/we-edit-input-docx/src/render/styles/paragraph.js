@@ -38,8 +38,8 @@ export default class Paragraph extends Base{
 		return super.flat(...arguments)
 	}
 
-	flat(...inherits){
-		const targets=[this,...inherits].filter(a=>!!a)
+	flat(...mixins){
+		const targets=[this,...mixins].filter(a=>!!a)
 		const props=Object.values(attribs).reduce((props, k)=>{
 			const target=targets.find(a=>(props[k]=a.get(`p.${k}`))!==undefined)
 			if(target && k==="num"){

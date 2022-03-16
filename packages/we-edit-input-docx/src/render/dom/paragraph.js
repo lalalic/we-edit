@@ -52,7 +52,7 @@ export default ({Paragraph, Group, Frame,})=>class DocxParagraph extends Compone
 	},shallowEqual)
 
 	childStyle=memoize((direct,context)=>{
-		return Object.assign(direct.clone(),{r:{}}).inherit(context)
+		return Object.assign(direct.clone(),{r:{}}).mixin(context)
 	},shallowEqual)
 
 	getChildContext(){

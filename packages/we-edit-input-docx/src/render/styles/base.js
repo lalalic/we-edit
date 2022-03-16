@@ -4,7 +4,7 @@ import invoke from "lodash.invoke"
 /**
  * Word Style is 
  * ** inheritable by basedOn
- * ** next paragraph's style indicated by next
+ * ** mixins paragraph's style indicated by mixins
  * 
  */
 export class Getable{
@@ -59,16 +59,16 @@ export class Getable{
 }
 
 
-class Linkable extends Getable{
+class Mixinable extends Getable{
 	constructor(){
 		super(...arguments)
-		this.next=[]
+		this.mixins=[]
 	}
 
 	_getFromBasedOn(path){
 		let value=super._getFromBasedOn(...arguments)
 		if(value==undefined){
-			value=this.next.reduce((r,a)=>{
+			value=this.mixins.reduce((r,a)=>{
 				if(r==undefined){
 					try{
 						return a.get(...arguments)
@@ -87,26 +87,26 @@ class Linkable extends Getable{
 		const _invokeFromBasedOn=super._invokeOnBasedOn
 		let value=_invokeFromBasedOn.call(this,...arguments)
 		if(value==undefined){
-			value=this.next.reduce((r,a)=>(r==undefined ? a.invoke(...arguments) : r),undefined)
+			value=this.mixins.reduce((r,a)=>(r==undefined ? a.invoke(...arguments) : r),undefined)
 		}
 
 		return value
 	}
 
-	inherit(...next){
-		if(next.length==0)
+	mixin(...mixins){
+		if(mixins.length==0)
 			return this
 		let cloned=Object.create(this)
-		cloned.next=next
-		var i=cloned.next.findIndex(a=>a.id=="*")
+		cloned.mixins=mixins
+		var i=cloned.mixins.findIndex(a=>a.id=="*")
 		if(i!=-1){
-			cloned.next.push(cloned.next.splice(i,1)[0])
+			cloned.mixins.push(cloned.mixins.splice(i,1)[0])
 		}
 		return cloned
 	}
 }
 
-export default class Style extends Linkable{
+export default class Style extends Mixinable{
 	constructor(node={attribs:{},children:[]}, styles, selector){
 		super(...arguments)
 		this.id=node.attribs["w:styleId"]
@@ -149,9 +149,9 @@ export default class Style extends Linkable{
 	}
 	
 	clone(){
-		const {styles, name, basedOn, id, next, p,  r}=this
+		const {styles, name, basedOn, id, mixins, p,  r}=this
 		const cloned=new this.constructor(undefined,styles)
-		return Object.assign(cloned,{basedOn, p, r, next})
+		return Object.assign(cloned,{basedOn, p, r, mixins})
 	}
 
 	getLink(){

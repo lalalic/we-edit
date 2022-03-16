@@ -20,7 +20,7 @@ export default ({Table,Container})=>class __$1 extends Component{
 	}
 
 	childStyle=memoize((direct,context)=>{
-		return direct ? direct.inherit(context) : context
+		return direct ? direct.mixin(context) : context
 	})
 
 	getChildContext(){

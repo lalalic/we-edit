@@ -171,8 +171,8 @@ export default class TableStyle extends WithBorder{
 		}
 	}
 
-	flat4Table(...inherits){
-		const targets=[this,...inherits]
+	flat4Table(...mixins){
+		const targets=[this,...mixins]
 		const props="indent,background,width,conditional".split(",")
 			.reduce((props,k)=>{
 				targets.find(a=>(props[k]=a.get(`tbl.${k}`))!==undefined)
@@ -181,8 +181,8 @@ export default class TableStyle extends WithBorder{
 		return clean(props)
 	}
 
-	flat4Row(...inherits){
-		const targets=[this,...inherits]
+	flat4Row(...mixins){
+		const targets=[this,...mixins]
 		const props="height,keepLines,conditional,header".split(",")
 			.reduce((props,k)=>{
 				targets.find(a=>(props[k]=a.get(`tr.${k}`))!==undefined)
@@ -206,7 +206,7 @@ export default class TableStyle extends WithBorder{
 		},{})
 
 		
-		const border="left,right,top,bottom".split(",").reduce((border,a)=>{debugger
+		const border="left,right,top,bottom".split(",").reduce((border,a)=>{
 			let v=this.get(`border.${a}`)
 			if(v==undefined)
 				v=this[a](conditions,edges)

@@ -90,8 +90,8 @@ export default class Character extends Base{
 		}
 	}
 
-	flat(...inherits){
-		const targets=[this,...inherits].filter(a=>a?.isStyle)
+	flat(...mixins){
+		const targets=[this,...mixins].filter(a=>a?.isStyle)
 		const {"fonts.ascii":ascii,"fonts.ea":ea,"fonts.cs":cs,"fonts.hansi":hansi,...props}=
 			"fonts.ascii,fonts.ea,fonts.cs,fonts.hansi,size,color,highlight,border,underline,bold,italic,vanish,strike,vertAlign"
 			.split(",")
