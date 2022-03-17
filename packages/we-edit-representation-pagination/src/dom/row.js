@@ -258,7 +258,7 @@ class Row extends HasParentAndChild(dom.Row){
 					}
 				}
 			}
-			return !!!this.cells.find(a=>!isEmptyCell(a))
+			return !!!this.cells.filter(a=>!!a).find(a=>!isEmptyCell(a))
 		}
 
 		setAllDoneListener(callback){
