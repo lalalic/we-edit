@@ -247,6 +247,20 @@ class Row extends HasParentAndChild(dom.Row){
 			return this.row.getFlowableContentHeight(this.cells)
 		}
 
+		get isEmpty(){
+			const isEmptyCell=cell=>{
+				if(cell.isEmpty())
+					return true
+				if(cell.lines.length==1){
+					const $=new ReactQuery(cell.firstLine).findFirst(".line")
+					if($.attr("data-nocontent")){
+						return true
+					}
+				}
+			}
+			return !!!this.cells.find(a=>!isEmptyCell(a))
+		}
+
 		setAllDoneListener(callback){
 			this.row.allDoneEvent.once('allDone',callback)
 		}

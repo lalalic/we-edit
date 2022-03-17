@@ -369,9 +369,12 @@ class Paragraph extends HasParentAndChild(dom.Paragraph){
 		const nonNumberingFirstLineIndent=(bFirstLine&&!numbering&&firstLineIndent||0);
 		const firstLineTopSpace=(bFirstLine&&top||0);
 		const lastLineBottomSpace=(bLastLine&&bottom||0);
+		const props=dyBlock ? {dy:dyBlock} : {}
+		if(line.items.length==0)
+			props["data-nocontent"]=true
 		return (
 			<Group className="line"
-				{...(dyBlock ? {dy:dyBlock} : {})}
+				{...props}
 				height={firstLineTopSpace+height+lastLineBottomSpace} 
 				width={left+nonNumberingFirstLineIndent+width+right} 
 				pagination={{

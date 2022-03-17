@@ -236,6 +236,9 @@ class Table extends HasParentAndChild(dom.Table){
 					lines.push(replaceLayoutedTableRow(last,row))
 				}
 			})
+			if(this.lastRow.isEmpty){
+				lines.pop()
+			}
 			console.debug(`relayout ${removed.length} lines page-table[${this.table.props.id}][${this.table.pages.indexOf(this)}]`)
 		}
 
