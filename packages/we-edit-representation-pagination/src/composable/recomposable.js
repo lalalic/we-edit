@@ -75,7 +75,7 @@ export default A=>{
          * @param {*} nextState 
          */
         cancelUnusableLastComposed(props){
-            if(this.isAtom && shallowEqual(props,this.props)){
+            if(this.isAtom && props.hash==this.props.hash){
                 return
             }
             

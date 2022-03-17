@@ -49,7 +49,9 @@ class Text extends NoChild(dom.Text){
     breakOpportunities(text){
         return breakOpportunities(
             text, 
-            a=>a.split(/(\r\n?)/).filter(a=>!!a).map(a=>a.startsWith(dom.Text.LineBreak) ? [a] : a.split(/(\s)/)).flat().filter(a=>!!a)//linebreaks
+            a=>a.split(/(\r\n?)/).filter(a=>!!a)
+                .map(a=>a.startsWith(dom.Text.LineBreak) ? [a] : a.split(/(\s)/))
+                .flat().filter(a=>!!a)//linebreaks
                 .map(a=>this.measure.break(a)).flat()//break by fonts
         )
     }
@@ -145,8 +147,5 @@ export default class EditableText extends editable(Text){
         return super.render()
     }
 
-
-    static getDerivedStateFromError(error){
-        return {error}
-    }
+    
 }

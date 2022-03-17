@@ -136,7 +136,11 @@ export class Measure{
 			//1. segmented font
 			let reason=1
 			let {font:family,segments}=resolveCharFontFunctions.reduce((font,resolveCharFont)=>font||resolveCharFont(A), "")
-
+			if(charFamilyCache.has(segments)){
+				const family=charFamilyCache.get(segments)
+				console.debug(`Font: cache.${segments}.'${String.fromCharCode(A)}'[${family}], cache hit:${++hit}`)
+				return family
+			}
 			//3.fallback
 			if((!family || !this.fontExists(family,A)) && fonts.fallback){
 				reason=3
@@ -155,6 +159,9 @@ export class Measure{
 			if(family){
 				family=this.fontExists(family)?.family||family
 				charFamilyCache.set(A,family)
+				if(reason==1 && namedUnicodeScopeChecks[segments]){
+					charFamilyCache.set(segments,family)
+				}
 				if(!isFallbackFontsMeasure)
 					console.debug(`Font: ${segments}.'${String.fromCharCode(A)}'[${family}]`)// with ${JSON.stringify(fonts)}`)
 				return family
@@ -261,7 +268,7 @@ export class Measure{
 
 	static namedUnicodeScopeChecks={
 		ascii:	this.unicodeSegmentCheckFactory(`
-					0000 - 007F,FE70 - FEFE,0590 - 05FF,0600 - 06FF,0700 - 074F,0750 - 077F,0780 - 07BF,FB1D – FB4F
+					0000 - 007F,FE70 - FEFE,0590 - 05FF,0600 - 06FF,0700 - 074F,0750 - 077F,0780 - 07BF,FB1D - FB4F
 				`),
 		ea:		this.unicodeSegmentCheckFactory(`
 					1100 - 11FF,2F00 - 2FDF,2FF0 - 2FFF,3000 - 303F,3040 - 309F,30A0 - 30FF,3100 - 312F,3130 - 318F,

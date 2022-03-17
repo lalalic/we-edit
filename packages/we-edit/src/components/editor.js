@@ -195,6 +195,7 @@ export class WeDocumentStub extends Component{
 					id={id}
 					{...props}
 					children={elChildren}
+					$hash={current.hashCode()}
 					hash={hashCode(hashCodes)}
 					
 				/>)
