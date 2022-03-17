@@ -114,8 +114,8 @@ class Table extends HasParentAndChild(dom.Table){
 		this.pages.push(
 			new this.constructor.Page({
 				space:space.clone({
-					height:max.height,//-this.headers.height-this.footers.height,
-					blockOffset:max.y,//+this.headers.height, 
+					height:max.height,
+					blockOffset:max.y,
 					segments
 				}),
 				children:[],

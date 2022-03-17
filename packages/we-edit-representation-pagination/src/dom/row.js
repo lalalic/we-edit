@@ -261,20 +261,13 @@ class Row extends HasParentAndChild(dom.Row){
 				return this.renderEmptyBox(i,height)||null
 			}
 			const {cols=this.cols, isLastPageOfRow, isFirstRowInPage,table, row}=this.props
-			const {x,width}=cols[i]
-			
-			const props={
-				x,
-				width,
-				height,
-				key:i,
-			}
+			const {x}=cols[i]
 			
 			const layoutedCell=React.cloneElement(
 				cell.clone({
 					height,
 					colIndex:i,table,row,isLastPageOfRow,isFirstRowInPage//editable edges need the information
-				}).createComposed2Parent(),props)
+				}).createComposed2Parent(),{x,height,key:i,})
 			//yield and merge when pageTable.push changed the relationship between pageCell and pageRow
 			return this.row.wrapParentsUntilMe(layoutedCell,cell.cell.closest('row'))
 		}

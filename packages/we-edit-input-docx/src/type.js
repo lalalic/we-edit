@@ -246,11 +246,11 @@ class DocxType extends Input.Editable{
 				return createElement(components.Table,{cols,style},children,node)
 			}
 			case "tr":{
-				const  style=!props.pr ? undefined : new Style.Table.Direct(props.pr,styles,selector)
+				const  style=new Style.Table.Direct(props.pr||undefined,styles,selector)
 				return createElement(components.Row,{style},children,node)
 			}
 			case "tc":{
-				const style=!props.pr ? undefined : new Style.Table.Direct(props.pr,styles,selector)
+				const style=new Style.Table.Direct(props.pr||undefined,styles,selector)
 				return createElement(components.Cell,{style},children,node)
 			}
 			case "list":

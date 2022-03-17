@@ -140,7 +140,7 @@ const attribs={
 	}
 }
 export default class TableStyle extends WithBorder{
-	constructor(node,styles,selector){
+	constructor(node={attribs:{}, children:[]},styles,selector){
 		super(...arguments)
 
 		this.tbl=this._convert(node,"w:tblPr",attribs.tbl,selector)
@@ -158,14 +158,14 @@ export default class TableStyle extends WithBorder{
 	static Direct=class __$1 extends TableStyle{
 		constructor(node,styles,selector){
 			super(node, styles, selector)
-			const type=node.name.split(":").pop().replace("Pr","")
-			this[type]=this._convert(node, null, attribs[type],selector)
-			if(!this.basedOn){
-				const tblParent=this.docx.$(node).closest("w\\:tc,w\\:tr,w\\:tbl")
-				if(tblParent.is("w\\:tbl")){
-					this.basedOn=styles['*table']?.id
-				}else{
-					this.basedOn=tblParent.closest('w\\:tbl').find("w\\:tblPr>w\\:tblStyle").attr("w:val")
+			if(node){
+				const type=node.name.split(":").pop().replace("Pr","")
+				this[type]=this._convert(node, null, attribs[type],selector)
+				if(!this.basedOn){
+					const tblParent=this.docx.$(node).closest("w\\:tc,w\\:tr,w\\:tbl")
+					if(tblParent.is("w\\:tbl")){
+						this.basedOn=styles['*table']?.id
+					}
 				}
 			}
 		}
