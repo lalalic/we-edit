@@ -161,41 +161,37 @@ export default class TableStyle extends WithBorder{
 			if(node){
 				const type=node.name.split(":").pop().replace("Pr","")
 				this[type]=this._convert(node, null, attribs[type],selector)
-				if(!this.basedOn){
-					const tblParent=this.docx.$(node).closest("w\\:tc,w\\:tr,w\\:tbl")
-					if(tblParent.is("w\\:tbl")){
-						this.basedOn=styles['*table']?.id
-					}
-				}
 			}
 		}
 	}
 
-	flat4Table(...mixins){
-		const targets=[this,...mixins]
-		const props="indent,background,width,conditional".split(",")
-			.reduce((props,k)=>{
-				targets.find(a=>(props[k]=a.get(`tbl.${k}`))!==undefined)
+	flat4Table(){
+		const props="indent,background,width,conditional"
+			.split(",").reduce((props,k)=>{
+				props[k]=this.get(`tbl.${k}`)
 				return props
 			},{})
 		return clean(props)
 	}
 
-	flat4Row(...mixins){
-		const targets=[this,...mixins]
-		const props="height,keepLines,conditional,header".split(",")
-			.reduce((props,k)=>{
-				targets.find(a=>(props[k]=a.get(`tr.${k}`))!==undefined)
+	flat4Row(){
+		const props="height,keepLines,conditional,header"
+			.split(",").reduce((props,k)=>{
+				props[k]=this.get(`tr.${k}`)
 				return props
 			},{})
 		return clean(props)
 	}
 
-	flat4Cell(conditional, edges=[]){
-		const conditions=Array.from(("000000000000"+(conditional>>>0).toString(2)).substr(-12))
+	get conditions(){
+		const conditional=this.get("tc.conditional",[])|this.get("tr.conditional",[])
+		return Array.from(("000000000000"+(conditional>>>0).toString(2)).substr(-12))
 				.map((a,i)=>a=="1"&&CNF[i]).filter(a=>a)
 				.sort((a,b)=>PRIORIZED.indexOf(a)-PRIORIZED.indexOf(b))
+	}
 
+	flat4Cell(){
+		const conditions=this.conditions
 		const margin="left,right,top,bottom".split(",").reduce((margin,a)=>{
 			let v=this.get(`margin.${a}`)
 			if(v==undefined)
@@ -209,7 +205,7 @@ export default class TableStyle extends WithBorder{
 		const border="left,right,top,bottom".split(",").reduce((border,a)=>{
 			let v=this.get(`border.${a}`)
 			if(v==undefined)
-				v=this[a](conditions,edges)
+				v=this[a](conditions)
 
 			if(v!==undefined)
 				border[a]=v
@@ -243,9 +239,8 @@ export default class TableStyle extends WithBorder{
 		return clean({margin:clean(margin),border:clean(border),fill,vMerge,p:clean(p),r:clean(r),conditions})
 	}
 
-	get(path, conditions=[]){
+	get(path, conditions=this.conditions){
 		path=path.split(",").map(a=>a.trim())
-
 		let value=conditions.reduce((found, condition)=>{
 			if(found!=undefined)
 				return found
@@ -272,7 +267,7 @@ export default class TableStyle extends WithBorder{
 	 * 3. table.trPr=tblPrEx
 	 * 4. table.tblPr
 	 */
-	right(conditions,edges){
+	right(conditions,edges=[]){
 		let value=conditions.reduce((found, cond)=>{//1. conditional
 			if(found!=undefined)
 				return found
@@ -299,7 +294,7 @@ export default class TableStyle extends WithBorder{
 		return value
 	}
 
-	left(conditions,edges){
+	left(conditions,edges=[]){
 		let value=conditions.reduce((found, cond)=>{//1. conditional
 			if(found!=undefined)
 				return found
@@ -326,7 +321,7 @@ export default class TableStyle extends WithBorder{
 		return value
 	}
 
-	top(conditions,edges){
+	top(conditions,edges=[]){
 		let value=conditions.reduce((found, cond)=>{
 			if(found!=undefined)
 				return found
@@ -353,7 +348,7 @@ export default class TableStyle extends WithBorder{
 		return value
 	}
 
-	bottom(conditions, edges){
+	bottom(conditions, edges=[]){
 		let value=conditions.reduce((found, cond)=>{
 			if(found!=undefined)
 				return found

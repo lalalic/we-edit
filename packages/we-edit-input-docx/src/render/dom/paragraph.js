@@ -3,7 +3,6 @@ import PropTypes from "prop-types"
 import {ReactQuery,connect, getUI, dom} from "we-edit"
 
 import memoize from "memoize-one"
-import {shallowEqual} from "recompose"
 
 export default ({Paragraph, Group, Frame,})=>class DocxParagraph extends Component{
 	static displayName="paragraph"
@@ -26,8 +25,9 @@ export default ({Paragraph, Group, Frame,})=>class DocxParagraph extends Compone
 	}
 
 	style=memoize((direct,context)=>{
-		const defaultStyle=direct.flat4Character(context)
-		const style=direct.flat(context)
+		const all=direct.mixin(context)
+		const defaultStyle=all.flat4Character()
+		const style=all.flat()
 		if(style.indent){
 			if(style.indent.hanging){
 				style.indent.firstLine=-style.indent.hanging
@@ -49,11 +49,16 @@ export default ({Paragraph, Group, Frame,})=>class DocxParagraph extends Compone
 		}
 
 		return {style,defaultStyle}
-	},shallowEqual)
+	})
+
 
 	childStyle=memoize((direct,context)=>{
+		/**
+		 * paragraph's direct pPr>rPr doesn't affect content style, it's just for editor to hint style of paragraph symbol
+		 * so override r style with empty
+		 */
 		return Object.assign(direct.clone(),{r:{}}).mixin(context)
-	},shallowEqual)
+	})
 
 	getChildContext(){
 		return {

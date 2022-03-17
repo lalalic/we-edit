@@ -2,6 +2,14 @@ import get from "lodash.get"
 import invoke from "lodash.invoke"
 
 /**
+ * Direct Style
+ * * Default Style: if paragraph is not set , its default is Normal;other default styles are set by application when editing
+ * Named Style
+ * Context Style
+ * 	document, 
+ * Toggle Style: B, I, Caps, SmallCaps, Strike, DoubleStrike, Vanish
+ * 	Toggle context: Document, P, R, TC
+ * 
  * Word Style is 
  * ** inheritable by basedOn
  * ** mixins paragraph's style indicated by mixins
@@ -9,6 +17,7 @@ import invoke from "lodash.invoke"
  */
 export class Getable{
 	constructor(node, styles, selector){
+		this.cache=new Map()
 		this.styles=styles
 		this.docx=selector?.docx||styles?.['*']?.docx
 	}
@@ -58,7 +67,10 @@ export class Getable{
 	}
 }
 
-
+/**
+ * support context style
+ * mixins priority: Last First
+ */
 class Mixinable extends Getable{
 	constructor(){
 		super(...arguments)
@@ -66,42 +78,35 @@ class Mixinable extends Getable{
 	}
 
 	_getFromBasedOn(path){
-		let value=super._getFromBasedOn(...arguments)
-		if(value==undefined){
-			value=this.mixins.reduce((r,a)=>{
-				if(r==undefined){
-					try{
-						return a.get(...arguments)
-					}catch(e){
-						return this.styles['*'].get(...arguments)
-					}
-				} 
-				return r
-			},undefined)
+		const value=super._getFromBasedOn(...arguments)
+		if(value!==undefined){
+			return value
 		}
-
-		return value
+		return this.mixins.reduceRight((r,a)=>{
+			if(r==undefined){
+				return a.get(...arguments)
+			} 
+			return r
+		},undefined)
 	}
 
 	_invokeOnBasedOn(path){
 		const _invokeFromBasedOn=super._invokeOnBasedOn
 		let value=_invokeFromBasedOn.call(this,...arguments)
 		if(value==undefined){
-			value=this.mixins.reduce((r,a)=>(r==undefined ? a.invoke(...arguments) : r),undefined)
+			value=this.mixins.reduceRight((r,a)=>(r==undefined ? a.invoke(...arguments) : r),undefined)
 		}
 
 		return value
 	}
 
 	mixin(...mixins){
+		mixins=mixins.filter(a=>!!a)
 		if(mixins.length==0)
 			return this
 		const cloned=Object.create(this)
-		cloned.mixins=mixins.filter(a=>!!a)
-		const i=cloned.mixins.findIndex(a=>a.id=="*")
-		if(i!=-1){
-			cloned.mixins.push(cloned.mixins.splice(i,1)[0])
-		}
+		cloned.mixins=mixins
+		cloned.cache=new Map()
 		return cloned
 	}
 }
@@ -123,10 +128,6 @@ export default class Style extends Mixinable{
 				return this._link=a.attribs["w:val"]
 			}
 		})
-		if(!this.basedOn)
-			;//this.basedOn="*"
-		else
-			this.cache=new Map()
 	}
 
 	get isStyle(){

@@ -22,7 +22,7 @@ export default class Character extends Base{
 	constructor(node, styles, selector){
 		super(node, styles, selector)
 		this.type="character"
-		this.r=this._convert(node, "w:rPr",attribs, selector)
+		this.r=this._convert(node, "w:rPr", attribs, selector)
 	}
 
 	hashCode(){
@@ -38,11 +38,12 @@ export default class Character extends Base{
 	}
 
 	static Direct=class __$1 extends Character{
+		static rPr=null
 		constructor(node, styles, selector){
 			super(node, styles, selector)
 			this.r=this._convert(node, null,attribs, selector)
 			if(!this.basedOn){
-				this.basedOn=`*${this.type}`
+				//this.basedOn=`*${this.type}`
 			}
 		}
 
@@ -51,7 +52,7 @@ export default class Character extends Base{
 			/**
 			 * <cs/> or <rtl/> make cs fonts
 			 */
-			if(node.children.find(a=>a.name.endsWith(':cs')||a.name.endsWith(':rtl'))){
+			if(node?.children.find(a=>a.name.endsWith(':cs')||a.name.endsWith(':rtl'))){
 				(r.fonts=r.fonts||{}).hint='cs'
 			}
 			return r
@@ -61,8 +62,8 @@ export default class Character extends Base{
 			return this.styles[this.basedOn]?.getLink()
 		}
 
-		flat(...args){
-			const props=super.flat(...args)
+		flat(){
+			const props=super.flat()
 			if(this.r.fonts?.hint && props.fonts[this.r.fonts.hint]){
 				switch(this.r.fonts.hint){
 					case 'cs':
@@ -90,13 +91,11 @@ export default class Character extends Base{
 		}
 	}
 
-	flat(...mixins){
-		const targets=[this,...mixins].filter(a=>a?.isStyle)
+	flat(){
 		const {"fonts.ascii":ascii,"fonts.ea":ea,"fonts.cs":cs,"fonts.hansi":hansi,...props}=
 			"fonts.ascii,fonts.ea,fonts.cs,fonts.hansi,size,color,highlight,border,underline,bold,italic,vanish,strike,vertAlign"
-			.split(",")
-			.reduce((props,k)=>{
-				targets.find(a=>(props[k]=a.get(`r.${k}`))!==undefined)
+			.split(",").reduce((props,k)=>{
+				props[k]=this.get(`r.${k}`)
 				return props
 			},{})
 		props.fonts=clean({ascii,ea,cs,hansi},{emptyAsUndefined:true})
@@ -105,18 +104,18 @@ export default class Character extends Base{
 }
 
 const EastAsiaHint=Measure.FontMeasure.unicodeSegmentCheckFactory(
-	`A1, A4, A7 – A8, AA, 
-	AD, AF, B0 – B4, B6 – BA, 
-	BC – BF, D7, F7,
-	02B0 – 02FF,
-	0300 – 036F,
-	0370 – 03CF,	
-	0400 – 04FF,
+	`A1, A4, A7 - A8, AA, 
+	AD, AF, B0 - B4, B6 - BA, 
+	BC - BF, D7, F7,
+	02B0 - 02FF,
+	0300 - 036F,
+	0370 - 03CF,	
+	0400 - 04FF,
 	1E00 - 1EFF,
 	2000 - 27BF,
-	2E80 – 2EFF,
+	2E80 - 2EFF,
 	FB00 - FB1C`
 )
-const EastAsiaHintAndZhLang=Measure.FontMeasure.unicodeSegmentCheckFactory(`E0 – E1, E8 – EA, EC – ED, F2 – F3, F9 – FA, FC`)
+const EastAsiaHintAndZhLang=Measure.FontMeasure.unicodeSegmentCheckFactory(`E0 - E1, E8 - EA, EC - ED, F2 - F3, F9 - FA, FC`)
 const EastAsiaHintAndChinese50GB2312=Measure.FontMeasure.unicodeSegmentCheckFactory("0100 - 02AF")
 

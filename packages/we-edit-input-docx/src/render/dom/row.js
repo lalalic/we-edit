@@ -13,7 +13,7 @@ export default ({Row})=>class __$1 extends Component{
 		style: PropTypes.object
 	}
 	childStyle=memoize((direct,context)=>{
-		return direct ? direct.mixin(context) : context
+		return direct.mixin(context)
 	})
 
 	getChildContext(){

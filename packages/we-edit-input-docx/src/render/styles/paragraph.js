@@ -1,4 +1,4 @@
-import Base from "./character"
+import Character from "./character"
 import {fromJS} from "immutable"
 import {clean} from "we-edit"
 
@@ -13,7 +13,7 @@ const attribs={
 	"w:tabs":"tabs",
 	"w:numPr":"num",
 }
-export default class Paragraph extends Base{
+export default class Paragraph extends Character{
 	constructor(node,styles,selector){
 		super(node, styles, selector)
 		this.type="paragraph"
@@ -32,25 +32,35 @@ export default class Paragraph extends Base{
 		getLink(){
 			return this.styles[this.basedOn]?.getLink()
 		}
+
+		applyNumbering(props){
+			const numbering=super.applyNumbering(props)
+			if(numbering && this.p.indent){
+				props.indent={
+					...props.indent,
+					...this.p.indent,
+				}
+			}
+			return numbering
+		}
 	}
 
 	flat4Character(){
-		return super.flat(...arguments)
+		return super.flat()
 	}
 
-	flat(...mixins){
-		const targets=[this,...mixins].filter(a=>!!a)
+	flat(){
 		const props=Object.values(attribs).reduce((props, k)=>{
-			const target=targets.find(a=>(props[k]=a.get(`p.${k}`))!==undefined)
-			if(target && k==="num"){
-				this.applyNumbering(props, target)
+			props[k]=this.get(`p.${k}`)
+			if(k==="num" && props.num){
+				this.applyNumbering(props)
 			}
 			return props
 		},{})
 		return clean(props)
 	}
 
-	applyNumbering(props, style={}) {
+	applyNumbering(props) {
 		const { numId, abstractNumId, ilvl: level = 0 } = props.num
 		const numStyle = this.styles[`_num_${numId}`]||this.styles[`_abstractNum_${abstractNumId}`]
 		if(!numStyle){
@@ -60,8 +70,7 @@ export default class Paragraph extends Base{
 		const indent=numStyle.get(`${level}.p.indent`)
 		props.indent={
 			...props.indent,
-			...indent,
-			...style.p?.indent
+			...indent
 		}
 
 		props.numbering = {

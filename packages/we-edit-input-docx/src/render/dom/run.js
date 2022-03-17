@@ -41,7 +41,7 @@ export default ({Container})=>class __$1 extends Component{
 			direct=direct.clone()
 			direct.basedOn=null
 		}
-		return direct.flat(context)
+		return direct.mixin(context).flat()
 	}
 
 	render(){

@@ -242,7 +242,7 @@ class DocxType extends Input.Editable{
 			}
 			case "tbl":{
 				const cols=selector.select([node.children.find(a=>a.name=="w:tblGrid")]).tblGrid
-				const style=!props.pr ? styles['*table'] : new Style.Table.Direct(props.pr,styles,selector)
+				const style=new Style.Table.Direct(props.pr,styles,selector)
 				return createElement(components.Table,{cols,style},children,node)
 			}
 			case "tr":{
@@ -257,8 +257,8 @@ class DocxType extends Input.Editable{
 			case "heading":
 			case "p":{
 				const {pr, ...pProps}=props
-				const style= !props.pr ? styles['*paragraph'] : new Style.Paragraph.Direct(props.pr,styles,selector);
-				const sectPr=props.pr?.children.find(a=>a.name.endsWith("sectPr"))
+				const style=new Style.Paragraph.Direct(props.pr,styles,selector);
+				const sectPr=pr?.children.find(a=>a.name.endsWith("sectPr"))
 				if(sectPr){
 					pProps.sectionType=sectPr.children.find(a=>a.name.endsWith("type"))?.attribs["w:val"]||"Next Page"
 				}
@@ -267,7 +267,7 @@ class DocxType extends Input.Editable{
 			case "hyperlink":
 				return createElement(components.Hyperlink,{anchor:node.attribs["w:anchor"]},children,node)
 			case "r":{
-				const style= !props.pr ? styles['*character'] : new Style.Character.Direct(props.pr,  styles, selector)
+				const style=new Style.Character.Direct(props.pr,  styles, selector)
 				return createElement(components.Run,{style},children,node)
 			}
 			case "tab":
