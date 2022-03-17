@@ -23,11 +23,8 @@ export default ({Cell})=>class __$1 extends Component{
 	render(){
 		const {style:$1,...props}=this.props
 		const childStyle=this.childStyle(this.props.style, this.context.style)
-		const conditional=childStyle.get("tc.conditional")|childStyle.get("tr.conditional")
-		const edges=[], colSpan=$1.tc?.colSpan
-		const style=childStyle.flat4Cell(conditional,edges)
-		if(colSpan)
-			props.colSpan=colSpan
+		const style=childStyle.flat4Cell()
+		props.colSpan=$1.tc?.colSpan
 		return <Cell {...{...props,...style}}/>
 	}
 }
