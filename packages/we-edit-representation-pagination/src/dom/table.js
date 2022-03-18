@@ -157,6 +157,10 @@ class Table extends HasParentAndChild(dom.Table){
 			return this.rows[this.rows.length-1]
 		}
 
+		get firstRow(){
+			return this.rows.find(a=>!a.row.header)
+		}
+
 		get table(){
 			return this.context.parent
 		}
@@ -171,6 +175,9 @@ class Table extends HasParentAndChild(dom.Table){
 		 * @param {*} bLastPageTable 
 		 */
 		commit(bLastPageTable){
+			if(this.alreadyLayouted){
+				throw new Error("page table already commit")
+			}
 			const {props:{height, children, rows=[...children]}}=this.render()
 			let last=rows[rows.length-1],dy=0
 			if(!bLastPageTable){
@@ -189,9 +196,6 @@ class Table extends HasParentAndChild(dom.Table){
 
 			rows.forEach(row=>{this.table.context.parent.appendComposed(this.table.createComposed2Parent(row))})
 			this.alreadyLayouted=true
-			this.commit=()=>{
-				console.error("page table already commit")
-			}
 		}
 
 		relayout(row){
@@ -296,23 +300,33 @@ class Table extends HasParentAndChild(dom.Table){
 	}
 }
 
+/**
+ * support colSpan and rowSpan
+ */
 class SpanableTable extends Table{
 	constructor(){
 		super(...arguments)
 		Object.defineProperties(this,{
 			currentPage:{
 				get(){
-					/**the logic is not to mess up row order */
+					/**
+					 * since rowSpan might cross page, so current page is not always last page
+					 * the logic is not to mess up row order
+					 * 
+					 * */
 					return [...this.pages].reverse().find((me,i,pages,prev=pages[i+1])=>{
-						if(me && !prev)
-							return true
-						if(prev.lastRow.id!==me.lastRow?.id)
-							return true
-						if(!prev.nextAvailableSpace())
+						if(me && !prev)//only 1 page, then first page is current page
 							return true
 						
-						//my first row has end of rowspan
-						return !!me.rows[0].cols.find(a=>a.rowSpan===RowSpanEnd)
+						if(prev.lastRow.id!==me.lastRow?.id)//means prev.lastRow already fully layouted, me must be current page
+							return true
+						//prev page left space is too small to hold my first row
+						const prevLeftSpace=prev.nextAvailableSpace()
+						if(!prevLeftSpace || prevLeftSpace.height<me.firstRow.flowableContentHeight)
+							return true
+						
+						//any col of my first row is to end row span
+						return !!me.firstRow.cols.find(a=>a.rowSpan===RowSpanEnd)
 					})
 				}
 			}
