@@ -2,7 +2,7 @@ import React, {Component} from "react"
 import PropTypes from "prop-types"
 import {dom, ReactQuery} from "we-edit"
 
-import {HasParentAndChild} from "../composable"
+import {editable, HasParentAndChild} from "../composable"
 import {Group, Marker} from "../composed"
 const RowSpanEnd=1
 
@@ -286,6 +286,13 @@ class Table extends HasParentAndChild(dom.Table){
 		getTableRowHeights(){
 			return this.rows.map(a=>a.flowableContentHeight)
 		}
+
+		clone(props){
+			return new this.constructor({
+				...this.props,
+				...props
+			},this.context)
+		}
 	}
 }
 
@@ -395,4 +402,91 @@ class SpanableTable extends Table{
 	}
 }
 
-export default SpanableTable
+//export default SpanableTable
+
+export default class extends editable(SpanableTable,{stoppable:true}){
+	cancelUnusableLastComposed(next){
+		const selfChanged=next.$hash!==this.props.$hash
+		if(selfChanged){
+			super._cancelAllLastComposed(...arguments)
+			return 
+		}
+
+		const lastUnChangedChild=(({children:next},{children:current})=>{
+			const isChanged=i=>next[i]?.props?.hash!==current[i]?.props?.hash 
+			return next.find((a,i)=>!isChanged(i) && isChanged(i+1))
+		})(next, this.props);
+
+		if(!lastUnChangedChild){
+			super._cancelAllLastComposed(...arguments)
+			return 
+		}
+
+		const lastUnChangedChildId=lastUnChangedChild.props.id
+		//cancel this.computed.composed
+		const iLastUnchangedPage=this.pages.findLastIndex(page=>{
+			const iLastUnchangedRow=page.rows.findLastIndex(rowPage=>rowPage.id==lastUnChangedChildId)
+			if(iLastUnchangedRow!=-1){
+				page.rows.splice(iLastUnchangedRow+1)
+				return true
+			}
+		})
+		if(iLastUnchangedPage!=-1){
+			this.pages.splice(iLastUnchangedPage+1)
+		}
+		//cancel this.computed.lastComposed
+		const iLastUnchangedComposed=this.computed.lastComposed.findLastIndex(composedRowPage=>{
+			const lastUnChangedComposed=new ReactQuery(composedRowPage).findFirst(`[data-content="${lastUnChangedChildId}"]`)
+			return lastUnChangedComposed.length>0
+		})
+
+		if(iLastUnchangedComposed!=-1){
+			this.computed.lastComposed.splice(iLastUnchangedComposed+1)
+		}
+
+		if(this.computed.lastComposed.length==0){
+			super._cancelAllLastComposed(...arguments)
+		}
+
+		delete this.computed.allComposed
+	}
+
+	appendLastComposed(){
+		const {composed:pages, lastComposed}=this.computed
+		this.computed.composed=[]
+		this.computed.lastComposed=[]
+
+		const appendedPages=[], appendedLastComposed=[]
+		const spaceChangedPage=pages.find((page,i,self,isLastPage=i==self.length-1)=>{
+			const space=this.nextAvailableSpace({height:lastComposed[0].props.height})
+			if(!isLastPage && page.space.equals(space)){
+				appendedPages.push(page.clone({space}))
+				lastComposed.splice(0,page.rows.length)
+					.forEach(composedRowPage=>{
+						page.table.context.parent.appendComposed(composedRowPage)
+						appendedLastComposed.push(composedRowPage)
+					})
+			}else if (isLastPage 
+				&& !page.space.isInlineSizeDifferent(space) 
+				&& space.height>=page.flowableContentHeight){
+				appendedPages.push(page.clone({space}))
+			}else{
+				return true
+			}
+		})
+
+		this.computed.composed=appendedPages
+		this.computed.lastComposed=appendedLastComposed
+
+		if(spaceChangedPage){
+			//@TODO: cancel until last whole row
+		}
+
+		if(appendedPages.length==0){
+			super._cancelAllLastComposed()
+			return false
+		}
+
+		return this.props.children.findIndex(a=>a.props.id==this.lastPage.lastRow.id) 
+	}
+}
