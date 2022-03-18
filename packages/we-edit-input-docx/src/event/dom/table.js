@@ -24,7 +24,7 @@ export class Table extends Base{
             .append(cols.map(w=>`<w:gridCol w:w="${w}"/>`).join(""))
 	}
 
-	height({value:height, row, cell}){
+	height(height, {where:{row, cell}}){
         let tr=this.node.find(`[xxid="${row}"]`)
         let pr=tr.find("w\\:trPr")
         if(pr.length==0){
@@ -43,7 +43,7 @@ export class Table extends Base{
         trHeight.attr("w:val",height)
 	}
 
-	width({value:width, row, cell,i}){
+	width(width, {where:{row, cell,i}}){
         if(width<=0){
             return
         }

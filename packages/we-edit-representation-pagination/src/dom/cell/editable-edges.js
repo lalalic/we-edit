@@ -27,7 +27,7 @@ const CellBox=connect()(class EditableEdges extends Component{
 
                 {isLastRankOfRow && (<RowResizer x1={0} x2={width} y1={height} y2={height}
                     onResize={({y})=>{
-                        dispatch(ACTION.Entity.UPDATE({id:table, type:"table",height:{value:height/precision+y,row,cell,i}}))
+                        dispatch(ACTION.Entity.UPDATE({id:table, type:"table",height:height/precision+y,where:{row,cell,i}}))
                     }}
                     />) || null
                 }
@@ -37,7 +37,7 @@ const CellBox=connect()(class EditableEdges extends Component{
 
                 <ColResizer x1={width} y1={0} x2={width} y2={height}
                     onResize={({x})=>{
-						dispatch(ACTION.Entity.UPDATE({id:table, type:"table", width:{value:width/precision+x, row, cell,i}}))
+						dispatch(ACTION.Entity.UPDATE({id:table, type:"table", width:width/precision+x, where:{row, cell,i}}))
                     }}
                     />
             </Fragment>

@@ -86,7 +86,7 @@ class Table extends HasParentAndChild(dom.Table){
 	 */
 	nextAvailableSpace({row:rowId, ...required}){
 		if(this.lastPage){//a row only happen once in a page
-			if(this.lastPage.lastRow.id==rowId){
+			if(this.lastPage.lastRow?.id==rowId){
 				//to ensure #2a: when calculating cell height matrix, use space height
 				this.lastPage.commit(false)
 			}else{
@@ -351,31 +351,31 @@ class SpanableTable extends Table{
 	}
 
 	static Page=class extends super.Page{
-		push(row){
+		push(rowPage){
 			const lastRow=this.lastRow
 			//may merge cells if rowSpan row natually end at last page
 			if(this.rows.length==1 && 
-				lastRow.id!=row.id && //already checked on request space, but leave here for self explain
+				lastRow.id!=rowPage.id && //already checked on request space, but leave here for self explain
 				!lastRow.cols.find(a=>a.rowSpan===RowSpanEnd)// edge never merge
 			){
 				if(lastRow.cols.find(a=>a.beginRowSpan) && 
 					lastRow.row.pages.indexOf(lastRow)!=0// last pageRow of last page from same row
 				){
-					lastRow.cells.forEach((cell,i)=>cell && (row.cells[i]= row.cells[i] || cell))
+					lastRow.cells.forEach((cell,i)=>cell && (rowPage.cells[i]= rowPage.cells[i] || cell))
 					this.rows.pop()
 				}
 			}
 
-			if(!super.push(row))
+			if(!super.push(rowPage))
 				return false
 			//@NOTE:yield cross page spanCell to current row to make row order already correct
 			
 			//yield on next pages
 			this.table.pages
 				.slice(this.table.pages.indexOf(this)+1)//next pages
-				.filter(page=>page.rows[0].id==lastRow.id)//page crossed from same row
+				.filter(page=>page.firstRow.id==lastRow.id)//page crossed from same row
 				.forEach(page=>{
-					const yielded=page.rows[0]=page.rows[0].yieldTo(row)
+					const yielded=page.rows[0]=page.rows[0].yieldTo(rowPage)
 					yielded.setAllDoneListener(this.relayout.factory(page))
 				})
 			return true
