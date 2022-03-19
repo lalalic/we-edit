@@ -420,7 +420,7 @@ export default class EditableRow extends editable(SpanableRow,{stoppable:true, c
 		delete this.computed.cols
 		delete this.computed.allDoneEvent
 	}
-/*
+
 	cancelUnusableLastComposed(next,state, context){
 		const changed=next.hash!=this.props.hash
 		const cols=context.cols()
@@ -443,12 +443,17 @@ export default class EditableRow extends editable(SpanableRow,{stoppable:true, c
 			return false
 		}
 	}
-*/
+
 	static Page=class extends super.Page{
+		/**
+		 * actually Row's composed cache is not useful, but to keep same shape
+		 * @param  {...any} args 
+		 * @returns 
+		 */
 		createComposed2ParentWithHeight(...args){
 			const i=this.row.pages.indexOf(this)
 			if(i!=-1){
-					this.row.computed.lastComposed.splice(i)
+				this.row.computed.lastComposed.splice(i)
 			}
 			return super.createComposed2ParentWithHeight(...args)
 		}
