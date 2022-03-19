@@ -149,8 +149,6 @@ class Row extends HasParentAndChild(dom.Row){
 		return page
 	}
 
-	
-	
 	nextAvailableSpace({id:cellId, colSpan=1,rowSpan=1, ...required}){
 		const col=this.getColumns(this.cols)[cellId]
 		colSpan>1 && (col.colSpan=colSpan);
@@ -319,6 +317,13 @@ class Row extends HasParentAndChild(dom.Row){
 		createComposed2ParentWithHeight(rowHeight, cellAppendHeights ){
 			return this.row.createComposed2Parent(this.render(rowHeight, cellAppendHeights))
 		}
+
+		clone(props){
+			return new this.constructor({
+				...this.props,
+				...props
+			},this.context)
+		}
 	}
 }
 
@@ -415,12 +420,35 @@ export default class EditableRow extends editable(SpanableRow,{stoppable:true, c
 		delete this.computed.cols
 		delete this.computed.allDoneEvent
 	}
+/*
+	cancelUnusableLastComposed(next,state, context){
+		const changed=next.hash!=this.props.hash
+		const cols=context.cols()
+		const colChanged=this.cols.find((col,i,_,next=cols[i])=>col.x!==next?.x || col.width!==next?.width)
+		const hasSpan=cols.find(a=>a.colSpan||a.rowSpan)
+		if(changed || colChanged || hasSpan || this.pages.length>1){
+			super.cancelUnusableLastComposed(next) 
+		}
+	}
 
+	appendLastComposed(){
+		const space=this.context.parent.nextAvailableSpace(this)
+		if(!this.currentPage.space.isInlineSizeDifferent(space) 
+			&& space.height>=this.currentPage.flowableContentHeight){
+			this.pages.splice(0,1,this.currentPage.clone({space}))
+			this.onAllChildrenComposed()
+			return true
+		}else{
+			this._cancelAllLastComposed()
+			return false
+		}
+	}
+*/
 	static Page=class extends super.Page{
 		createComposed2ParentWithHeight(...args){
 			const i=this.row.pages.indexOf(this)
 			if(i!=-1){
-				this.row.computed.lastComposed.splice(i)
+					this.row.computed.lastComposed.splice(i)
 			}
 			return super.createComposed2ParentWithHeight(...args)
 		}
