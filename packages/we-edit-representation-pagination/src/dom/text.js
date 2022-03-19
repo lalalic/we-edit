@@ -46,15 +46,15 @@ class Text extends NoChild(dom.Text){
      * extend to honer fonts, so measure could be simpler
      * @param {*} text 
      */
-    breakOpportunities(text){
+    breakOpportunities=memoize((text,measure=this.measure)=>{
         return breakOpportunities(
             text, 
             a=>a.split(/(\r\n?)/).filter(a=>!!a)
                 .map(a=>a.startsWith(dom.Text.LineBreak) ? [a] : a.split(/(\s)/))
                 .flat().filter(a=>!!a)//linebreaks
-                .map(a=>this.measure.break(a)).flat()//break by fonts
+                .map(a=>measure.break(a)).flat()//break by fonts
         )
-    }
+    })
 
     removeLineOrphan(a){
         const orphans=a.match(/([,.，。]+)$/)?.[0]
@@ -77,7 +77,7 @@ class Text extends NoChild(dom.Text){
             const text=this.text, measure=this.measure
             
             let start=0
-            this.breakOpportunities(text)
+            this.breakOpportunities(text, measure)
             .forEach((b,j,_1,_2,bLast=_1.length-1==j, bFirst=j==0)=>{
                 const props={  
                     width:0,
