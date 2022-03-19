@@ -70,7 +70,7 @@ class Table extends HasParentAndChild(dom.Table){
 		pageRow=this.wrapParentsUntilMe(pageRow)
 		return (
 			<Group width={width} height={height}>
-				{needMarker && <Marker {...{type:"table",id}}/>}
+				{needMarker && <Marker type="table" id={id}/>}
 				<Group x={indent}>
 					{React.cloneElement(pageRow,{width})}
 				</Group>
@@ -189,15 +189,24 @@ class Table extends HasParentAndChild(dom.Table){
 				dy=this.dy(height)
 			}
 
-			let first=this.table.createComposed2Parent(rows[0],true)
-			dy && (first=React.cloneElement(first,{dy}))
-			this.table.context.parent.appendComposed(first)
-			rows.splice(0,1)
-
-			rows.forEach(row=>{this.table.context.parent.appendComposed(this.table.createComposed2Parent(row))})
+			rows.forEach((row,i)=>{
+				if(i==0){
+					row=this.table.createComposed2Parent(row,true)
+					if(dy){
+						row=React.cloneElement(row,{dy})
+					}
+				}else{
+					row=this.table.createComposed2Parent(row)
+				}
+				this.table.context.parent.appendComposed(row)
+			})
 			this.alreadyLayouted=true
 		}
 
+		/**
+		 * 
+		 * @param {*} row 
+		 */
 		relayout(row){
 			console.debug(`Row[${row.props.id}] triggered relayout`)
 			const isBelongToThisTable=l=>{
@@ -205,45 +214,39 @@ class Table extends HasParentAndChild(dom.Table){
 				const $table=$line.findFirst(`[data-content="${this.table.props.id}"]`)
 				return $table.length==1
 			}
-			const replaceLayoutedTableRow=(layoutedTableRowWithParents,current)=>{
-				const {first,parents,layoutedTableRow=first.get(0)}=new ReactQuery(layoutedTableRowWithParents)
-					.findFirstAndParents(`[data-content="${current.props['data-content']}"]`)
-				if(!layoutedTableRow){
-					
-					throw new Error("why can't find row")
-				}
-
-				const increased=current.props.height-layoutedTableRow.props.height
-				return parents.reduceRight((revisedChild, parent,i,_, child=parents[i+1]) => {
-					const { props: { height, children, ...props} } = parent
-					props.children=revisedChild
-					height!=undefined && (props.height=height+increased);
-					if(Array.isArray(children)){
-						const revisable=[...children], i=children.indexOf(child)
-						revisable.splice(i,1,revisedChild)
-						props.children=revisable
-					}
-					return React.cloneElement(parent, props)
-				}, current)
-			}
-
+		
 			const frame=this.space.frame,lines=frame.lines
 			const i=[...lines].reverse().findIndex(l=>!isBelongToThisTable(l))
 			const removed=lines.splice(-(i==-1 ? lines.length : i+1))
 			const {props:{children:rows}}=this.render()
 			rows.forEach((row,i)=>{
-				const last=removed[i]
-				if(!last){
-					//@TODO: not safe
-					lines.push(this.table.createComposed2Parent(row))
-				}else{
-					lines.push(replaceLayoutedTableRow(last,row))
-				}
+				lines.push(this._replaceLayoutedTableRow(removed[i],row, i))
 			})
 			if(this.lastRow.isEmpty){
 				lines.pop()
 			}
 			console.debug(`relayout ${removed.length} lines page-table[${this.table.props.id}][${this.table.pages.indexOf(this)}]`)
+		}
+
+		_replaceLayoutedTableRow(layoutedRowPage,updatedRowPage, nthRowOfPage){
+			if(!layoutedRowPage){
+				return this.table.createComposed2Parent(updatedRowPage)
+			}
+			const {first,parents,layoutedTableRow=first.get(0)}=new ReactQuery(layoutedRowPage)
+				.findFirstAndParents(`[data-content="${updatedRowPage.props['data-content']}"]`)
+
+			const increasedHeight=updatedRowPage.props.height-layoutedTableRow.props.height
+			return parents.reduceRight((revisedChild, parent,i,_, child=parents[i+1]) => {
+				const { props: { height, children, ...props} } = parent
+				props.children=revisedChild
+				height!=undefined && (props.height=height+increasedHeight);
+				if(Array.isArray(children)){
+					const revisable=[...children], i=children.indexOf(child)
+					revisable.splice(i,1,revisedChild)
+					props.children=revisable
+				}
+				return React.cloneElement(parent, props)
+			}, updatedRowPage)
 		}
 
 		dy(height){
@@ -419,6 +422,24 @@ class SpanableTable extends Table{
 //export default SpanableTable
 
 export default class extends editable(SpanableTable,{stoppable:true}){
+	static Page=class extends super.Page{
+		/**
+		 * need sync computed.lastComposed
+		 */
+		_replaceLayoutedTableRow(layouted, updated, nthRow){
+			const composed=super._replaceLayoutedTableRow(layouted,updated,nthRow)
+			const i=this.table.pages.slice(0,this.table.pages.indexOf(this))
+				.reduce((s,page)=>s+page.rows.length,0)
+			if(layouted){
+				this.table.computed.lastComposed.splice(i+nthRow,1,composed)
+			}else{
+				this.table.computed.lastComposed.splice(i+nthRow-1,0,composed)
+			}
+			
+			return composed
+		}
+	}
+
 	cancelUnusableLastComposed(next){
 		const selfChanged=next.$hash!==this.props.$hash
 		if(selfChanged){
@@ -473,6 +494,7 @@ export default class extends editable(SpanableTable,{stoppable:true}){
 		const appendedPages=[], appendedLastComposed=[]
 		const spaceChangedPage=pages.find((page,i,self,isLastPage=i==self.length-1)=>{
 			const space=this.nextAvailableSpace({height:lastComposed[0].props.height})
+			this.pages.splice(0)//empty pages to always make new page
 			if(!isLastPage && page.space.equals(space)){
 				appendedPages.push(page.clone({space}))
 				lastComposed.splice(0,page.rows.length)
@@ -480,6 +502,7 @@ export default class extends editable(SpanableTable,{stoppable:true}){
 						page.table.context.parent.appendComposed(composedRowPage)
 						appendedLastComposed.push(composedRowPage)
 					})
+				
 			}else if (isLastPage 
 				&& !page.space.isInlineSizeDifferent(space) 
 				&& space.height>=page.flowableContentHeight){
