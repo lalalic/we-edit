@@ -1,6 +1,6 @@
 import React from "react"
-import PropTypes from "prop-types"
 import dom from "../src/dom"
+import PropTypes from "../src/tools/prop-types"
 
 describe("normalize props",()=>{
     const {UnitShape:{normalize:unit, denormalize:deunit, deprecision}, Geometry}=dom.Unknown   
@@ -273,14 +273,14 @@ describe("normalize props",()=>{
             expect(deprecision(500,100)).toBe(5)
         })
 
-        it("Shape({a:UnitShape}) should support deprecision",()=>{debugger
-            const shape=dom.Unknown.shape({a:dom.Unknown.UnitShape,b:dom.Unknown.string})
+        it("Shape({a:UnitShape}) should support deprecision",()=>{
+            const shape=PropTypes.shape({a:dom.Unknown.UnitShape,b:PropTypes.string})
             expect(shape.deprecision).toBeDefined()
             expect(shape.deprecision({a:500,b:"hello"},100)).toMatchObject({a:5,b:"hello"})
-            const oneOfType=dom.Unknown.oneOfType([dom.Unknown.string,shape],{$shape:1})
+            const oneOfType=PropTypes.oneOfType([PropTypes.string,shape],{$shape:1})
             expect(oneOfType.deprecision).toBeDefined()
             expect(oneOfType.deprecision({a:500,b:"hello"},100)).toMatchObject({a:5,b:"hello"})
-            const arrayOf=dom.Unknown.arrayOf(shape)
+            const arrayOf=PropTypes.arrayOf(shape)
             expect(arrayOf.deprecision).toBeDefined()
             expect(arrayOf.deprecision([{a:500,b:"hello"}],100)).toMatchObject([{a:5,b:"hello"}])
 

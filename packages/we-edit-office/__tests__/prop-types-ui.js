@@ -1,7 +1,6 @@
 import React,{Fragment} from "react"
 import ReactDOM from "react-dom"
-import PropTypes from "prop-types"
-import {dom, immutableReviver} from "we-edit"
+import {dom, immutableReviver, PropTypes} from "we-edit"
 import PropTypesUI from "../src/components/prop-types-ui"
 import TestRenderer from "react-test-renderer"
 import {fromJS} from "immutable"
@@ -14,7 +13,6 @@ jest.mock("../src/developer/diff",()=>class{static Setting=props=>null})
 ReactDOM.createPortal = jest.fn(node => node)
 
 describe("propTypes UI",()=>{
-    beforeAll(()=>dom.Unknown.memorize(PropTypes))
     it("recordify",()=>{
         expect(PropTypes.string.Type).toMatchObject({type:"string"})
         expect(dom.Text.propTypes.italic.Type).toMatchObject({type:"bool"})

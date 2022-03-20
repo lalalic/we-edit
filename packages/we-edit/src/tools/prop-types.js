@@ -3,6 +3,8 @@
  * Each validator has $ to extend itself
  */
 import React from "react"
+import PropTypes from "prop-types"
+
 function asType($type,base){
     if(typeof($type)=="string")
 		return `${base}(${$type})`
@@ -29,7 +31,7 @@ function $({$type,$validator,...props}={}, base){
 }
 
 
-export default function memorize(PropTypes){
+function memorize(PropTypes){
     ["string","number","bool"].forEach(k=>{
         const fn=PropTypes[k]
         fn.Type=React.createElement(k)
@@ -153,8 +155,9 @@ export default function memorize(PropTypes){
         },'arrayOf')
     })(PropTypes.arrayOf)
 
-    const {number, string, bool }=PropTypes
-    return {number, string, bool, shape, oneOf, oneOfType, arrayOf}
+    return PropTypes
 }
 
+
+export default memorize(PropTypes)
 

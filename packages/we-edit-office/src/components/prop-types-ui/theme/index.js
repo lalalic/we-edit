@@ -1,5 +1,5 @@
 import React, {Fragment} from "react"
-import {dom} from "we-edit"
+import {dom, PropTypes} from "we-edit"
 import { Tab, Tabs ,Divider, SvgIcon} from "material-ui"
 
 import IconBold from "material-ui/svg-icons/editor/format-bold"
@@ -68,6 +68,7 @@ import {NumberingFormats, Numberings, Bullets, Outlines, DemoList, BulletWrapper
 import { LineWeights, LineDashes, LineSketches, FillGradients, Gradient, FillPatterns, Pattern, FillTextures } from "./geometry"
 import UnitShape from "../unit-shape"
 
+
 export let uuid=new Date().getTime()
 
 function createTheme(){
@@ -92,6 +93,24 @@ function createTheme(){
             ]}/>,
             documentTree: <DocumentTree title="Document Tree" toNodeProps={({ id, type }) => ({ name: `${type}(${id.split("{")[0]})` })} />,
             tester: <Tester title="Test" />,
+            search: React.createElement(props=><PropTypesUI 
+                    propTypes={{
+                        find:PropTypes.shape({
+                            text: PropTypes.string.$({label:"search"}),
+                            matchCase: PropTypes.bool.$({label:"match case"}),
+                            matchWhole: PropTypes.bool.$({label:"match whole word"}),
+                            regular: PropTypes.bool.$({label:"use regular expression"}),
+                            total: PropTypes.number,
+                            current: PropTypes.number,
+                        }),
+                        replace: PropTypes.shape({
+                            text: PropTypes.string.$({label:"replace"}),
+                            all: PropTypes.bool.$({label:"replace all"}),
+                        })
+                    }} 
+                    props={{}}
+                    />
+            )
         },
         string:{
             style:{width:50},

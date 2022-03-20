@@ -1,10 +1,10 @@
 import "fetch-any"
 import "./tools/array-find-last"
 import * as timeout from "./tools/timeout"
+export {default as PropTypes} from "./tools/prop-types"
+
 export {timeout}
-
 export * from "./components"
-
 export {ACTION, DOMAIN, reducer, getActive, getAll,getReducer} from "./components/we-edit"
 export {connect, whenSelectionChange, whenSelectionChangeDiscardable, discardable, isDocumentReady, stateSafe,createState, createEmptyStore} from "./state"
 export {getContent, getSelection, getFile, getUndos, getRedos,getStatistics,getUI,getSelectionStyle,getWorkers} from "./state/selector"

@@ -1,6 +1,5 @@
 import React, {Component,Fragment} from "react"
-import PropTypes from "prop-types"
-import {ReactQuery,connect, getUI, dom} from "we-edit"
+import {ReactQuery,connect, getUI, dom, PropTypes} from "we-edit"
 
 import memoize from "memoize-one"
 
@@ -100,16 +99,16 @@ export default ({Paragraph, Group, Frame,})=>class DocxParagraph extends Compone
 
 			static propTypes={
 				...super.propTypes,
-				tabs: super.arrayOf(super.shape({
+				tabs: PropTypes.arrayOf(PropTypes.shape({
 					pos: super.UnitShape,
-					align: super.oneOf(["left","right","center","decimal","bar","clear"]),
-					leader: super.oneOf(["hyphen","dot","underscore","middleDot"],{labels:["-",".","_",String.fromCharCode(0xB7)].map(a=>a.repeat(5))})
+					align: PropTypes.oneOf(["left","right","center","decimal","bar","clear"]),
+					leader: PropTypes.oneOf(["hyphen","dot","underscore","middleDot"],{labels:["-",".","_",String.fromCharCode(0xB7)].map(a=>a.repeat(5))})
 				},{$type:"TabShape"}),{$type:"TabsShape"}),
 			}
 
 			static OutlineListShape=super.OutlineListShape.$extend({
-				levels:super.arrayOf(super.NumberListShape.$extend({
-					pStyle:super.string.$({label:"Link Level To"})
+				levels:PropTypes.arrayOf(super.NumberListShape.$extend({
+					pStyle:PropTypes.string.$({label:"Link Level To"})
 				})),
 			})
 

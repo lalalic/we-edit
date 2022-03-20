@@ -1,42 +1,24 @@
 import React, {Component,Fragment} from "react"
-import PropTypes from "prop-types"
-import {fromJS, Map} from "immutable"
+import {fromJS} from "immutable"
 import units from "../tools/units"
 import Geometry from "../tools/geometry"
 import numberings from "../tools/numbering"
-import memorize from "../tools/prop-types"
+import PropTypes from "../tools/prop-types"
 
 export default class Base extends Component{
 	static displayName="unknown"
 	static units=units
 	static numberings=numberings
 	static Geometry=Geometry
-	static memorize=types=>Object.assign(this, memorize(types))
 
-	static clear=o=>{
-		if(typeof(o)!="object"){
-			return o
-		}
-		return Object.keys(o).reduce((o,k, i, all)=>{
-			if(o[k]==undefined)
-				delete o[k]
-			if(i==all.length-1 && Object.keys(o).length==0)
-				return 
-			return o
-		},o)
-	}
-	
-	
-	static reactCreateElementNormalized=((createElement, memorize)=>{
+	static reactCreateElementNormalized=((createElement)=>{
 			React.createElement=function(Type, props, ...args){
 				props=Type.normalizeProps?.({...Type.defaultProps,...props})||props
 				return createElement(Type, props, ...args)
 			}
-
-			memorize(PropTypes)
 			return true
 		}
-	)(React.createElement, this.memorize)
+	)(React.createElement)
 	
 	static UnitShape=PropTypes.oneOfType([
 		PropTypes.number,

@@ -1,6 +1,6 @@
 import React, {PureComponent} from "react"
 import PropTypes from "prop-types"
-import { immutableReviver } from "we-edit"
+import { immutableReviver} from "we-edit"
 import {Map, fromJS} from "immutable"
 
 import any from "./base"
@@ -24,7 +24,7 @@ import * as wrappers from "./wrappers"
 export default class PropTypesUI extends PureComponent{
     static Theme=BaseTheme
     static wrappers=wrappers
-
+    
     static getTheme=a=>{
         return fromJS(BaseTheme).mergeDeep(a).toJS()
     }

@@ -1,5 +1,5 @@
-import React, {Component, Fragment} from "react"
-import PropTypes from "prop-types"
+import React, {Component} from "react"
+import PropTypes from "../src/tools/prop-types"
 import dom from "../src/dom"
 
 describe("record react component prop types",()=>{
@@ -55,10 +55,10 @@ describe("record react component prop types",()=>{
     })
 
     it("type=>checker(shape)",()=>{
-        expect(dom.Unknown.string.$({$type:"Test"}).Type.type).toMatch("string(Test)")
-        expect(dom.Unknown.bool.$({$type:"Test"}).Type.type).toMatch("bool(Test)")
-        expect(dom.Unknown.number.$({$type:"Test"}).Type.type).toMatch("number(Test)")
-        expect(dom.Unknown.oneOf([],{$type:"Test"}).Type.type).toMatch("oneOf(Test)")
+        expect(PropTypes.string.$({$type:"Test"}).Type.type).toMatch("string(Test)")
+        expect(PropTypes.bool.$({$type:"Test"}).Type.type).toMatch("bool(Test)")
+        expect(PropTypes.number.$({$type:"Test"}).Type.type).toMatch("number(Test)")
+        expect(PropTypes.oneOf([],{$type:"Test"}).Type.type).toMatch("oneOf(Test)")
     })
 
     it("primitive checker type not changed",()=>{
