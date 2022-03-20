@@ -327,4 +327,12 @@ export default class Reducer{
 	conflict(){
 
 	}
+
+	search(){
+
+	}
+
+	replace(){
+
+	}
 }

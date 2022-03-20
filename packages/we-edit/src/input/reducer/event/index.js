@@ -12,6 +12,7 @@ import backward from "./backward"
 import remove from "./remove"
 import collaborate from "./conflict-collaborate"
 import merge from "./merge"
+import replace from "./replace"
 import Editor from "./editor"
 /**
  * conditions:
@@ -470,6 +471,56 @@ export default (class Events extends Base{
         this.remove()
     }
 
+    search({reg}){
+        const textIndexs=[],inc=x=>(textIndexs[textIndexs.length-1]?.at||0)+x
+        const text=this.$("paragraph").map((i,p)=>{
+            const text=this.$(p).text(node=>{
+                const text=node.get("children")
+                textIndexes.push({id:node.get('id'), length: text.length, at:inc(text.length)})
+                return text
+            })
+            textIndexs.push({p:p.get("id"), at:inc(1), length:1})
+            return text
+        }).join("\n")
+
+        const matches=text.matchAll(reg)
+        const {selections, nearest}=(()=>{
+            const targetTextId=this.$target.backwardFirst("text").attr('id')
+            const iTargetText=textIndexs.findIndex(a=>a.id==targetTextId)
+            let nearest=null, iTextNode=0, selections=[]
+            for(let i=0;i<matches.length;i++){
+                const selection={}
+                const match=matches[i], matched=matches[0]
+                const start=match.index, end=start+matched.length
+                while((t=textIndexs[iTextNode])<start){
+                    iTextNode++
+                }
+                selection.start={id:t.id, at:t.length-(t.at-start)}
+                if(!nearest && iTextNode>iTargetText){
+                    nearest=selection
+                }
+                
+                while((t=textIndexs[iTextNode])<end){
+                    iTextNode++
+                }
+                selection.end={id:t.id, at:t.length-(t.at-end)}
+                selections.push(selection)
+                if(!nearest && iTextNode>iTargetText){
+                    nearest=selection
+                }
+            }
+
+            return {selections, nearest}
+        })();
+
+        this.cursorAt(nearest)
+        this.selection.extra=selections
+    }
+
+    replace({all=true, text}){
+        
+    }
+
     shouldRemoveSelectionWhenPaste(payload){
         return true
     }
@@ -598,4 +649,4 @@ export default (class Events extends Base{
         throw new Error("create_first_paragraph")
     }
 
-}).extends(seperate,create,update,enter,type,backspace,Delete,tab,forward,backward,remove,collaborate,merge)
+}).extends(seperate,create,update,enter,type,backspace,Delete,tab,forward,backward,remove,collaborate,merge,replace)

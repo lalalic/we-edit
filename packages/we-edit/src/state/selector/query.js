@@ -506,15 +506,15 @@ export default class Query{
 		return new this.constructor(this.state, nodes)
 	}
 
-	text(){
+	text(f=node=>node.get("children")){
 		return this._nodes.map(k=>{
 			let node=this._content.get(k)
 			if(node.get("type")=="text")
-				return node.get("children")
+				return f(node)
 			else
 				return new this.constructor(this.state, [k])
 					.find("text")
-					.map((i,node)=>node.get("children"))
+					.map((i,node)=>f(node))
 					.join("")
 		}).join("")
 	}

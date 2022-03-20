@@ -269,7 +269,7 @@ export class Editable extends Viewable{
 				break
 			case "we-edit/entity/UPDATE":
 				reducer.update(payload)
-				break
+				break	
 			case `we-edit/selection/UPDATE`:
 				reducer.update(payload)
 				break
@@ -291,6 +291,17 @@ export class Editable extends Viewable{
 			case "we-edit/selection/EXTEND":
 				reducer.extend(payload)
 				break
+			case "we-edit/selection/SELECTED":
+				const {start, end, page}=selection(getSelection(state),action)
+				reducer.cursorAt(start.id, start.at, end.id, end.at, page)
+				break
+			case "we-edit/selection/SEARCH":
+				reducer.search(payload)
+				break
+			case "we-edit/selection/REPLACE":
+				reducer.replace(payload)
+				break
+
 			case "we-edit/history/UNDO":
 				reducer.undo(payload)
 				break
@@ -299,10 +310,6 @@ export class Editable extends Viewable{
 				break
 			case "we-edit/cursor/BACKWARD":
 				reducer.backward(payload)
-				break
-			case "we-edit/selection/SELECTED":
-				const {start, end, page}=selection(getSelection(state),action)
-				reducer.cursorAt(start.id, start.at, end.id, end.at, page)
 				break
 			case "we-edit/workers/merge":
 				reducer.merge(payload)
