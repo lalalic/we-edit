@@ -76,6 +76,9 @@ function createTheme(){
         $Types:{
 
         },
+        $shortcuts:{
+            "ctrl+f":"search"
+        },
         $settingDialogs:{
             font:<FontSetting/>,
             paragraph: <ParagraphSetting/>,

@@ -1,9 +1,6 @@
 import React,{PureComponent, Fragment} from "react"
 import PropTypes from "prop-types"
 import {Input,ACTION, getAll} from "we-edit"
-import {RaisedButton} from "material-ui"
-
-import ComboBox from "../components/combo-box"
 import reducer from "../state/reducer"
 
 export default class Create extends PureComponent{

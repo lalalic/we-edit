@@ -264,6 +264,9 @@ export class Editable extends Viewable{
 			case `we-edit/text/ENTER`:
 				reducer.enter(payload)
 				break
+			case `we-edit/text/CONTROL`:
+				reducer.control(payload)
+				break
 			case "we-edit/entity/CREATE":
 				reducer.create(payload)
 				break

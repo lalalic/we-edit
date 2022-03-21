@@ -8,7 +8,7 @@ function reducer(state={loader:{},stream:{},reducer:a=>a, theme:{}},{type,payloa
             return {...state, theme:defaults({}, ...[...payload, state.theme].reverse())}
         case `${DOMAIN}/office/reducer`:
             return {...payload(undefined,{type,payload:{}}),...state,reducer:payload}
-		default:
+        default:
             return state.reducer(state,arguments[1])
     }
 }

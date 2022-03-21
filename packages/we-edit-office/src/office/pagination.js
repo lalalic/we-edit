@@ -10,15 +10,23 @@ import Ribbon,{} from "../ribbon"
 
 const KEY="default(accept=[supportPagination])"
 export default (
-    <Workspace debug={true}
+    <Workspace debug={true} key={KEY}
 			accept={
 				function({props:{supportPagination},name}){
 					return supportPagination
 				}
 			}
 			name="Default Pagination"
-			key={KEY}
 			channel="print"
+
+			reducer={(state,{type,payload})=>{
+				switch(type){
+					case "we-edit/text/CONTROL":{
+						debugger
+						return state
+					}
+				}
+			}}
 
 			layout={
 				<Workspace.Layout right={<Workspace.PanelContainer name="right" style={{width:300}}/>}

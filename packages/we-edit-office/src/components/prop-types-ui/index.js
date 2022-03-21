@@ -41,7 +41,7 @@ export default class PropTypesUI extends PureComponent{
     }
     static contextTypes={
         uiContext: this.childContextTypes.uiContext,
-        propTypesUITheme:PropTypes.object,
+        officeUITheme:PropTypes.object,
     }
 
     static propTypes={
@@ -57,7 +57,7 @@ export default class PropTypesUI extends PureComponent{
     }
 
     get Theme(){
-        return this.context.propTypesUITheme||this.constructor.Theme
+        return this.context.officeUITheme||this.constructor.Theme
     }
 
     get theme(){

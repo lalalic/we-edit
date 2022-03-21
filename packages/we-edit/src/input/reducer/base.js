@@ -335,4 +335,8 @@ export default class Reducer{
 	replace(){
 
 	}
+
+	control(e){
+
+	}
 }

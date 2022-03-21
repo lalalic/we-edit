@@ -472,6 +472,8 @@ export default (class Events extends Base{
     }
 
     search({reg}){
+        if(!reg)
+            return 
         const textIndexs=[],inc=x=>(textIndexs[textIndexs.length-1]?.at||0)+x
         const text=this.$("paragraph").map((i,p)=>{
             const text=this.$(p).text(node=>{
@@ -517,8 +519,11 @@ export default (class Events extends Base{
         this.selection.extra=selections
     }
 
-    replace({all=true, text}){
-        
+    replace({mode="down", text}){
+        if(!text){
+            return 
+        }
+        this.emit(`replace_${mode}`,[],text)
     }
 
     shouldRemoveSelectionWhenPaste(payload){

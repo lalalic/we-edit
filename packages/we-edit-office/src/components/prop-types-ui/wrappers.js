@@ -68,7 +68,7 @@ export const ShapeGrid=({host:{$props:{name,label:label1=name,bottomBorder=true,
 
 export class ShapeTree extends Component{
     static contextTypes={
-        propTypesUITheme: PropTypes.object,
+        officeUITheme: PropTypes.object,
         uiContext: PropTypes.string,
     }
 

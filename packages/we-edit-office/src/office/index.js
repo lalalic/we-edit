@@ -1,7 +1,6 @@
 import React, {PureComponent} from "react"
 import PropTypes from "prop-types"
-import {WeEdit,shallowEqual} from "we-edit"
-import memoize from "memoize-one"
+import {WeEdit} from "we-edit"
 import EventEmitter from "events"
 
 import WeEditUI from "../we-edit-ui"

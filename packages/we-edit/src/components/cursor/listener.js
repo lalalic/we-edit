@@ -79,16 +79,23 @@ export default class Listener extends Component{
 				}
 
 				const onMac=navigator.userAgent.indexOf("Mac OS") != -1
-				const {key,keyCode,ctrlKey,metaKey,shiftKey}=e
-				const control=keys[keyCode]|| (((onMac && metaKey) ||ctrlKey ||shiftKey) && keys[key])
+				const {key,keyCode,ctrlKey,metaKey,shiftKey, altKey}=e
+				
+				const controlKey=((onMac && metaKey) ||ctrlKey)
+				const control=keys[keyCode]|| (controlKey && keys[key.toLowerCase()])
 				if(control){
 					e.preventDefault()
 					control(toMyEvent(e))
 					return 
 				}
 
-				if(this.context.onKeyDown){
-					if(this.context.onKeyDown(e)!==false){
+				//ignore special key pressed
+				if({shiftKey,altKey,metaKey,controlKey}[`${key.toLowerCase()}Key`]===true){
+					return 
+				}
+				
+				if(controlKey || altKey){
+					if(this.context.onKeyDown?.(e)!==false){
 						dispatch(ACTION.Text.CONTROL(toMyEvent(e)))
 					}
 				}
@@ -123,5 +130,5 @@ const toMyEvent=e=>{
 			keys[k]=e[k]
 		}
 		return keys
-	},{keyCode:e.keyCode})
+	},{keyCode:e.keyCode, key:e.key})
 }

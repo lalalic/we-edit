@@ -46,6 +46,7 @@ export const Selection={
 	MOVE: payload=>({type:"we-edit/selection/MOVE",payload}),
 	UPDATE: payload=>({type:"we-edit/selection/UPDATE", payload}),
 	STYLE: payload=>({type:"we-edit/selection/STYLE",payload}),
+	SEARCH: payload=>({type:"we-edit/selection/SEARCH",payload}),
 }
 
 export const Entity={

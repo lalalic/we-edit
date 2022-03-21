@@ -41,12 +41,10 @@ export default class Workspace extends PureComponent{
 			show: PropTypes.func,
 			get: PropTypes.func,
 		}),
-		propTypesUITheme:PropTypes.object,
+		officeUITheme:PropTypes.object,
 		dispatch: PropTypes.func,
 		setting: PropTypes.func,
 	}
-
-
 
 	static propTypes={
 		toolBar:PropTypes.node,
@@ -57,13 +55,13 @@ export default class Workspace extends PureComponent{
 		channel: PropTypes.string,
 		layout: PropTypes.node,
 		tests: PropTypes.node,
-		propTypesUITheme: PropTypes.object,
+		officeUITheme: PropTypes.object,
 		contextMenu: PropTypes.element,
 		theme: PropTypes.object,
 	}
 
 	static defaultProps={
-		propTypesUITheme:Theme,
+		officeUITheme:Theme,
 		toolBar: (<Ribbon/>),
 		statusBar:(<Status/>),
 		contextMenu:(
@@ -104,7 +102,7 @@ export default class Workspace extends PureComponent{
 
 		const dialogs=new Proxy({},{
 			get(target,key){
-				return target[key]||me.props.propTypesUITheme.$settingDialogs[key]
+				return target[key]||me.props.officeUITheme.$settingDialogs[key]
 			},
 			set(target,key,value){
 				target[key]=value
@@ -137,19 +135,19 @@ export default class Workspace extends PureComponent{
 	}
 	
 	getChildContext(){
-		const {debug, propTypesUITheme}=this.props
+		const {debug, officeUITheme}=this.props
 		return {
 			debug,
 			events:this.events,
 			panelManager:this.panelManager,
 			dialogManager:this.dialogManager,
-			propTypesUITheme,
+			officeUITheme,
 			dispatch: action=>this.dispatch(action),
 			setting:(type,props)=>{
 				if(this.dialogManager.get(type)){
 					this.dialogManager.show(type,props)
 				}else{
-					const panel=propTypesUITheme.$settingPanels[type]
+					const panel=officeUITheme.$settingPanels[type]
 					if(panel){
 						this.panelManager.toggle(panel, panel.props.side||"right")
 					}else{

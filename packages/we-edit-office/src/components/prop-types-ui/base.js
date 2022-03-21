@@ -11,7 +11,7 @@ export default class base extends PureComponent{
         uiContext: PropTypes.string,
         PropTypes: PropTypes.object,
         set: PropTypes.func,
-        propTypesUITheme: PropTypes.object,
+        officeUITheme: PropTypes.object,
         setting: PropTypes.func,
         disabled: PropTypes.bool,
         path: PropTypes.string,
@@ -36,7 +36,7 @@ export default class base extends PureComponent{
     }
 
     get Theme(){
-        return this.context.propTypesUITheme||PropTypesUI.Theme
+        return this.context.officeUITheme||PropTypesUI.Theme
     }
 
     get path(){

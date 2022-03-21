@@ -22,7 +22,7 @@ export default (
         accept="*.docx"
         name={KEY}
         key={KEY}
-        propTypesUITheme={PropTypesUI.getTheme(theme)}
+        officeUITheme={PropTypesUI.getTheme(theme)}
         ruler={{
             vertical:true,
             horizontal:{
