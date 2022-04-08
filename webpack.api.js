@@ -28,7 +28,7 @@ module.exports=base=>{
             ].filter(a=>a),
             target:"node",
             externals:[nodeExternals({
-                whitelist:[/codemirror/]
+                //whitelist:[/codemirror/]
             })]
         }))
 }
