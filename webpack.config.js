@@ -1,5 +1,3 @@
-const path = require('path');
-const Visualizer=require("webpack-visualizer-plugin")
 const packages=(function(){
 	return require("fs")
 		.readdirSync("./packages")
@@ -8,12 +6,10 @@ const packages=(function(){
 })();
 
 module.exports=(env,args)=>{
-	//const outputPath=args['output-path']||path.resolve(__dirname, 'dist')
 	const base={
 		entry:"./src/index.js",
 		output:{
 			filename:"[name].js",
-			//path:outputPath
 		},
 		module:{
 			noParse:/(font-service)/,
