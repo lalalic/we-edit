@@ -291,22 +291,28 @@ export default class Workspace extends PureComponent{
 //extract Channels from Workspace to make channel into redux state
 const Channels=connect((state,props)=>({channel:getOffice(state).channel||props.channel}))(
 	class BaseChannels extends Component{
-		getChannels=memoize(children=>
-			Children.toArray(children).filter(a=>a.props)
-				.map(({props:{channel,icon}})=>channel ? {channel,icon:icon||<span title={{channel}}/>} : null)
-				.filter(a=>!!a)
-		)
+		getChannels=memoize(children=>{
+			const channels=Children.toArray(children).flat()
+				.filter(a=>a.props)
+				.reduce((channels, {props:{channel,icon}})=>{
+					if(channel && !channels[channel]){
+						channels[channel]={channel,icon:icon||<span title={{channel}}/>}
+					}
+					return channels
+				}, {})
+			return Object.values(channels)
+		})
 
 		getCurrent=memoize((children,channel)=>{
-			children=Children.toArray(children)
+			children=Children.toArray(children).flat()
 			const current=children.filter(a=>a.props).find(({props})=>props.channel==channel)
 			const uncontrolled=children.filter(({props})=>!props || !props.channel).filter(a=>a!=current)
 			return {current, uncontrolled}
 		})
 
 		render(){
-			let {channel, children, toolBar, statusBar, ruler=true, layout, dispatch}=this.props
-			let {current,uncontrolled}=this.getCurrent(children, channel)
+			let {children, toolBar, statusBar, ruler=true, layout, dispatch,channel}=this.props
+			let {current,uncontrolled}=this.getCurrent(children, channel||this.getChannels()[0])
 
 			if(current){
 				toolBar=typeof(current.props.toolBar)=="undefined" ? toolBar : current.props.toolBar

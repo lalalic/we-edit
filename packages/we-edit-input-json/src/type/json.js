@@ -5,16 +5,7 @@ export default class __$1 extends XMLDocument{
 		if(!file)//for installer
 			return true
 
-		const {data, name, ext, type}=file
-		if(ext && ext=="wed.json")
-			return true
-
-		if(name && name.endsWith(".wed.json"))
-			return true
-
-		if(type && type=="document")
-			return true
-		return false
+		return file.name?.toLowerCase().endsWith(".wed.json")
 	}
 
 	static defaultProps={

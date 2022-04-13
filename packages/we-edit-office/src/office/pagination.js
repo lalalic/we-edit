@@ -6,6 +6,7 @@ import IconText from "material-ui/svg-icons/content/text-format"
 
 import Workspace from "../workspace"
 import Ribbon,{} from "../ribbon"
+import PropTypesUI from "../components/prop-types-ui"
 
 
 const KEY="default(accept=[supportPagination])"
@@ -18,7 +19,7 @@ export default (
 			}
 			name="Default Pagination"
 			channel="print"
-
+			officeUITheme={PropTypesUI.getTheme()}
 			reducer={(state,{type,payload})=>{
 				switch(type){
 					case "we-edit/text/CONTROL":{
@@ -29,7 +30,9 @@ export default (
 			}}
 
 			layout={
-				<Workspace.Layout right={<Workspace.PanelContainer name="right" style={{width:300}}/>}
+				<Workspace.Layout 
+					right={<Workspace.PanelContainer name="right" style={{width:300}}/>}
+					left={<Workspace.PanelContainer name="left" style={{width:300}}/>}
 					/>
 			}
 			>

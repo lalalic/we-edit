@@ -1,20 +1,22 @@
 const path = require('path');
+const Visualizer=require("webpack-visualizer-plugin")
 const packages=(function(){
-	let ps=require("fs")
+	return require("fs")
 		.readdirSync("./packages")
 		.filter(a=>a.startsWith("we-edit"))
 		.sort()
-	return ps
 })();
 
 module.exports=(env,args)=>{
+	//const outputPath=args['output-path']||path.resolve(__dirname, 'dist')
 	const base={
 		entry:"./src/index.js",
 		output:{
 			filename:"[name].js",
-			path:path.resolve(__dirname, 'dist'),
+			//path:outputPath
 		},
 		module:{
+			noParse:/(font-service)/,
 			rules:[
 			{
 				test: /.js?$/,
@@ -23,9 +25,9 @@ module.exports=(env,args)=>{
 				include: /(docx4js)/
 			},{
 				test: /\.js?$/,
-				use: ['babel-loader'],
+				loader:'babel-loader',
 				exclude: /(node_modules|tools\/jasmine)/,
-				include: /src/
+				include: /(src|\.dev)/
 			},{
 				test: /\.js?$/,
 				use: ["transform-loader/cacheable?brfs"],
@@ -65,10 +67,18 @@ module.exports=(env,args)=>{
 				}
 			},
 			{
-				test: /\.(png|jpe?g|gif)$/i,
+				test: /\.(png|jpe?g|gif|ttf|otf)$/i,
 				loader:"file-loader",
 				options:{
-					name:'[path][name].[ext]'
+					name:'[name].[ext]',
+					publicPath:(url,resourcePath)=>{
+						const [,ctx]=resourcePath.split("/").reverse()
+						return `www/${ctx}/${url}`
+					},
+					outputPath:(url,resourcePath)=>{
+						const [,ctx]=resourcePath.split("/").reverse()
+						return `www/${ctx}/${url}`
+					},
 				}
 			},
 			]
@@ -76,7 +86,9 @@ module.exports=(env,args)=>{
 		resolve:{
 			symlinks:false,
 		},
-		plugins:[],
+		plugins:[
+			
+		],
 		node:{
 			fs: "empty",
 			stream: true,

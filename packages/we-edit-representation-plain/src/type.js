@@ -1,11 +1,6 @@
 import {Input} from "we-edit"
 import {Readable} from "readable-stream"
-
-export const modes=(ctx=>{
-	ctx.keys().forEach(ctx)
-	const codemirror=require("codemirror")
-	return codemirror.modeInfo
-})(require.context("codemirror/mode",true,/\.js$/))
+import {modes} from "./code-mirror-modes"
 
 export default class Plain extends Input.Editable{
     static defaultProps={

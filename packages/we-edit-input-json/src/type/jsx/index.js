@@ -42,6 +42,7 @@ export default class JSXDocument extends Input.Editable{
 				data,
 				import(
 					/* webpackChunkName: "js-compiler.js" */
+					/* webpackMode: "lazy" */
 					"./transform"
 				),
 			])

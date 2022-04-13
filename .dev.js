@@ -180,7 +180,7 @@ function testOffice(Target, representation="pagination"){
 	const ext="docx", name="basic."+ext
 
 	Office.install(iDocx.Workspace,dispatch=>{
-		fetch("/basic."+ext)
+		fetch("/templates/basic."+ext)
 			.then(res=>res.blob())
 			.then(data=>{
 				const file={data,name,ext, src:"/"+name}

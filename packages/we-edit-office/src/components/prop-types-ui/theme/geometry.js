@@ -1,6 +1,6 @@
-import React from "react";
-import textures from "./textures";
-import { uuid } from "./index";
+import React from "react"
+import { uuid } from "./index"
+export {default as FillTextures} from "./textures"
 
 export const LineWeights = [0.25, 0.5, 0.75, 1, 1.5, 2.25, 3, 4.5, 6];
 export const LineDashes = ["", "1", "4 2", "4 2 2 2", "6 2", "6 2 2 2", "6 2 2 2 2 2"];
@@ -15,7 +15,6 @@ export const FillGradients = [
     { type: "linear", angle: 90, stops: [{ offset: "0%", color: "blue" }, { offset: "100%", color: "red" }] },
     { type: "linear", angle: 90, stops: [{ offset: "0%", color: "blue" }, { offset: "100%", color: "red" }] },
 ];
-export const FillTextures = textures;
 export const FillPatterns = [
     <polygon points={"0,0 2,5 0,10 5,8 10,10 8,5 10,0 5,2"} />,
     <circle r={1} cx={5} cy={5} />,

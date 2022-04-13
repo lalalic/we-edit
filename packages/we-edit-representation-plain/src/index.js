@@ -1,18 +1,11 @@
 import React from "react"
 import {Representation,connect,ACTION} from "we-edit"
 import {Controlled as CodeMirror} from "react-codemirror2"
-import CodeMirror_Style from "!!raw-loader!codemirror/lib/codemirror.css"
+import CodeMirror_Style from "codemirror/lib/codemirror.css"
 
-import Type, {modes} from "./type"
+import Type from "./type"
 
-export const themes=(ctx=>{
-    const keys=ctx.keys()
-    const values=keys.map(a=>ctx(a).default)
-    return keys.reduce((o, k, i) => { 
-        o[k.substring(2).split(".")[0]] = values[i]; 
-        return o; 
-    }, {});
-})(require.context("!!raw-loader!codemirror/theme",false,/\.css$/));
+import {themes, modes} from "./code-mirror-modes"
 
 const ViewerTypes={
     Document({children}){
@@ -77,7 +70,7 @@ export default class Plain extends Representation.Base{
         return <Representation {...{ViewerTypes,EditorTypes,...props}}/>
 	}
 }
-export {modes, Type}
+export {modes, themes, Type}
 
 Type.install()
 Plain.install()

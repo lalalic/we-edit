@@ -94,14 +94,14 @@ const Channel=({items, current, onChange, height:size})=>(
 			if(channel==current){
 				style.background=blue900
 			}
-
+			
 			return (
 				<SizeIconButton key={channel}
+					iconStyle={{color:"white"}}
 					size={size}
 					padding={size/4}
 					style={style}
-					tooltip={`${channel} mode`}
-					tooltipPosition="top-center"
+					title={channel}
 					onClick={()=>onChange(channel)}
 					>
 					{icon}

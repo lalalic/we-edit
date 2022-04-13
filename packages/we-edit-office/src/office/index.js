@@ -5,11 +5,11 @@ import EventEmitter from "events"
 
 import WeEditUI from "../we-edit-ui"
 
-import PaginationOffice from "./pagination"
-import PlainOffice from "./plain"
+import Pagination from "./pagination"
+import Plain from "./plain"
 
 
-const myOffice=[PaginationOffice,PlainOffice]
+const myOffice=[Pagination,Plain]
 
 const event=new (class OfficeEvent extends EventEmitter{
 	constructor(){
@@ -39,6 +39,8 @@ const event=new (class OfficeEvent extends EventEmitter{
 })();
 
 export default class Office extends PureComponent{
+	static Pagination=Pagination
+	static Plain=Plain
 	static propTypes={
 		workspaces: PropTypes.arrayOf(PropTypes.element),
 		installable:PropTypes.bool,

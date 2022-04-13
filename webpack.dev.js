@@ -4,17 +4,7 @@ const HtmlWebpackPlugin=require("html-webpack-plugin")
 module.exports=(base, packages)=>{
 	return {
 		...base,
-		entry:
-		//"./packages/we-edit-representation-pagination/.dev.js",
-		["./.dev.js","./packages/we-edit-office/src/index.js"],
-		module:{
-			rules:[{
-					test: /\.dev\.js?$/,
-					use: ['babel-loader'],
-				},
-				...base.module.rules
-			]
-		},
+		entry: ["./.dev.js","./packages/we-edit-office/src/index.js"],
 		devtool: 'source-map',
 		mode:"development",
 		resolve:{

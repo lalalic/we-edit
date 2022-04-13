@@ -10,16 +10,7 @@ export default class __$1 extends Input.Editable{
 		if(!file)//for installer
 			return true
 
-		const {data, name, ext, type}=file
-		if(ext && ext=="xml")
-			return true
-
-		if(name && name.endsWith(".xml"))
-			return true
-
-		if(type && type=="document")
-			return true
-		return false
+		return file.name?.toLowerCase().endsWith(".wed.xml")
 	}
 
 	static defaultProps={

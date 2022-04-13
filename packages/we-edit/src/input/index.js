@@ -49,16 +49,6 @@ const Input=extendible({
 
 				const Type=this.get(a)
 				if(Type){
-					if(ext){
-						if(Type.getTypeExt()==ext)
-							return Type.getType()
-					}
-
-					if(mimeType){
-						if(Type.getTypeMimeType()==mimeType)
-							return Type.getType()
-					}
-
 					if(Type.support &&  Type.support(arguments[0]))
 						return Type.getType()
 				}

@@ -6,9 +6,8 @@ import { SvgIcon } from "material-ui";
 import { compose, setDisplayName } from "recompose";
 import FontKit from "fontkit";
 import DropDownButton from "../components/drop-down-button";
-import textbox from "./text-box";
-import flowchart from "!!file-loader?name=[name].[ext]!./flowchart.ttf";
-import shapes from "!!file-loader?name=[name].[ext]!./shapes.ttf";
+import flowchart from "./flowchart.ttf";
+import shapes from "./shapes.ttf";
 
 const { Shape } = dom;
 export default compose(

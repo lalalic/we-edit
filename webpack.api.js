@@ -6,31 +6,31 @@ const fs=require('fs')
 you should set dependencies of plugin as optionalDependencies of packages/we-edit,
 so project depends on we-edit can use built plugin without big bundle into built plugin
 */
-module.exports=base=>{
-    return fs
-		.readdirSync("./packages")
-		.filter(a=>a.startsWith("we-edit"))
-        .map(a=>({
+module.exports=(base,packages,args)=>{
+    return [
+        ...packages.map(a=>({
             ...base,
+            module:{
+                ...base.module,
+                noParse:/code-mirror-modes/,
+            },
             entry:`./packages/${a}/src/index.js`,
     		output:{
     			filename:`${a.substr("we-edit".length+1)||"index"}.js`,
-    			path:path.resolve(__dirname, 'packages/we-edit'),
-                chunkFilename: "[name]",
+    			chunkFilename: "[name]",
                 libraryTarget:"commonjs2"
             },
             devtool:"inline-source-map",
             plugins:[
                 ...base.plugins,
                 new LocalReference(),
-                a!=="we-edit" ? new CopyReadme() : null,
+                a!=="we-edit" ? new CopyReadme(a) : null,
                 a=="we-edit-representation-pagination" ? new CopyFontService() : null
             ].filter(a=>a),
             target:"node",
-            externals:[nodeExternals({
-                //whitelist:[/codemirror/]
-            })]
+            externals:[nodeExternals()]
         }))
+    ]
 }
 
 class LocalReference{
@@ -56,26 +56,21 @@ class LocalReference{
 
 class CopyFontService{
     apply(compiler){
-        compiler.hooks.emit.tap("copy font service", function(compilation){
-            if(compilation.options.mode!=="production")
-                return
+        compiler.hooks.emit.tap("copy font service", (compilation)=>{
             fs.createReadStream(path.resolve(__dirname, 'packages/we-edit-representation-pagination/src/fonts/font-service.js'))
-                .pipe(fs.createWriteStream(path.resolve(compilation.options.output.path,"font-service.js")))
-
-            fs.createReadStream(path.resolve(__dirname, 'packages/we-edit-representation-pagination/src/fonts/Arial'))
-                .pipe(fs.createWriteStream(path.resolve(compilation.options.output.path,"Arial")))
+                .pipe(fs.createWriteStream(path.join(compilation.options.output.path,"www","font-service.js")))
         })
     }
 }
 
 class CopyReadme{
+    constructor(project){
+        this.project=project
+    }
     apply(compiler){
-        compiler.hooks.emit.tap("copy readme", function(compilation){
-            if(compilation.options.mode!=="production")
-                return 
-            const project=compilation.options.entry.split("/").reverse()[2]
-            fs.createReadStream(path.resolve(__dirname, `packages/${project}/README.md`))
-                .pipe(fs.createWriteStream(path.resolve(compilation.options.output.path,project.replace("we-edit-","")+".md")))
+        compiler.hooks.emit.tap("copy readme", (compilation)=>{
+            fs.createReadStream(path.resolve(__dirname, `packages/${this.project}/README.md`))
+                .pipe(fs.createWriteStream(path.resolve(compilation.options.output.path,this.project.replace("we-edit-","")+".md")))
         })
     }
 }

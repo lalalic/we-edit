@@ -18,7 +18,7 @@ class DocxType extends Input.Editable{
 		const defaultProps=this.defaultProps
         return ext===defaultProps.ext 
             || mimeType===defaultProps.mimeType 
-            || name.endsWith("."+defaultProps.ext)
+            || name.toLowerCase().endsWith("."+defaultProps.ext)
             || (file instanceof this.FileType)
             || (data instanceof this.FileType)
 	}

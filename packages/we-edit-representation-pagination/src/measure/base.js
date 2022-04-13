@@ -1,4 +1,4 @@
-import fallback from "!!file-loader?name=[name].[ext]!../fonts/fallback.otf"
+import fallback from "../fonts/fallback.otf"
 import FontManager from "../fonts"
 
 /**
@@ -23,7 +23,6 @@ export class Measure{
 		const {size, vertAlign, bold, italic}=style
 		this.style=style
 		this.size=size * (vertAlign ? VertAlign_Size : 1);
-		
 		this.fontFamily=this.__decideFont({...style,Super_Script_Position},_dont_decide)
 		if(this.fontFamily){
 			this.hit=0

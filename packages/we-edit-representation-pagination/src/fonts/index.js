@@ -1,7 +1,6 @@
 import FontKit from "fontkit"
 import {default as isNode} from "is-node"
 import {makeFontFace, removeFontFace} from "./font-face"
-import fontservice from "!!file-loader?name=[name].[ext]!./font-service.js"
 import memoize from "memoize-one"
 import ttc2ttf from "./extract"
 

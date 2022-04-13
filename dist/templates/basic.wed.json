@@ -1,0 +1,37 @@
+{
+	"type":"document",
+	"children":[{
+		"type":"section",
+		"props":{
+			"layout":{
+				"width":800,
+				"height":600,
+				"margin":{
+					"left":96,
+					"right":96,
+					"top":48,
+					"bottom":48,
+					"header":24,
+					"footer":24
+				}
+			}
+		},
+		"children":[{
+			"type":"paragraph",
+			"props":{
+				"defaultStyle":{
+					"fonts":"Arial",
+					"size":12
+				}
+			},
+			"children":[{
+				"type":"text",
+				"children":"hello, have fun",
+				"props":{
+					"fonts":"Verdana",
+					"size":12
+				}
+			}]
+		}]
+	}]
+}

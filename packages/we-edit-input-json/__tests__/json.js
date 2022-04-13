@@ -7,7 +7,7 @@ describe("json document",()=>{
         data:require("fs").readFileSync(JSON_FILE)
     }
 
-    it("support '.we.json'",()=>{
+    it("support '.wed.json'",()=>{
         expect(!!Document.support(FILE)).toBe(true)
     })
 

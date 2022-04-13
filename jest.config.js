@@ -7,5 +7,6 @@ module.exports={
 		"^we-edit(.*)/(.*)":`<rootDir>/packages/we-edit$1/src/$2`,
 		"^we-edit(.*)":`<rootDir>/packages/we-edit$1/src`,
 		"^!!file\-loader":'<rootDir>/__tests__/__mocks__/empty.js',
+		"(png|jpe?g|gif|ttf|otf)$":'<rootDir>/__tests__/__mocks__/empty.js',
 	},
 }
