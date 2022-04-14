@@ -39,7 +39,7 @@ export default class JSXDocument extends Input.Editable{
 		}
 		
 		data=data instanceof Blob ? data.text() : Buffer.from(data).toString()
-		const {code}=transform(raw)
+		const {code}=transform(data)
 		const i=code.indexOf("React.createElement")
 		const compiled=new Function("React",code.substring(0,i)+";return "+code.substring(i))
 		const doc=compiled(React)
