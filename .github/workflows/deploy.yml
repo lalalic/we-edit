@@ -23,7 +23,7 @@ jobs:
       - name: build
         run: yarn build -p --output-path ./packages/we-edit
       - name: support files
-        run: mv dist packages/we-edit/www
+        run: mv dist/* packages/we-edit/www
 
       - run: ls -l packages/we-edit/www
          
