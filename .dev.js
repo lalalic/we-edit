@@ -177,7 +177,7 @@ function testOffice(Target, representation="pagination"){
 			</Workspace.Desk>
 		</Workspace>
 	)
-	const ext="docx", name="basic."+ext
+	const ext="wed.jsx", name="basic."+ext
 
 	Office.install(iDocx.Workspace,dispatch=>{
 		fetch("/templates/basic."+ext)

@@ -9,4 +9,5 @@ module.exports={
 		"^!!file\-loader":'<rootDir>/__tests__/__mocks__/empty.js',
 		"(png|jpe?g|gif|ttf|otf)$":'<rootDir>/__tests__/__mocks__/empty.js',
 	},
+	testPathIgnorePatterns:["/node_modules/","\\.jsx$"]
 }

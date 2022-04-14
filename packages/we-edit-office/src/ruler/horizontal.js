@@ -6,13 +6,16 @@ import Movable from "../components/movable"
 
 export default onlyUpdateForKeys("width,scale,leftMargin,rightMargin,firstLine,leftIndent,cm,threshold,cols,column".split(","))((
 	{scale=1,
-	width=0,cols=[], column,scaleHeight:height=20, markerSize=8,
+	scaleHeight:height=20, markerSize=8,
 	leftMargin=3, rightMargin=3, setLeftMargin, setRightMargin,setColGap,moveColGap,
 	firstLine=0, leftIndent=0, rightIndent=0, setFirstLine, setLeftIndent, setRightIndent,
-	cm=scale*96/2.54, threshold=5,
-	children, col=cols[column],
+	cm=scale*96/2.54, threshold=5, width=leftMargin+rightMargin,
+	children, cols=[{x:leftMargin,width:width-leftMargin}], column=0, col=cols[column],
 	})=>{
-		let fl=null
+		if(cols.length==0){
+			cols=[{x:leftMargin,width:width-leftMargin}]
+			col=cols[column]
+		}
 		return (
 			<div className="ruler horizontal" style={{width:width*scale,position:"relative",height,margin: "0px auto 0px auto"}}>
 				<Scale {...{width:width*scale,height,from:leftMargin*scale,cm}}/>
@@ -71,7 +74,7 @@ export default onlyUpdateForKeys("width,scale,leftMargin,rightMargin,firstLine,l
 								}
 							</Movable>
 
-							<Movable ref={a=>fl=a} key="first" color="yellow" rodDx={halfMarkerSize}
+							<Movable key="first" color="yellow" rodDx={halfMarkerSize}
 								style={{left:(col.x+leftIndent+firstLine)*scale-halfMarkerSize}}
 								onMove={(dx,dy,{x})=>{
 									if(Math.abs(dx)<threshold)

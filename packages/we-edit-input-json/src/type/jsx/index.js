@@ -13,16 +13,7 @@ export default class JSXDocument extends Input.Editable{
 		if(!file)//for installer
 			return true
 
-		const {data, name, ext, type}=file
-		if(ext && ext==".wejsx")
-			return true
-
-		if(name && name.endsWith(".wejsx"))
-			return true
-
-		if(type && type=="document")
-			return true
-		return false
+		return file.name?.toLowerCase().endsWith(".wed.jsx")
 	}
 
 	static defaultProps={
@@ -38,12 +29,13 @@ export default class JSXDocument extends Input.Editable{
 			return Promise.resolve(data)
 		}
 		
-		data=data instanceof Blob ? data.text() : Buffer.from(data).toString()
-		const {code}=transform(data)
-		const i=code.indexOf("React.createElement")
-		const compiled=new Function("React",code.substring(0,i)+";return "+code.substring(i))
-		const doc=compiled(React)
-		return Promise.resolve(doc)
+		return Promise.resolve(data instanceof Blob ? data.text() : Buffer.from(data).toString())
+			.then(data=>{
+				const {code}=transform(data)
+				const i=code.indexOf("React.createElement")
+				const compiled=new Function("React",code.substring(0,i)+";return "+code.substring(i))
+				return compiled(React)
+			})
 	}
 
     render(createElement, Types){

@@ -285,5 +285,9 @@ describe("normalize props",()=>{
             expect(arrayOf.deprecision([{a:500,b:"hello"}],100)).toMatchObject([{a:5,b:"hello"}])
 
         })
+
+        it("null/undefined should be supported",()=>{
+            
+        })
     })
 })

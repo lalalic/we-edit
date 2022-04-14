@@ -2,7 +2,7 @@ import {dom} from "we-edit"
 import tck from "we-edit/__tests__/input-event-tck"
 import JSXDocument from "../src/type/jsx"
 
-tck(JSXDocument, `${__dirname}/doc.wejsx`, true, getEditor=>{
+tck(JSXDocument, `${__dirname}/doc.wed.jsx`, true, getEditor=>{
     const {Shape:{Geometry}, Unknown:{UnitShape}}=dom
     const shape={geometry:Geometry.create({width:50,height:50})}
     const anchor={current:{x:5, y:5, id:null}}

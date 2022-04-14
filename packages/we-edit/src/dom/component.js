@@ -619,6 +619,9 @@ export default class Base extends Component{
 	 * __unnormalize could be used to keep original format of props when setting from UI, such as resize,move,rotate by dragging mouse
 	 */
 	static normalizeProps(props){
+		if(!props){
+			return props
+		}
 		const checks=this.propTypes
 		const __unnormalized={}
 		delete __unnormalized.children
@@ -633,6 +636,8 @@ export default class Base extends Component{
 	}
 
 	static deprecision(props, precision=1, checks=this.propTypes){
+		if(!props)
+			return props
 		return Object.keys(props).reduce((deprecisioned,key)=>{
 			if(props[key] && checks[key]?.deprecision){
 				deprecisioned[key]=checks[key].deprecision(props[key],precision)

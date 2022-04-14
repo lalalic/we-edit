@@ -343,17 +343,16 @@ const FontManager={
     requireFonts(service,fonts=[]){
 		const allAlreadyLoaded=fonts.reduce((loaded,k)=>loaded && !!FontManager.get(k),true)
 
-		if(allAlreadyLoaded){
-			return Promise.resolve(done({loaded:fonts}))
-		}
-        
         const done=()=>{
 			const unloaded=fonts.filter(a=>!FontManager.get(a))
 			const loaded=fonts.filter(a=>!unloaded.includes(a))
 			return {loaded,unloaded, FontManager}
         }
         
-        
+        if(allAlreadyLoaded){
+			return Promise.resolve(done({loaded:fonts}))
+		}
+                
 		if(isNode && typeof(service)=="string" && require("fs").existsSync(service)){
 			return FontManager
 				.fromPath(service, fonts)

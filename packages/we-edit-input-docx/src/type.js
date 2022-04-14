@@ -379,9 +379,7 @@ class DocxType extends Input.Editable{
 		//injected implementation by render
 	}
 
-	getFontList(){
-		//injected implementation by render
-	}
+	
 
     refreshStyles(){
         //injected implementation by render
