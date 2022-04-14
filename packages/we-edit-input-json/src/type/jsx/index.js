@@ -1,5 +1,6 @@
 import React from "react"
 import {Input} from "we-edit"
+import { transform } from "./transform"
 import EventHandler from "../../event"
 import Dom from "../../render"
 
@@ -38,21 +39,11 @@ export default class JSXDocument extends Input.Editable{
 		}
 		
 		data=data instanceof Blob ? data.text() : Buffer.from(data).toString()
-		return Promise.all([
-				data,
-				import(
-					/* webpackChunkName: "js-compiler.js" */
-					/* webpackMode: "lazy" */
-					"./transform"
-				),
-			])
-			.then(([raw, {transform}])=>{
-				const {code}=transform(raw)
-				const i=code.indexOf("React.createElement")
-				const compiled=new Function("React",code.substring(0,i)+";return "+code.substring(i))
-				const doc=compiled(React)
-				return doc
-			})
+		const {code}=transform(raw)
+		const i=code.indexOf("React.createElement")
+		const compiled=new Function("React",code.substring(0,i)+";return "+code.substring(i))
+		const doc=compiled(React)
+		return Promise.resolve(doc)
 	}
 
     render(createElement, Types){

@@ -60,11 +60,5 @@
   "engines": {
     "node": ">=0.10.0"
   },
-  "files": [
-    "*.js",
-    "*.md",
-    "*.otf",
-    "*.ttf"
-  ],
   "readme": "README.md"
 }

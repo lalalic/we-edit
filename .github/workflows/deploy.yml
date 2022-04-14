@@ -24,6 +24,8 @@ jobs:
         run: yarn build -p --output-path ./packages/we-edit
       - name: support files
         run: mv dist packages/we-edit/www
+        
+      - run: ls -l packages/we-edit/www
          
       - name: publish to npm
         uses: JS-DevTools/npm-publish@v1
