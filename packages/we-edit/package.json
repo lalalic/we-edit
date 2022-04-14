@@ -1,7 +1,7 @@
 {
   "name": "we-edit",
   "description": "a text editor framework based on React",
-  "version": "3.5.53",
+  "version": "3.5.54",
   "author": {
     "name": "Raymond Li",
     "email": "lalalic@139.com"
