@@ -86,6 +86,14 @@ export class Viewable{
 		return false
 	}
 
+	_loadString(data){
+		if(typeof(data)=="string")
+			return data
+		if(data instanceof Blob)
+			return data.text()
+		return Buffer.from(data).toString()
+	}
+
 	//////////////////
 
 	/**
@@ -147,8 +155,35 @@ export class Viewable{
 	* it will be called when rendering for pagination output
 	* usually you can collect it during render function
 	*/
-	getFontList(){
-		return []
+	requiredFonts(contents){
+		const Font_Props=this.constructor.Font_Props
+		const fonts=new Set()
+		contents?.forEach(ele=>{
+			Font_Props[ele.get('type')]?.split(",")
+				.forEach(prop=>{
+					const my=ele.getIn(`props.${prop}`.split("."))
+					if(!my)
+						return 
+					switch(typeof(my)){
+						case "string":
+							fonts.add(my)
+							break
+						default:
+							Object.values(my.toJS()).forEach(a=>{
+								if(typeof(a)=="string"){
+									fonts.add(a)
+								}
+							})
+							break
+					}
+				})
+		})
+		return Array.from(fonts).filter(a=>!!a)
+	}
+
+	static Font_Props={
+		text:"fonts",
+		paragraph:"defaultStyle.fonts",
 	}
 }
 

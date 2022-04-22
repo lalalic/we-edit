@@ -41,7 +41,8 @@ export default ({Section,Group, Container})=>class __$1 extends Component{
 	}
 
 	static contextTypes={
-		evenAndOddHeaders: PropTypes.bool
+		evenAndOddHeaders: PropTypes.bool,
+		representation: PropTypes.string,
 	}
 
 	static createElement(section,content, createNode){
@@ -136,31 +137,32 @@ export default ({Section,Group, Container})=>class __$1 extends Component{
 	},shallowEqual)
 
 	render(){
-		if(Section.support('pageable')){
-			const WordSection=this.constructor.Section(Section)
-			const {HeaderFooterContainer}=WordSection
-			const {pgSz:{width,height, orientation},  pgMar, cols, type, headers, footers, ...props}=this.props
-			const {left=0,right=0, hfWidth=width-left-right}=pgMar||{}
-			const columns=this.getCols(width,pgMar,cols)
-			props.layout=(({header,footer,...margin})=>{
-				return {margin, header,footer, width, height, cols:columns, orientation}
-			})(pgMar)
-			props.createLayout=this.factoryOfCreateLayout(width,height,pgMar,columns,type)
-			return(
-				<Fragment>
-					<HeaderFooterContainer id={headerFooterID(this.props.id)}> 
-						{headers.map(a=>React.cloneElement(a,{width:hfWidth,hash:a.props.hash+hfWidth}))}
-						{footers.map(a=>React.cloneElement(a,{width:hfWidth,hash:a.props.hash+hfWidth}))}
-					</HeaderFooterContainer>
-					<WordSection {...{...props,headers,footers}}/>
-				</Fragment>
-			)
+		switch(this.context.represenation){
+			case "pagination":
+				const PaginationSection=this.constructor.PaginationSection(Section)
+				const {HeaderFooterContainer}=WordSection
+				const {pgSz:{width,height, orientation},  pgMar, cols, type, headers, footers, ...props}=this.props
+				const {left=0,right=0, hfWidth=width-left-right}=pgMar||{}
+				const columns=this.getCols(width,pgMar,cols)
+				props.layout=(({header,footer,...margin})=>{
+					return {margin, header,footer, width, height, cols:columns, orientation}
+				})(pgMar)
+				props.createLayout=this.factoryOfCreateLayout(width,height,pgMar,columns,type)
+				return(
+					<Fragment>
+						<HeaderFooterContainer id={headerFooterID(this.props.id)}> 
+							{headers.map(a=>React.cloneElement(a,{width:hfWidth,hash:a.props.hash+hfWidth}))}
+							{footers.map(a=>React.cloneElement(a,{width:hfWidth,hash:a.props.hash+hfWidth}))}
+						</HeaderFooterContainer>
+						<PaginationSection {...{...props,headers,footers}}/>
+					</Fragment>
+				)
+			default:
+				return <Section {...this.props}/>
 		}
-		return <Section {...this.props}/>
-		
 	}
 
-	static Section=memoize(Section=>{
+	static PaginationSection=memoize(Section=>{
 		const {composables:{Templateable}}=Section
 		return class WordSection extends Section{
 			headerFooterChanged(nextProps){

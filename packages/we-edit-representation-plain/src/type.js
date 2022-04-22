@@ -27,13 +27,9 @@ export default class Plain extends Input.Editable{
 	parse({data,...props}){
 		this.props=props
 		const mode=modes.find(({mime,ext=[]})=>props.ext && ext.includes(props.ext) || props.mimeType===mime)
-		if(mode && mode.mode!=="null"){
-			this.mode=mode.mode
-		}
+		this.mode=mode?.mode
 		
-		if(typeof(data)=="string")
-			return data
-		return String.fromCharCode.apply(null, new Uint8Array(data))
+		return this._loadString(data)
 	}
 	
 	render(createElement/*(TYPE, props, children, rawcontent)*/,{Document,Paragraph,Text}){

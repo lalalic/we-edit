@@ -8,6 +8,7 @@ export default ({Document})=>class __$1 extends Component{
 
 	static contextTypes={
 		Measure: PropTypes.func,
+		representation: PropTypes.string, 
 	}
 
 	static childContextTypes={
@@ -45,15 +46,18 @@ export default ({Document})=>class __$1 extends Component{
 			reset:(styles=this.styles)=>Object.keys(styles).forEach((k,t)=>(t=styles[k])&& t.reset && t.reset())
 		}
 
-		if(Document.support('pageable')){
-			const WordDocument=this.constructor.Document(Document)
-			const {evenAndOddHeaders,...props}=this.props
-			return <WordDocument numbering={numbering} {...props}/>
+		switch(this.context.representation){
+			case "pagination":
+				const PaginationDocument=this.constructor.PaginationDocument(Document)
+				const {evenAndOddHeaders,...props}=this.props
+				return <PaginationDocument numbering={numbering} {...props}/>
+			default:
+				return <Document numbering={numbering} {...this.props}/>
 		}
-		return <Document numbering={numbering} {...this.props}/>
+		
 	}
 
-	static Document=memoize(Document=>{
+	static PaginationDocument=memoize(Document=>{
 		class WordDocument extends Document{
 			appendComposed(page){
 				if(page.computed.isContinuousLayout){

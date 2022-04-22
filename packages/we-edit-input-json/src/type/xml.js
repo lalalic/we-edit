@@ -22,6 +22,10 @@ export default class __$1 extends Input.Editable{
 	
 	static Reducer=Reducer
 	static HOCs=Dom
+	static Font_Props={
+		...super.Font_Props,
+		document:"defaultStyles.text.fonts"
+	}
     
     dataToDom(data){
         const handler=new ContentDomHandler({xmlMode:true,decodeEntities: false})
@@ -34,18 +38,12 @@ export default class __$1 extends Input.Editable{
     }
 
     parse({data, ...props}){
-		const _parse=d=>{
+		return this._loadString(data).then(d=>{
 			this.props={...props,supportPagination:true}
 			const doc=cheer.load(this.dataToDom(d),{xmlMode:true,decodeEntities: false})
 			transactifyCheerio(doc)
 			return doc
-		}
-		
-		if(Blob && Blob.prototype.text){
-			return new Blob([data]).text().then(data=>_parse(data))
-		}else{
-			return _parse(data)
-		}
+		})
 	}
 
 	stream(){

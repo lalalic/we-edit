@@ -13,7 +13,7 @@ export default class extends base{
     }
 
     renderTree(){
-        const {name, value, label=name,accept, icon, style, type, isPrimitive, $presets, ...props}=this.$props
+        const {name, defaultValue, value=defaultValue, label=name,accept, icon, style, type, isPrimitive, $presets, ...props}=this.$props
         
         if(type=="file"){
             return <CheckIconButton {...props} disabled={this.context.disabled}

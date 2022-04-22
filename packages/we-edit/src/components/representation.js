@@ -17,11 +17,13 @@ class  Representation extends PureComponent{
 	}
 
 	static contextTypes={
-		transformer: PropTypes.func
+		transformer: PropTypes.func,
+		representation: PropTypes.string,
 	}
 
 	static childContextTypes={
 		ModelTypes: PropTypes.object,
+		representation: PropTypes.string,
 	}
 
 	static Base=class __$1 extends Component{
@@ -43,7 +45,8 @@ class  Representation extends PureComponent{
 
 	getChildContext(){
 		return {
-			ModelTypes: this.ModelTypes
+			ModelTypes: this.ModelTypes,
+			representation: this.props.type||this.context.representation,
 		}
 	}
 

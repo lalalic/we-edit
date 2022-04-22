@@ -155,6 +155,31 @@ function memorize(PropTypes){
         },'arrayOf')
     })(PropTypes.arrayOf)
 
+
+    PropTypes.from=ob=>{
+        return Object.keys(ob).reduce((shape,key)=>{
+            const defaultValue=ob[key]
+            switch(typeof(defaultValue)){
+                case 'boolean':
+                    shape[key]=PropTypes.bool.$({defaultValue})
+                break
+                case 'number':
+                    shape[key]=PropTypes.number.$({defaultValue})
+                break
+                case 'string':
+                    shape[key]=PropTypes.string.$({defaultValue})
+                break
+                case 'function':
+                break
+                case 'object':{
+                    if(defaultValue && Object.keys(defaultValue).length>0){
+                        shape[key]=PropTypes.from(defaultValue)
+                    }
+                }
+            }
+            return shape
+        },shape)
+    }
     return PropTypes
 }
 

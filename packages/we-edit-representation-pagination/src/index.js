@@ -49,6 +49,7 @@ export default class Pagination extends Representation.Base{
 
 	static contextTypes={
 		doc: PropTypes.object,
+		activeDocStore: PropTypes.object,
 		media: PropTypes.string,
 	}
 
@@ -77,9 +78,9 @@ export default class Pagination extends Representation.Base{
 	}
 
 	get requiredFonts(){
-		const {context:{doc}, Measure:{fallbackFonts=""}}=this
+		const {context:{doc,activeDocStore}, Measure:{fallbackFonts=""}}=this
 		return Array.from(new Set([
-			...doc.getFontList(), 
+			...doc.requiredFonts(activeDocStore.getState().get("content")), 
 			...(typeof(fallbackFonts)=="string" ? [fallbackFonts] : Object.values(fallbackFonts))
 		])).filter(a=>!!a)
 	}
@@ -92,10 +93,10 @@ export default class Pagination extends Representation.Base{
 			<FontLoader {...{
 				key:"fontloader", 
 				service,
-				doc:doc.doc, 
 				Measure:this.Measure,
 				onFinished:this.fontReady,
-				fonts:this.requiredFonts
+				fonts:this.requiredFonts,
+				embedFonts: doc.embedFonts,
 			}}/>,
 			fontsLoaded && <Representation {...{key:"representation",ViewerTypes,EditorTypes,...props,type:undefined} }/>
 		]
@@ -115,9 +116,9 @@ class FontLoader extends Component{
 	}
 
 	componentDidMount(){
-		const {props:{service, fonts, Measure, onFinished, doc}}=this
+		const {props:{service, fonts, Measure, onFinished, embedFonts}}=this
 		this.setState({loading:`checking if document has embedded fonts`})
-		Promise.resolve(doc.fonts)
+		Promise.resolve(embedFonts)
 			.then(embedFonts=>{
 				if(embedFonts && Array.isArray(embedFonts)){
 					this.setState({loading:`document has ${embedFonts.length} embedded fonts ...`})

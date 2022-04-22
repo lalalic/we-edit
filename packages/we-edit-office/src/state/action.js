@@ -3,7 +3,7 @@ export default {
     channel:channel=>({type:`${DOMAIN}/office`,payload:{channel}}),
     office: payload=>({type:`${DOMAIN}/office`,payload}),
     reducer: reducer=>({type:`${DOMAIN}/office/reducer`,payload:reducer}),
-    theme: (...themes)=>({type:`${DOMAIN}/office/theme`,payload:themes})
+    theme: theme=>({type:`${DOMAIN}/office/theme`,payload:theme})
 }
 
 export const getOffice=state=>state.get("office")

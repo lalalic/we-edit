@@ -137,6 +137,14 @@ export default class extends editable(Document,{continuable:true}){
         hintMeasure: PropTypes.object,
     }
 
+    static stateTypes={
+        mode: PropTypes.oneOf(["content","scroll", "selection"]),
+        hash: PropTypes.string,
+        editable: PropTypes.oneOfType([PropTypes.bool, PropTypes.object]),
+        y: PropTypes.number,
+        composeAll: PropTypes.bool,
+    }
+
 	static getDerivedStateFromProps({hash,editable},state){
 		return {hash, editable, ...(hash!=state.hash && {mode:"content",y:0,composeAll:false})}
     }

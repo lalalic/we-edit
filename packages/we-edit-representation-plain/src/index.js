@@ -1,11 +1,11 @@
 import React from "react"
 import {Representation,connect,ACTION} from "we-edit"
 import {Controlled as CodeMirror} from "react-codemirror2"
-import CodeMirror_Style from "codemirror/lib/codemirror.css"
+import {default as CodeMirror_Style} from "!!raw-loader!codemirror/lib/codemirror.css"
 
 import Type from "./type"
 
-import {themes, modes} from "./code-mirror-modes"
+import {themes, modes, options} from "./code-mirror-modes"
 
 const ViewerTypes={
     Document({children}){
@@ -14,48 +14,34 @@ const ViewerTypes={
 }
 
 const EditorTypes={
-    Document: connect()(
-        class Document extends React.Component{
-            render(){
-                const {children,dispatch,setting={theme:"material"}, mode=setting.mode}=this.props
-                const value=(children||"").toString()
-                const style=themes[setting.theme]
-                return (
-                    <div style={{textAlign:"initial",height:"calc(100% - 10px)",padding:5}}>
-                        <style>
-                            {CodeMirror_Style}
-                            {style}
-                            {`
-                            .react-codemirror2,.CodeMirror{
-                                height:100%;
-                            }
-                            .CodeMirror{
-                                ${setting.font ? `font-family:${setting.font};`:""}
-                                ${setting.size ? `font-size:${setting.size}pt;`:""}
-                            }
-                            `}
-                        </style>
-                        <CodeMirror
-                            key={`${setting.font}(${setting.size})`}
-                            value={value}
-
-                            options={{
-                                theme:setting.theme,
-                                lineNumbers:setting.number,
-                                mode: setting.mode||mode,
-                                viewportMargin:20,
-                                lineWrapping:setting.wrap
-                            }}
-
-                            onBeforeChange={(editor,data,value)=>{
-                                dispatch(ACTION.Entity.UPDATE(value))
-                            }}
-                            />
-                    </div>
-                )
-            }
-        })
+    Document: ({canvas,content})=>React.cloneElement(canvas,{children:<Editor {...{value: content.getIn(["root","children"])}}/>})
 }
+
+const Editor=connect()(({theme:{font, size, ...options}, value, dispatch})=>(
+    <div style={{textAlign:"initial",height:"calc(100% - 10px)",padding:5}}>
+        <style>
+            {CodeMirror_Style}
+            {themes[options.theme]}
+            {`
+            .react-codemirror2,.CodeMirror{
+                height:100%;
+            }
+            .CodeMirror{
+                ${font ? `font-family:${font}!important;`:""}
+                ${size ? `font-size:${size}pt!important;`:""}
+            }
+            `}
+        </style>
+        <CodeMirror
+            key={`${font}(${size})`}
+            value={value}
+            options={options}
+            onBeforeChange={(editor,data,value)=>{
+                dispatch(ACTION.Entity.UPDATE(value))
+            }}
+            />
+    </div>
+))
 
 export default class Plain extends Representation.Base{
     static displayName="plain"
@@ -70,7 +56,7 @@ export default class Plain extends Representation.Base{
         return <Representation {...{ViewerTypes,EditorTypes,...props}}/>
 	}
 }
-export {modes, themes, Type}
+export {modes, themes, Type, options}
 
 Type.install()
 Plain.install()

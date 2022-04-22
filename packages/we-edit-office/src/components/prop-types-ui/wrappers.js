@@ -6,10 +6,9 @@ import ObjectTree from "../object-tree"
 import DropDownButton from "../drop-down-button"
 import CheckIconButton from "../check-icon-button"
 import Select from "../select"
-import { render } from "react-dom"
 
-export const LabelField=({host:{$props:{name,label:_l=name}},label=_l,children, 
-    style={width:120,display:"inline-block",textAlign:"right",marginRight:5, whiteSpace:"nowrap"}})=>{
+export const LabelField=({host:{$props:{name,label:_l=name, labelStyle={}}},label=_l,children, 
+    style={width:120,display:"inline-block",textAlign:"right",marginRight:5, whiteSpace:"nowrap",...labelStyle}})=>{
     if(!label){
         return children
     }

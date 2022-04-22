@@ -68,7 +68,7 @@ export default class Document extends docx4js{
 		return count*super.toPx(`1${unit}`)
 	}
 
-	get fonts(){
+	get embedFonts(){
 		const fontTableId=this.officeDocument.rels("[Type='http://schemas.openxmlformats.org/officeDocument/2006/relationships/fontTable']").attr('Id')
 		if(!fontTableId)
 			return 

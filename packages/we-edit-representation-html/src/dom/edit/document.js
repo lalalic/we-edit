@@ -68,7 +68,7 @@ export default class HTMLDocument extends Component{
 		const {children, canvas, ...props}=this.props
 		return 	<ViewportDocument
 					{...props} 
-					canvas={React.cloneElement(canvas, {viewport:this.state.viewport, pageGap:0})}
+					canvas={React.cloneElement(canvas, {pageGap:0})}
 					wrap={this.context.wrap}>
 					{children}
 				</ViewportDocument>
@@ -76,6 +76,7 @@ export default class HTMLDocument extends Component{
 }
 /**
  * html doesn't apply section, so document emulate as a section with only 1 page
+ * and every 
  */
 class ViewportDocument extends Document{
 	get isSection(){
@@ -109,7 +110,7 @@ class ViewportDocument extends Document{
 
 	componentDidUpdate(){
 		const page=this.computed.composed[0]
-		const {viewport}=this.state
+		const {canvasProps:{viewport}}=this.props
 		if(page){
 			page.props.height=Math.max(page.composedHeight,viewport.height)
 		}

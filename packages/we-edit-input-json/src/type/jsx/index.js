@@ -23,13 +23,18 @@ export default class JSXDocument extends Input.Editable{
 		mimeType:"application/wejsx"
     }
 
+	static Font_Props={
+		...super.Font_Props,
+		document:"defaultStyles.text.fonts"
+	}
+
 	parse({data,...props}){
 		this.props={...props,supportPagination:true}
 		if(React.isValidElement(data)){
 			return Promise.resolve(data)
 		}
 		
-		return Promise.resolve(data instanceof Blob ? data.text() : Buffer.from(data).toString())
+		return Promise.resolve(this._loadString(data))
 			.then(data=>{
 				const {code}=transform(data)
 				const i=code.indexOf("React.createElement")

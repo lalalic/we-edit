@@ -370,7 +370,8 @@ class DocxType extends Input.Editable{
 			return docx.officeDocument.renderNode(this._unwrap(node),build,identify)
 		}
 
-		this.getFontList=()=>Array.from(selector.requireFonts).filter(a=>!!a)
+		this.requiredFonts=()=>Array.from(selector.requireFonts).filter(a=>!!a)
+		this.embedFonts=this.doc.embedFonts
 
 		return rendered
 	}

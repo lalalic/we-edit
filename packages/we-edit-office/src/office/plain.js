@@ -1,99 +1,70 @@
 import React,{Fragment} from "react"
-import {Editor,getFile,connect} from "we-edit"
+import {Editor,getFile,connect, PropTypes, dom} from "we-edit"
 import {ToolbarSeparator} from "material-ui"
-import {modes, themes} from "we-edit-representation-plain"
+import {modes, themes, options} from "we-edit-representation-plain"
 
 import IconWrap from "material-ui/svg-icons/editor/wrap-text"
 import IconNumber from "material-ui/svg-icons/editor/format-list-numbered"
+import IconMore from "material-ui/svg-icons/navigation/more-horiz"
 
-import {getOffice} from "../state/action"
-import FontList from "../components/fonts"
+import IconMode from "material-ui/svg-icons/editor/mode-edit"
+import IconTheme from "material-ui/svg-icons/editor/drag-handle"
+
+import ACTION, {getOffice} from "../state/action"
 import Workspace from "../workspace"
 import Ribbon from "../ribbon"
-import ComboBox from "../components/combo-box"
 import CheckIconButton from "../components/check-icon-button"
+import PropTypesUI from "../components/prop-types-ui"
 
 const DOMAIN="we-edit/default(accept=*)"
 
-function reducer(state={
-    mode:"",theme:"eclipse",font:"Calibri",size:12,wrap:false,number:true
-    },{type,payload}){
-	switch(type){
-	case `${DOMAIN}/mode`:
-		return {...state,mode:payload}
-	case `${DOMAIN}/theme`:
-        return {...state,theme:payload}	
-    case `${DOMAIN}/font`:
-        return {...state,font:payload}
-    case `${DOMAIN}/size`:
-        return {...state,size:payload}	
-    case `${DOMAIN}/wrap`:
-        return {...state,wrap:payload}
-    case `${DOMAIN}/number`:
-        return {...state,number:payload}	
-	}
+function reducer(state={ theme:{...options,mode:undefined}},{type,payload}){
 	return state
 }
 
-const Setting=connect(state=>{
-    const {mode,theme,font,size,wrap,number}=getOffice(state)
-    return {theme,font,size,wrap,number,mode:getFile(state).doc.mode||mode}
-})(({dispatch,mode,theme,font,size,wrap,number})=>{
-	return (
-		<Fragment>
-            <FontList 
-                value={font}
-                changeFont={payload=>dispatch({type:`${DOMAIN}/font`,payload})}
-                style={{paddingRight:15,width:80}}
-                />
-            <ComboBox
-                style={{width:50,paddingRight:15}}
-                inputStyle={{border:"1px solid lightgray"}}
-                value={size}
-                onChange={size=>dispatch({type:`${DOMAIN}/size`,payload:parseInt(size)})}
-                dataSource={[8,9,10,11,12,14,16,20,22,24,26,28,36,72].map(a=>a+"")}
-                underlineShow={false}
-                />
-            <ToolbarSeparator/>    
-			<ComboBox //label="文件类型" 
-				style={{width:80,paddingRight:15}}
-				title="文件类型"
-				inputStyle={{border:"1px solid lightgray",paddingLeft:5}}
-				underlineShow={false}
-				value={mode}
-				onChange={payload=>dispatch({type:`${DOMAIN}/mode`,payload})}
-				dataSource={modes.map(({mode})=>mode)}
-				/>
-			<ComboBox //label="风格" 
-				style={{width:100,paddingRight:15}}
-				title="风格"
-				inputStyle={{border:"1px solid lightgray",paddingLeft:5}}
-				underlineShow={false}
-				value={theme}
-				onChange={payload=>dispatch({type:`${DOMAIN}/theme`,payload})}
-				dataSource={Object.keys(themes)}
-				/>
-            <ToolbarSeparator/>
-            <CheckIconButton label="wrap"
-                status={wrap ? "checked" : "unchecked"}
-                onClick={()=>dispatch({type:`${DOMAIN}/wrap`,payload:!wrap})}
-                children={<IconWrap/>}
-                />
-            <CheckIconButton label="show number"
-                status={number ? "checked" : "unchecked"}
-                onClick={()=>dispatch({type:`${DOMAIN}/number`,payload:!number})}
-                children={<IconNumber/>}
-                />
-		</Fragment>
-	)
-})
+const getTheme=state=>{
+    const {theme:{mode=getFile(state).mode,...theme}}=getOffice(state)
+    return {theme:{mode,...theme}}
+}
 
-const PlainEditor=connect(state=>{
-    const {mode,theme,font,size,wrap,number}=getOffice(state)
-    return {mode,theme,font,size,wrap,number}
-})(({mode,theme,font,size,wrap,number})=>(
-	<Editor representation="plain" setting={{mode,theme,font,size,wrap,number}}/>
-))
+const unique=array=>Array.from(new Set(array))
+const OptionShape={
+    font: PropTypes.oneOf(["Calibri", "Arial", "Times New Roman"],{defaultValue:options.font}),
+    size: PropTypes.number.$({defaultValue:12}),
+    ...PropTypes.from(options),
+    mode: PropTypes.oneOf(unique(modes.map(({mode})=>mode)),{defaultValue:options.mode}),
+    theme: PropTypes.oneOf(Object.keys(themes),{defaultValue:options.theme}),
+}
+
+const Setting=connect(getTheme)(Object.assign(({dispatch,theme,uiContext}, {setting})=>{
+    return (
+        <Fragment>
+            <PropTypesUI 
+                theme="Option"
+                propTypes={OptionShape} 
+                props={theme} 
+                uiContext={uiContext}
+                onChange={theme=>dispatch(ACTION.theme(theme))}
+                />
+            { uiContext=="Ribbon" ?
+                <Fragment>
+                    <ToolbarSeparator/>
+                    <CheckIconButton label="setting..."
+                        onClick={()=>setting('theme')}
+                        children={<IconMore/>}
+                        />
+                </Fragment> :
+                null
+            }
+        </Fragment>
+    )
+},{
+    contextTypes:{
+        setting:PropTypes.func
+    }
+}))
+
+const Canvas=connect(getTheme)(({theme, children})=>(React.cloneElement(children,{theme})))
 
 export default (
     <Workspace
@@ -103,13 +74,45 @@ export default (
         ruler={false}
         statusBar={false}
         reducer={reducer}
+        officeUITheme={PropTypesUI.getTheme({
+            $settingPanels:{
+                theme:<Setting title="options"/>,
+            },
+
+            Option:{
+                Ribbon:{
+                    '*':false,
+                    font:{
+                        
+                    },
+                    size:{
+                        notUILabel:false,
+                    },
+                    lineWrapping:{
+                        icon:<IconWrap/>,
+                        label:"wrap"
+                    },
+                    mode:{
+                        label:"file type",
+                        icon:<IconMode/>
+                    },
+                    theme:{
+                        label:"theme",
+                        icon:<IconTheme/>
+                    },
+                },
+                Tree:{
+                    labelStyle:{fontSize:9}
+                }
+            }
+        })}
         toolBar={
             <Ribbon commands={{
                 home:{
                     text:false,
                     paragraph:false,
                     clipboard:false,
-                    more:(<Setting/>)
+                    more:(<Setting uiContext="Ribbon"/>)
                 },
                 insert:false,
                 layout:false,
@@ -118,7 +121,12 @@ export default (
             }}>
             </Ribbon>
         }
+        layout={
+            <Workspace.Layout 
+                right={<Workspace.PanelContainer name="right" style={{width:300}}/>}
+                />
+        }
         >
-        <PlainEditor/>
+        <Editor representation="plain" canvas={<Canvas/>}/>
     </Workspace>
 )
