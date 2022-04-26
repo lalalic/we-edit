@@ -1,17 +1,15 @@
 # we-edit-representation-html
-
-Pagination representation is used to compose document to pages, and then you can use composed document to output PDF/PCL/...
+HTML representation show the content as html content without pages, header/footer, section, and etc. 
 
 ## example
 ```jsx
-	<Representation type="pagination"/>
+	<Representation type="html"/>
 ```
 or
 
 ```js
-import Pagination from "we-edit-representation-pagination"
-let representation=<Pagination/>
-ReactDOM.render(<Editor representation={<Pagination/>}/>)
+import HTML from "we-edit-representation-html"
+ReactDOM.render(<Editor representation={<HTML/>}/>)
 ```
 
 ## components

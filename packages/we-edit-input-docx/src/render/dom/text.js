@@ -5,21 +5,24 @@ export default ({Text,Frame})=>class DocxText extends Component{
 	static displayName="text"
 	static contextTypes={
 		style: PropTypes.object,
+		representation: PropTypes.string,
 	}
 
 	render(){
 		const props={...this.context.style,...this.props}
-		if(Text.support("pageable")){
-			return (
-				<Frame.AutoFitManager.Context.Consumer>
-					{({scale})=>{
-						if(scale)
-							console.log(`text font size autofit scaled from ${props.size} to ${props.size=Math.floor(props.size*parseInt(scale)/100000)}`)
-						return <Text {...props}/>
-					}}
-				</Frame.AutoFitManager.Context.Consumer>
-			)
+		switch(this.context.representation){
+			case "pagination":
+				return (
+					<Frame.AutoFitManager.Context.Consumer>
+						{({scale})=>{
+							if(scale)
+								console.log(`text font size autofit scaled from ${props.size} to ${props.size=Math.floor(props.size*parseInt(scale)/100000)}`)
+							return <Text {...props}/>
+						}}
+					</Frame.AutoFitManager.Context.Consumer>
+				)
+			default:
+				return <Text {...props}/>
 		}
-		return <Text {...props}/>
 	}
 }

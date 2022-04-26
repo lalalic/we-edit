@@ -16,6 +16,7 @@ export default ({Paragraph, Group, Frame,})=>class DocxParagraph extends Compone
 		style: PropTypes.object,
 		tabWidth: PropTypes.func,
 		hintMeasure: PropTypes.object,
+		representation: PropTypes.string,
 	}
 
 	static childContextTypes={
@@ -66,27 +67,29 @@ export default ({Paragraph, Group, Frame,})=>class DocxParagraph extends Compone
 	}
 
 	render(){
-		if(Paragraph.support('pageable')){
-			const {style:$1, hash,...props}=this.props
-			const {style:{widow,orphan=widow, spacing,...style}, defaultStyle:{...defaultStyle}}=this.style(this.props.style,this.context.style)
-			const DocxParagraph=this.constructor.Paragraph(Paragraph)
-			return (
-				<Frame.AutoFitManager.Context.Consumer>
-					{({scale})=>{
-						if(scale){
-							console.debug(`paragraph font size autofit scaled from ${defaultStyle.size} to ${defaultStyle.size=Math.floor(defaultStyle.size*parseInt(scale)/100000)}`)
-						}
-						return <DocxParagraph
-							{...style}
-							{...props}
-							{...{widow,orphan,defaultStyle, spacing}}
-							hash={`${hash}-${scale}`}
-							/>
-					}}
-				</Frame.AutoFitManager.Context.Consumer>
-			)
+		switch(this.context.representation){
+			case "pagination":
+				const {style:$1, hash,...props}=this.props
+				const {style:{widow,orphan=widow, spacing,...style}, defaultStyle:{...defaultStyle}}=this.style(this.props.style,this.context.style)
+				const DocxParagraph=this.constructor.Paragraph(Paragraph)
+				return (
+					<Frame.AutoFitManager.Context.Consumer>
+						{({scale})=>{
+							if(scale){
+								console.debug(`paragraph font size autofit scaled from ${defaultStyle.size} to ${defaultStyle.size=Math.floor(defaultStyle.size*parseInt(scale)/100000)}`)
+							}
+							return <DocxParagraph
+								{...style}
+								{...props}
+								{...{widow,orphan,defaultStyle, spacing}}
+								hash={`${hash}-${scale}`}
+								/>
+						}}
+					</Frame.AutoFitManager.Context.Consumer>
+				)
+			default:
+				return <Paragraph {...this.props}/>
 		}
-		return <Paragraph {...this.props}/>
 	}
 
 	static Paragraph=memoize(Paragraph=>{

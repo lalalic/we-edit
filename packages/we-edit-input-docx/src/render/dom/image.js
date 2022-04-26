@@ -1,13 +1,17 @@
 import React,{Component} from "react"
+import PropTypes from "prop-types"
 import Shape from "./shape"
 
 export default dom=>{
     return class Image extends Shape(dom){
         static displayName="image"
+        static contextTypes={
+            representation: PropTypes.string
+        }
 
         render(){
             const {xfrm:{width,height},blipFill,picture=this.shapePicture(blipFill), id, hash}=this.props
-            if(!dom.Shape.support('pageable')){
+            if(this.context.representation!="pagination"){
                 return (<dom.Image {...{width,height,src:picture?.url,id,hash}}/>)
             }
 

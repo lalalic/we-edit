@@ -2,7 +2,6 @@ import React, {PureComponent, Component, Fragment} from "react"
 import PropTypes from "prop-types"
 
 import {connect,ACTION} from "../state"
-import {getUI} from "../state/selector"
 import Representation from "./representation"
 import uuid from "../tools/uuid"
 import memoize from "memoize-one"
@@ -10,7 +9,7 @@ import shallowEqual from "../tools/shallow-equal"
 import ContextMenu from "./context-menu"
 
 export class Editor extends PureComponent{
-	static displayName="editor"
+	static displayName="weditor"
 	static domain="edit"
 	static propTypes={
 		representation: PropTypes.node.isRequired,
@@ -19,6 +18,11 @@ export class Editor extends PureComponent{
 		//props to canvas
 		scale: PropTypes.number,
 		screenBuffer: PropTypes.oneOfType([PropTypes.func, PropTypes.number]),
+		viewport: PropTypes.shape({
+			width: PropTypes.number,
+			height: PropTypes.number
+		}),
+
 		//events to canvas
 		onKeyDown: PropTypes.func,
 		onContextMenu: PropTypes.func,
@@ -129,7 +133,30 @@ export class Editor extends PureComponent{
 		while(a && (width=a.getBoundingClientRect().width)==0){
 			a=a.parentNode
 		}
-		this.setState({viewport:{width:parseInt(width),height:parseInt(height||1056),node:container}})
+		this.setState({viewport:{width:parseInt(width),height:parseInt(height||1056),node:container}},()=>{
+			if(window){
+				let resizeTimeout=null
+				this.resizeViewPort=()=>{
+					if(!resizeTimeout){
+						resizeTimeout=setTimeout(()=>{
+							const {state:{viewport:{width:w, height:h}}}=this
+							const {width,height}=container.getBoundingClientRect()
+							resizeTimeout=null
+							if(width!=w || height!=h){
+								this.setState({viewport:{node:container,width,height}})
+							}
+						},100)
+					}
+				}
+				window.addEventListener("resize", this.resizeViewPort)
+			}
+		})
+	}
+
+	componentWillUnmount(){
+		if(this.resizeViewPort){
+			window.removeEventListener("resize", this.resizeViewPort)
+		}
 	}
 }
 
@@ -153,10 +180,6 @@ export class WeDocumentStub extends Component{
 
 	getChildContext(){
 		return {weDocument:this.getDoc()}
-	}
-
-	shouldComponentUpdate({hash}){
-		return hash!==this.props.hash
 	}
 
 	createWeDocument=memoize((content,ModelTypes)=>{

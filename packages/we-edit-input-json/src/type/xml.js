@@ -38,7 +38,7 @@ export default class __$1 extends Input.Editable{
     }
 
     parse({data, ...props}){
-		return this._loadString(data).then(d=>{
+		return Promise.resolve(this._loadString(data)).then(d=>{
 			this.props={...props,supportPagination:true}
 			const doc=cheer.load(this.dataToDom(d),{xmlMode:true,decodeEntities: false})
 			transactifyCheerio(doc)

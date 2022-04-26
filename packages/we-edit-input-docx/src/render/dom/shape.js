@@ -5,6 +5,7 @@ export default ({Shape, Frame, Template})=>class __$1 extends Component{
     static displayName="shape"
     static contextTypes={
 		styles: PropTypes.object,
+        representation: PropTypes.string,
     }
 
     static childContextTypes={
@@ -18,7 +19,7 @@ export default ({Shape, Frame, Template})=>class __$1 extends Component{
     }
 
     render(){
-        if(!Shape.support('pageable'))
+        if(this.context.representation!="pagination")
             return (<Shape {...this.props}/>)
 
         const {

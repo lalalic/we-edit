@@ -1,8 +1,8 @@
-import React,{Component} from "react"
+import React from "react"
 import PropTypes from "prop-types"
 import {dom, ReactQuery, render} from "we-edit"
 import {withContext} from "recompose"
-import {Editors, Viewers} from "we-edit-representation-pagination"
+import {Editors} from "we-edit-representation-pagination"
 import Measure from "we-edit-representation-pagination/__tests__/measure"
 
 import Docx from "../../src/type"
@@ -19,6 +19,7 @@ describe("paragraph",()=>{
                 {
                     ...Editors.Frame.contextTypes,
                     Measure: PropTypes.func,
+                    representation: PropTypes.string,
                 },
                 ()=>({
                     parent:{
@@ -31,7 +32,8 @@ describe("paragraph",()=>{
                     },
                     getComposer(id){
                         return composers[id]
-                    }
+                    },
+                    representation:"pagination",
                 })
             )(({children})=>children)
             Object.assign(Style.Paragraph.Direct.prototype,{

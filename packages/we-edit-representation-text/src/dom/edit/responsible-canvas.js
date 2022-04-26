@@ -43,7 +43,7 @@ class LineNos extends Component{
                     <g style={{opacity:0.5}} fontFamily={fonts} fontSize={`${size}pt`} className="lineNos">
                         <rect width={lineNoWidth} height={count*lineHeight} fill="lightgray"/>
                         {new Array(count).fill(0).map((a,i)=>
-                            (<text key={i} x={lineNoWidth-measure.stringWidth(i+1)-2} y={i*lineHeight+baseline}>{i+1}</text>)
+                            (<text key={i} x={lineNoWidth-measure.stringWidth(`${i+1}`)-2} y={i*lineHeight+baseline}>{i+1}</text>)
                         )}
                     </g>)}
                 </Fragment>

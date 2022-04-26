@@ -1,11 +1,15 @@
 import React,{Component} from "react"
+import PropTypes from "prop-types"
 import memoize from "memoize-one"
 import {Field} from "./field"
 
 export default ({Template},displayName="headerFooter")=>class HeaderFooter extends Component{
     static displayName=displayName
+    static contextTypes={
+        representation: PropTypes.string,
+    }
     render(){
-        if(Template.support('pageable')){
+        if(this.context.representation=="pagination"){
             return (
             <Template.Manager 
                 variables={this.createVariables()}

@@ -17,18 +17,21 @@ describe("types",()=>{
         })
 
         it("can convert json to cheerio",()=>{
-            const $=new JSONDocument().parse(FILE)
-            expect($('paragraph').length>0).toBe(true)
-            expect($('text').length>0).toBe(true)
+            return new JSONDocument().parse(FILE).then($=>{
+                expect($('paragraph').length>0).toBe(true)
+                expect($('text').length>0).toBe(true)
+            })
         })
 
         it("can convert doc to object",()=>{
             const doc=new JSONDocument()
-            const $=doc.parse(FILE)
-            const serialized=doc.nodeToString($.root().children().get(0))
-            const $1=doc.parse({data:serialized})
-            expect($('text').length).toBe($1("text").length)
-            expect($('paragraph').length).toBe($1("paragraph").length)
+            return doc.parse(FILE).then($=>{
+                const serialized=doc.nodeToString($.root().children().get(0))
+                return doc.parse({data:serialized}).then($1=>{
+                    expect($('text').length).toBe($1("text").length)
+                    expect($('paragraph').length).toBe($1("paragraph").length)
+                })
+            })
         })
     })
 
