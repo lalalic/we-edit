@@ -304,10 +304,10 @@ class PositioningHelper extends Positioning{
             }
             const id=$node.findFirst(`[data-content]`).attr("data-content")
             if(id)
-                return {id}
+                return {id,at:0}
             const wrapper=parents.findLast(a=>a.props["data-content"])
             if(wrapper)
-                return {id:wrapper.props["data-content"]}
+                return {id:wrapper.props["data-content"], at:0}
         }else{
             const $line=new ReactQuery(composedLine.props.children)
             const {first,parents}=$line.findFirstAndParents('[data-content]')

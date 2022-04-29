@@ -27,7 +27,7 @@ export function anchor(p0, positioning){
 
         const l=first.attr('pagination').i
         const line=page.lines.find(({props:{pagination:{i,id}}})=>id==paragraph && i==l)
-        const {column=page.columnIndexOf(line), cols, x0=cols[column].x}=page
+        const {column=page.columnIndexOf(line), margin:{left}={left:0}, cols=[{x:left}], x0=cols[column].x}=page
         pos.column={i:column,x:p0.x-x0}
 
         const run=l>1 ? first.findFirst('[data-type="run"]').attr('data-content') : undefined

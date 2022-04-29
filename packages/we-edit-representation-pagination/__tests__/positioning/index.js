@@ -122,7 +122,7 @@ export default function define(feature, tests){
             )
         }]
 
-    ]//.filter(([a])=>a=="page")
+    ]//.filter(([a])=>a=="in table")
     )("%s",(TESTING, render)=>{
         describe(feature, ()=>{
             tests({dom:Editors,TESTING, render, mockQuery, pageGap, size, uuid,Responsible, Positioning})

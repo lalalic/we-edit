@@ -1,7 +1,7 @@
 
 import React from "react"
 import PropTypes from "prop-types"
-import {ReactQuery} from "we-edit"
+import {ReactQuery,uuid} from "we-edit"
 
 /**It to make composed result locatable through id and type */
 function Locatable(A){
@@ -17,6 +17,14 @@ function Locatable(A){
             mount: PropTypes.func,
             getComposer: PropTypes.func,
         }
+
+		static normalizeProps(){
+			const props=super.normalizeProps(...arguments)
+			if(!('id' in props)){
+				props.id=`${this.getType()}${uuid()}`
+			}
+			return props
+		}
 
 
         constructor(){

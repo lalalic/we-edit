@@ -265,7 +265,7 @@ export default{
             this.file.getNode(run).after(editor.node)
         }else{
             paragraph.prepend(editor.node)
-            paragraph.find('>w\\:pPr').before(editor.node)
+            editor.node.before(paragraph.find('>w\\:pPr'))
         }
         
         editor.node.prepend(paragraph.find('>w\\:pPr>w\\:rPr').clone())

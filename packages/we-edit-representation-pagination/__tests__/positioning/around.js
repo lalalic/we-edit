@@ -2,9 +2,12 @@ import React from "react"
 
 import define from "./index"
 
-define("range", ({dom:{Document,Page, Paragraph, Text, Image, Table, Row, Cell,Container, Frame,Anchor,Shape},
+define("around", ({dom:{Document,Page, Paragraph, Text, Image, Table, Row, Cell,Container, Frame,Anchor,Shape},
     TESTING, render, mockQuery,size,uuid,Positioning,Responsible})=>{
 
+    /**
+     * it will create page({height:500, width:20, margin:{}}), line height: 10
+     */
 	const test=(content,state)=>{
         const {responsible, doc, getLines}=render(content,state)
         return {
@@ -168,13 +171,35 @@ define("range", ({dom:{Document,Page, Paragraph, Text, Image, Table, Row, Cell,C
 
         doc.click(5,5)
         expect(around).toHaveLastReturnedWith({page:0,id:"1",at:1})
-/*
-        doc.click(5,11)
-        if(TESTING=="in shape"){//shape should be selected
-            expect(around).toHaveLastReturnedWith({page:0,id:"container"})
-        }else{
-            expect(around).toHaveLastReturnedWith({page:0,at:1})
-        }
-        */
+    })
+
+    fit.each([
+        
+        ["clicking on blank area below empty paragraph should locate on paragraph start",
+            <Paragraph id="1"/>,
+            [[5,20,{page:0,id:"1",at:0}]]],
+        
+        ["clicking on blank area below paragraph only with empty container should locate on paragraph start",
+            <Paragraph id="1"><Container id="2"/></Paragraph>,
+            [[5,20,{page:0,id:"1",at:0}]] ],
+        
+        ["clicking on blank area below paragraph only with a container with anchor should locate on container start",
+            <Paragraph id="1">
+                <Container id="2">
+                    <Anchor>
+                        <Shape width={5} height={20}>
+                            <Paragraph id="2">hello</Paragraph>
+                        </Shape>
+                    </Anchor>
+                </Container>
+            </Paragraph>,
+            [[5,30,{page:0,id:"2",at:0}]] ],
+    ])("%s",(name, content, expects)=>{
+        const doc=test(content)
+        const around=jest.spyOn(doc.responsible.positioning,"around")
+        expects.forEach(([x,y,select])=>{
+            doc.click(x,y)
+            expect(around).toHaveLastReturnedWith(select)
+        })
     })
 })
