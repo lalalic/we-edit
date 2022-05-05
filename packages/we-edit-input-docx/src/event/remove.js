@@ -1,4 +1,4 @@
-import {Table} from "./dom"
+import {Shape, Image} from "./dom"
 export default {
     remove_column(){
         const $cell=this.$target.closest("cell")
@@ -81,4 +81,20 @@ export default {
 
         this.init()
     },
+
+    remove_at_shape(){
+        const editor=new Shape(this)
+        editor.node=this.target
+        editor.remove()
+    },
+
+    remove_at_whole_shape_up_to_run(){
+        this.remove_at_shape()
+    },
+
+    remove_at_image(){
+        const editor=new Image(this)
+        editor.node=this.target
+        editor.remove()
+    }
 }

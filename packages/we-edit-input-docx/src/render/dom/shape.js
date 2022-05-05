@@ -17,7 +17,7 @@ export default ({Shape, Frame, Template})=>class __$1 extends Component{
             style:this.context.styles['*']
         }
     }
-
+    
     render(){
         if(this.context.representation!="pagination")
             return (<Shape {...this.props}/>)

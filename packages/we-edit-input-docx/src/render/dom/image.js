@@ -5,9 +5,6 @@ import Shape from "./shape"
 export default dom=>{
     return class Image extends Shape(dom){
         static displayName="image"
-        static contextTypes={
-            representation: PropTypes.string
-        }
 
         render(){
             const {xfrm:{width,height},blipFill,picture=this.shapePicture(blipFill), id, hash}=this.props

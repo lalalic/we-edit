@@ -98,7 +98,26 @@ export default class __$1 extends Base{
         }
     }
 
+    remove(){
+        const editor=this.constructor.Anchor.from(this)||this.constructor.Inline.from(this)
+        editor.remove()
+    }
+
     static Anchor=class Anchor extends this{
+        static from(shape){
+            if(shape.reducer.$target.parent("anchor").length==1){
+                const editor=new this(shape.reducer)
+                editor.node=shape.node
+                return editor
+            }
+        }
+
+        remove(){
+            const r=this.node.closest("w\\:r")
+            this.node.closest("mc\\:AlternateContent").remove()
+            this.reducer.file.renderChanged(r)
+        }
+
         template({offset:{x=0,y=0}={},size:{width=0,height=0}={},id,name}={}){
             ({id,name}=(a=>{
                 const exists=a.map(a=>parseInt(a.attribs['id']))
@@ -188,6 +207,20 @@ export default class __$1 extends Base{
     }
 
     static Inline=class Inline extends this{
+        static from(shape){
+            if(shape.reducer.$target.parent("inline").length==1){
+                const editor=new this(shape.reducer)
+                editor.node=shape.node
+                return editor
+            }
+        }
+
+        remove(){
+            const r=this.node.closest("w\\:r")
+            this.node.closest("w\\:drawing").remove()
+            this.reducer.file.renderChanged(r)
+        }
+
         template(props){
             return `
             <w:drawing>

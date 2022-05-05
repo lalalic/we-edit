@@ -63,5 +63,17 @@ export default {
         const r=this.target.closest('w\\:r')
         this.target.remove()
         this.file.renderChanged(r)
+    },
+
+    backspace_at_shape(){
+        this.remove_at_shape()
+    },
+
+    backspace_at_empty_shape_up_to_run(){
+        this.backspace_at_shape()
+    },
+
+    backspace_at_image(){
+        this.remove_at_image()
     }
 }
