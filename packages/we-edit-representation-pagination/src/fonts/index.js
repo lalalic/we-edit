@@ -137,7 +137,7 @@ const fonts=(()=>{
     }
 })()
 
-var service=null
+var service=null, cacheFontsReady=null
 
 const FontManager={
     get(family, style){
@@ -304,12 +304,15 @@ const FontManager={
     },
 
     asService(sw="/font-service.js",scope="/fonts"){
+        if(cacheFontsReady)
+            return cacheFontsReady
+
         if (!(typeof(navigator)!="undefined" && 'serviceWorker' in navigator)){
             console.warn('Font Service not supported because no navigator.serviceWorker')
-            return 
+            return Promise.resolve()
         }
         
-        const register=navigator.serviceWorker.register(sw, { scope: `${scope}/` })
+        return cacheFontsReady=navigator.serviceWorker.register(sw, { scope: `${scope}/` })
             .then(reg=>reg.update())
             .then(reg=>{
                 if(!reg.active) 
@@ -337,42 +340,43 @@ const FontManager={
                 })
             })
             .catch(error=>console.warn(`Font Service[${sw}] failed: ` + error))
-        return register
     },
 
     requireFonts(service,fonts=[]){
-		const allAlreadyLoaded=fonts.reduce((loaded,k)=>loaded && !!FontManager.get(k),true)
+        return Promise.resolve(cacheFontsReady||FontManager.asService()).then(()=>{
+            const allAlreadyLoaded=fonts.reduce((loaded,k)=>loaded && !!FontManager.get(k),true)
 
-        const done=()=>{
-			const unloaded=fonts.filter(a=>!FontManager.get(a))
-			const loaded=fonts.filter(a=>!unloaded.includes(a))
-			return {loaded,unloaded, FontManager}
-        }
-        
-        if(allAlreadyLoaded){
-			return Promise.resolve(done({loaded:fonts}))
-		}
-                
-		if(isNode && typeof(service)=="string" && require("fs").existsSync(service)){
-			return FontManager
-				.fromPath(service, fonts)
-				.then(done,done)
-		}
+            const done=()=>{
+                const unloaded=fonts.filter(a=>!FontManager.get(a))
+                const loaded=fonts.filter(a=>!unloaded.includes(a))
+                return {loaded,unloaded, FontManager}
+            }
+            
+            if(allAlreadyLoaded){
+                return Promise.resolve(done({loaded:fonts}))
+            }
+                    
+            if(isNode && typeof(service)=="string" && require("fs").existsSync(service)){
+                return FontManager
+                    .fromPath(service, fonts)
+                    .then(done,done)
+            }
 
-        return Promise.resolve()
-            .then(()=>{
-                const {unloaded}=done()
-				if(unloaded.length==0)
-					return fonts
-				switch(typeof(service)){
-					case "string"://url
-						return FontManager.fromRemote(service, unloaded)
-					case "function":
-						return FontManager.fromFn(service,unloaded)
-					default:
-						return fonts
-				}
-			}).then(done,done)
+            return Promise.resolve()
+                .then(()=>{
+                    const {unloaded}=done()
+                    if(unloaded.length==0)
+                        return fonts
+                    switch(typeof(service)){
+                        case "string"://url
+                            return FontManager.fromRemote(service, unloaded)
+                        case "function":
+                            return FontManager.fromFn(service,unloaded)
+                        default:
+                            return fonts
+                    }
+                }).then(done,done)
+        })
     },
 
     makeFontFace, 

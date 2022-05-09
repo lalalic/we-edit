@@ -57,7 +57,7 @@ export default class Pagination extends Representation.Base{
 
 	constructor(props,{doc}){
 		super(...arguments)
-		const {fallbackFonts,measure=isNode ? FontMeasure : HybridMeasure}=this.props
+		const {fallbackFonts="Arial",measure=isNode ? FontMeasure : HybridMeasure}=this.props
 		this.Measure=measure
 		if(fallbackFonts){
 			this.Measure=this.Measure.createMeasureClassWithFallbackFonts(fallbackFonts)
@@ -86,7 +86,7 @@ export default class Pagination extends Representation.Base{
 	}
 
 	render(){
-		const {state:{fontsLoaded}, props:{fonts:service}, context:{doc}}=this
+		const {state:{fontsLoaded}, props:{fonts:service, detectFonts}, context:{doc}}=this
 		const {fallbackFonts,measure,fonts, type, ViewerTypes=Viewers, EditorTypes=Editors, ...props}=this.props
 
 		return [
@@ -95,8 +95,9 @@ export default class Pagination extends Representation.Base{
 				service,
 				Measure:this.Measure,
 				onFinished:this.fontReady,
-				fonts:this.requiredFonts,
+				requiredFonts:this.requiredFonts,
 				embedFonts: doc.embedFonts,
+				detectFonts,
 			}}/>,
 			fontsLoaded && <Representation {...{key:"representation",ViewerTypes,EditorTypes,...props,type:undefined} }/>
 		]
@@ -116,7 +117,7 @@ class FontLoader extends Component{
 	}
 
 	componentDidMount(){
-		const {props:{service, fonts, Measure, onFinished, embedFonts}}=this
+		const {props:{service, requiredFonts,detectFonts, Measure, onFinished, embedFonts}}=this
 		this.setState({loading:`checking if document has embedded fonts`})
 		Promise.resolve(embedFonts)
 			.then(embedFonts=>{
@@ -131,7 +132,7 @@ class FontLoader extends Component{
 					this.setState({loading:`loaded ${loadedEmbededFonts.length} embeded fonts`, embeded:loadedEmbededFonts})
 				}
 				this.setState({loading:`loading fonts from ${typeof(service)=="string" ? service : "customized interface"}`})
-				Measure.requireFonts(service,fonts)
+				Measure.requireFonts(service,requiredFonts, detectFonts)
 					.then(({unloaded})=>{
 						this.setState({unloaded, loaded:true, loading:undefined},()=>onFinished({unloaded}))
 					})

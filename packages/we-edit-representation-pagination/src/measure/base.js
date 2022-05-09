@@ -156,7 +156,7 @@ export class Measure{
 				}
 			}
 			if(family){
-				family=this.fontExists(family)?.family||family
+				family=this.fontExists(family)?.fontFamily||family
 				charFamilyCache.set(A,family)
 				if(reason==1 && namedUnicodeScopeChecks[segments]){
 					charFamilyCache.set(segments,family)
@@ -307,7 +307,7 @@ export class Measure{
 
 	static createMeasureClassWithFallbackFonts=function(fallbackFonts){
 		const Type=this
-		const fonts=typeof(fallbackFonts)=="string" ? {...this.fallbackFonts, ascii:fallbackFonts} : {...this.fallbackFonts, ...fallbackFonts}
+		const fonts=typeof(fallbackFonts)=="string" ? {...this.fallbackFonts, fallback:fallbackFonts} : {...this.fallbackFonts, ...fallbackFonts}
 		return class extends Type{
 			static fallbackFonts=fonts
 		}

@@ -146,3 +146,12 @@ class PDF extends Output{
 	* fonts:"Arial" = fonts:{ascii:"Arial",hint:"ascii"}
 * In browser, document fonts -> global we-edit fonts -> browser fonts
 * In browser, if font is missing in document and we-edit fonts, font selection is depended on browser
+* Font libs are made up of 
+	* wedit local fonts: 
+		* editor
+		* emitter
+	* browser local fonts
+		* editor
+* Text Measure
+	* hybrid
+		* 

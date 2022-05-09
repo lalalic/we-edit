@@ -15,7 +15,8 @@ export default class FontList extends Component{
 
 	componentDidMount(){
 		document?.addEventListener("fontLoaded",this.fontListener=e=>{
-			this.setState({fonts:Array.from(e?.detail?.fonts||document.fonts||[])})
+			const fonts=[...globalThis.fonts, ...Array.from(document?.fonts||[]).filter(a=>a.status=="loaded").map(({family})=>family)].filter(a=>!!a)
+			this.setState({fonts:Array.from(new Set(fonts)).sort()})
 		})
 
 		this.fontListener()
@@ -75,22 +76,22 @@ export default class FontList extends Component{
 
 	getMenuItems(){
 		const {state:{fonts, filter},props:{value, onChange}}=this
-		return Array.from(new Set(fonts.filter(a=>a.status=="loaded").map(({family})=>family))).sort()
-			.reduce((menus, a)=>{
-				if(filter && !a.startsWith(filter)){
+		return fonts
+			.reduce((menus, font)=>{
+				if(filter && !font.startsWith(filter)){
 					return menus
 				}
 				const last=menus[menus.length-1]
-				let item=<MenuItem key={a} primaryText={a} 	
-					checked={value===a} 
+				let item=<MenuItem key={font} primaryText={font} 	
+					checked={value===font} 
 					insetChildren={true} 
 					onClick={e=>{
-						onChange?.(a)
+						onChange?.(font)
 						this.close()
 					}}
 				/>
-				if(last && a.startsWith(last.text+" ")){
-					item=React.cloneElement(item,{primaryText:a.substr(last.text.length).trim()})
+				if(last && font.startsWith(last.text+" ")){
+					item=React.cloneElement(item,{primaryText:font.substr(last.text.length).trim()})
 					if(last.value.props.menuItems){
 						last.value.props.menuItems.push(item)
 						if(item.props.checked){
@@ -111,7 +112,7 @@ export default class FontList extends Component{
 						})
 					}
 				}else{
-					menus.push({text:a, value:item})
+					menus.push({text:font, value:item})
 				}
 				return menus
 			},[])

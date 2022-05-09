@@ -1,6 +1,7 @@
 jest.mock("../../src/fonts")
 import FontManager from "../../src/fonts"
 import FontMeasure from "../../src/measure/font"
+import HybridMeasure from "../../src/measure/hybrid"
 
 describe("measure",()=>{
     describe("font selection",()=>{
@@ -20,7 +21,7 @@ describe("measure",()=>{
                 .toMatchObject(["AB C","中间","gre",unknown," at"])
         })
 
-        fdescribe("priority: fonts[..]>fonts.fallback>fallbackMeasure.fonts[...]>fallbackMeasure.fonts.fallback ",()=>{
+        describe("priority: fonts[..]>fonts.fallback>fallbackMeasure.fonts[...]>fallbackMeasure.fonts.fallback ",()=>{
             const FontMeasure1=FontMeasure.createMeasureClassWithFallbackFonts({ea:"FFB",acsii:"FFA",fallback:"FFF"})
             let measure=null
             beforeEach(()=>measure=new FontMeasure1({fonts:{ea:"FB",ascii:"FA",fallback:"FF"},size:5}))
@@ -145,6 +146,19 @@ describe("measure",()=>{
                     expect(regular.cache).toBe(underline.cache)
                 })
             })
+        })
+    })
+
+    describe("hybrid font selection",()=>{
+        it.each([
+            ["Brower local Arial is selected when w",{fallback:'FA'}],
+            ["fonts:FA","FA"]
+        ])("%s", (test, fonts)=>{
+            const measure=new HybridMeasure({fonts,size:5})
+            measure.fontExists=jest.fn(()=>true)
+            expect(measure.getCharFontFamily("A")).toBe("FA")
+            expect(measure.getCharFontFamily("中")).toBe("FA")
+            expect(measure.getCharFontFamily(0xFFFE)).toBe("FA")
         })
     })
 })

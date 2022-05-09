@@ -64,7 +64,7 @@ export default class Character extends Base{
 
 		flat(){
 			const props=super.flat()
-			if(this.r.fonts?.hint && props.fonts[this.r.fonts.hint]){
+			if(this.r.fonts?.hint && props.fonts?.[this.r.fonts.hint]){
 				switch(this.r.fonts.hint){
 					case 'cs':
 						props.fonts={fallback:this.r.fonts.cs}
