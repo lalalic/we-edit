@@ -74,8 +74,7 @@ class Loader extends PureComponent{
 		if(error){
 			console.error(error)
 			if(this.isInWeEditDomain()){
-				this.context.store
-					.dispatch(ACTION.MESSAGE({type:"error", message:error.message}))
+				this.context.store?.dispatch(ACTION.MESSAGE({type:"error", message:error.message}))
 			}else{
 				throw error
 			}
@@ -90,13 +89,12 @@ class Loader extends PureComponent{
                 }else{
                     this.setState({file,doc})
                 }
-                let {data,stream, ...props}=file
+                const {data,stream, ...props}=file
                 onLoad({type,...props})
             })
 			.catch(error=>{
 				console.error(error)
-				this.context.store
-					.dispatch(ACTION.MESSAGE({type:"error", message:error.message}))
+				this.context.store?.dispatch(ACTION.MESSAGE({type:"error", message:error.message}))
 			})
 	}
 	

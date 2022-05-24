@@ -256,20 +256,14 @@ const FontManager={
      * load fonts data from url
      * API: 
      *  ** root example: /fonts
-     *  ** ../fonts should require all possible fonts, ["Arial", "Time New Roman",...]
+     *  ** ../fonts should require all possible fonts, Arial,Time New Roman,...
      *  ** ../fonts/(font family name) to load specified font family data
      * @param {*} service 
      */
     fromRemote(service, required){
         return fetch(service)
             .then(res=>res.status!=200 ? "" : res.text())
-            .then(list=>{
-                try{
-                    return JSON.parse(list).filter(a=>!!a).map(a=>a.trim())
-                }catch(e){
-                    return list.split(",").filter(a=>!!a).map(a=>a.trim())
-                }
-            })
+            .then(list=>list.split(",").filter(a=>!!a).map(a=>a.trim()))
             .then(supported=>required?.length ? supported.filter(a=>required.includes(a)) : supported)
             .then(supported=>supported.filter(a=>!fonts.family(a)))
             .then(list=>{

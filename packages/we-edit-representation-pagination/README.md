@@ -141,11 +141,6 @@ class PDF extends Output{
 			* hold template instances, then template composer can give instance  
 
 ## Font
-* text font is decided in Measure
-	* fonts[segment]>fonts[fonts.hint]>fonts.fallback>fallbackMeasure.fonts[fonts.hint]>fallbackMeasure.fonts[...]>fallbackMeasure.fonts.fallback
-	* fonts:"Arial" = fonts:{ascii:"Arial",hint:"ascii"}
-* In browser, document fonts -> global we-edit fonts -> browser fonts
-* In browser, if font is missing in document and we-edit fonts, font selection is depended on browser
 * Font libs are made up of 
 	* wedit local fonts: 
 		* editor
@@ -153,5 +148,25 @@ class PDF extends Output{
 	* browser local fonts
 		* editor
 * Text Measure
-	* hybrid
-		* 
+	* text font is decided in Measure
+		* fonts[segment]>fonts.fallback>fallbackMeasure[segment]>fallbackMeasure.fallback
+		* fonts:"Arial" = fonts:{fallback:"Arial"}
+	* FontMeasure: default Fallback with black box fallback font for any missing font
+	* HybridMeasure: use svg text to measure 
+		* at first use FontMeasure
+		* then browser local font 
+		* fallback to fallbackFonts
+			* Pagination representation default fallbackFonts is Arial
+* font services
+	* remote service protocol
+		* <font-url>/ should return one of following 2 formats
+			* comma seperated font-family name, like Arial,Times,...
+			* json array of font family names, like ["Arial","Times"]
+		* <font-url>/<font-family> should return font data
+	* function: (fontFamilyName)=>Promise.resolve(fontData)
+	* local path
+* FontLoader of Pagination load the following fonts
+	* doc.requiredFonts()
+	* fallbackFonts from representation.Measure
+	* doc.embedFonts, which will be release from browser after representation is released
+	* detectFonts in browser

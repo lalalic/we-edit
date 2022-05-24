@@ -35,12 +35,24 @@ export default class Pagination extends Representation.Base{
 	static propTypes={
 		type: PropTypes.string.isRequired,
 		measure: PropTypes.func,
+		/**
+		 * where are the font data? supports
+		 * string: 
+		 * 		url: / for A,B,..., /<font-family> for font data
+		 * 		file path: for nodejs environment
+		 * function: (fontFamilyName)=>Promise.resolve(fontData)
+		 */
 		fonts: PropTypes.oneOfType([PropTypes.string,PropTypes.func]),
-		fallbackFonts: PropTypes.any,
+		fallbackFonts: dom.Unknown.FontsShape,
+		/**
+		 * detect brower local fonts
+		 */
+		detectFonts: PropTypes.arrayOf(PropTypes.string),
 	}
 
 	static defaultProps={
-		type:"pagination"
+		type:"pagination",
+		fallbackFonts: "Arial",
 	}
 
 	static childContextTypes={
@@ -57,7 +69,7 @@ export default class Pagination extends Representation.Base{
 
 	constructor(props,{doc}){
 		super(...arguments)
-		const {fallbackFonts="Arial",measure=isNode ? FontMeasure : HybridMeasure}=this.props
+		const {fallbackFonts,measure=isNode ? FontMeasure : HybridMeasure}=this.props
 		this.Measure=measure
 		if(fallbackFonts){
 			this.Measure=this.Measure.createMeasureClassWithFallbackFonts(fallbackFonts)

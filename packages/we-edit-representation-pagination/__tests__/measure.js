@@ -28,6 +28,10 @@ export default class Measure{
     static releaseFonts(){
         
     }
+
+    static createMeasureClassWithFallbackFonts(){
+        return this
+    }
 }
 
 it("",()=>{})
