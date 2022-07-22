@@ -10,7 +10,7 @@
     "we-edit"
   ],
   "dependencies": {
-    "file-type": "^14.1.4",
+    "file-type": "^16.5.4",
     "lodash.defaultsdeep": "^4.6.1",
     "lodash.invoke": "^4.5.2",
     "material-ui": "^0.20.0",
