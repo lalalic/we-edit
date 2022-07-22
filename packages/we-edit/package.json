@@ -48,7 +48,7 @@
     "vm-browserify": "^1.1.0",
     "material-ui": "^0.20.0",
     "minimatch": "^3.0.4",
-    "file-type": "^14.1.4",
+    "file-type": "^16.5.4",
     "react-gh-like-diff": "^2.0.0",
     "xml-formatter": "^1.2.0",
     "jasmine-core": "^3.5.0",
